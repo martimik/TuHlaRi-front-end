@@ -1,0 +1,75 @@
+import React, { useState } from "react";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+import { makeStyles } from "@material-ui/core/styles";
+
+export default function Login(props) {
+    const classes = useStyles();
+    const [credentials, setCredentials] = useState({ user: "", password: "" });
+    const { isOpen } = props;
+
+    function handleChange(event) {
+        console.log(event.target);
+        setCredentials({
+            ...credentials,
+            [event.target.name]: event.target.value
+        });
+        console.log(event.target.name);
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        console.log(credentials);
+    }
+
+    return (
+        <div className={isOpen ? "login login-open" : "login login-closed"}>
+            <form className={classes.form} onSubmit={handleSubmit}>
+                <TextField
+                    onChange={handleChange}
+                    id="standard-password-input"
+                    label="Username"
+                    name="user"
+                    className={classes.textField}
+                    autoComplete="current-password"
+                    margin="normal"
+                    value={credentials.user}
+                />
+
+                <TextField
+                    onChange={handleChange}
+                    id="standard-password-input"
+                    label="Password"
+                    name="password"
+                    className={classes.textField}
+                    type="password"
+                    autoComplete="current-password"
+                    margin="normal"
+                    value={credentials.password}
+                />
+                <Button
+                    type="submit"
+                    className={classes.root}
+                    variant="contained"
+                    color="primary"
+                    //close if sucsesfull :^)
+                >
+                    Login
+                </Button>
+            </form>
+        </div>
+    );
+}
+
+const useStyles = makeStyles(theme => ({
+    textField: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+        width: 200
+    },
+    form: {
+        display: "flex",
+        padding: "20px",
+        flexDirection: "column"
+    }
+}));

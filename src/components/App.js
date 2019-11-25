@@ -1,50 +1,30 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import axios from "axios";
 import logo from "../logo.svg";
+import Nav from "./Nav";
+import Products from "./Products";
 
 function App() {
-    const [events, setEvent] = useState([]);
+    const array = [
+        { name: "products", url: "products" },
+        { name: "arr_nabbula2", url: "heh_kirjaudut_ulos" }
+    ];
 
     return (
         <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <button onClick={getData}>Load</button>
+            <Router>
+                <Nav links={array} />
                 <div>
-                    {events.map(event => (
-                        <div
-                            onClick={() =>
-                                setEvent(
-                                    events.filter(e => e._id !== event._id)
-                                )
-                            }
-                            style={{ display: "flex" }}
-                        >
-                            <p className="id">{event._id}</p>
-                            <p className="ip">{event.ip}</p>
-                            <p className="date">{parseDate(event.date)}</p>
-                        </div>
-                    ))}
+                    <Switch>
+                        <Route path="/products">
+                            <Products />
+                        </Route>
+                    </Switch>
                 </div>
-            </header>
+            </Router>
         </div>
     );
-
-    function parseDate(time) {
-        const d = new Date(time);
-        return d.toString().slice(0, 24);
-    }
-
-    async function getData() {
-        await axios
-            .get("http://localhost:8080/events")
-            .then(response => {
-                setEvent(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
 }
 
 export default App;
