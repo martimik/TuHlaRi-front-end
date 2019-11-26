@@ -16,8 +16,8 @@ export default function Nav(props) {
     return (
         <nav className="nav-bar">
             <ul>
-                {props.links.map(link => (
-                    <li>
+                {props.links.map((link, i) => (
+                    <li key={i}>
                         <Button className={classes.button}>
                             <Link to={link.url}>{link.name}</Link>
                         </Button>
@@ -54,12 +54,12 @@ const useStyles = makeStyles({
         padding: "0 30px"
     },
     loginIconUp: {
-        transform: "rotate(0deg)",
+        transform: "rotate(-180deg)",
         transition: "all 0.25s"
     },
     loginIconDown: {
         transition: "all 0.25s",
-        transform: "rotate(-180deg)"
+        transform: "rotate(0deg)"
     },
     button: {
         color: "white",

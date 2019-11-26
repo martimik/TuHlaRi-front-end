@@ -9,48 +9,58 @@ export default class Product extends React.Component {
         return (
             <div className="product">
                 <div className="product-header">
-                    <h1>Nimi</h1>{" "}
+                    <h1>{this.props.product.name}</h1>{" "}
                     <img
-                        className="logo-normal"
-                        src="https://i.ytimg.com/vi/3dcli9i_pvA/hqdefault.jpg"
+                        className="logo-large"
+                        src={this.props.product.image}
                     ></img>
                 </div>
                 <div>
-                    <p>
-                        lorem ipsum olen lyhyt kuvaus tuotteesta x jota ei ole
-                        olemassa nyt
+                    <p className="product-short-description">
+                        {this.props.product.shortDescription}
                     </p>
                 </div>
                 <div>
-                    <p>
-                        Olen pitkä kuvaus heipatihei Lorem Ipsum is simply dummy
-                        text of the printing and typesetting industry. Lorem
-                        Ipsum has been the industry's standard dummy text ever
-                        since the 1500s, when an unknown printer took a galley
-                        of type and scrambled it to make a type specimen book.
-                        It has survived not only five centuries, but also the
-                        leap into electronic typesetting, remaining essentially
-                        unchanged. It was popularised in the 1960s with the
-                        release of Letraset sheets containing Lorem Ipsum
-                        passages, and more recently with desktop publishing
-                        software like Aldus PageMaker including versions of
-                        Lorem Ipsum.
+                    <p className="product-long-description">
+                        {this.props.product.longDescription}
                     </p>
-                    <ul>
-                        <li>olen teknologia 1</li>
-                        <li>olen teknologia 2</li>
-                        <li>olen teknologia 3</li>
-                    </ul>
-                    <ul>
-                        <li>olen komponentti 1</li>
-                        <li>olen komponentti 2</li>
-                        <li>olen komponentti 3</li>
-                    </ul>
-                    <p>Olen ympäristön vaatimus</p>
-                    <p>olen asiakas</p>
-                    <p>elinkaaren vaihe</p>
-                    <p>omistava liiketoiminta</p>
-                    <p>hinnoittelu</p>
+                    <div className="product-info-list">
+                        <div>
+                            <p>Teknologiat</p>
+                            <ul>
+                                {this.props.product.technologies.map(
+                                    (technology, i) => (
+                                        <li key={i}>{technology}</li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
+                        <div>
+                            <p>Komponentit</p>
+                            <ul>
+                                {this.props.product.components.map(
+                                    (component, i) => (
+                                        <li key={i}>{component}</li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                    <p className="product-requirement">
+                        {this.props.product.requirement || null}
+                    </p>
+                    <p className="product-customer">
+                        {this.props.product.customer || null}
+                    </p>
+                    <p className="product-lifecycle">
+                        {this.props.product.lifecycle || null}
+                    </p>
+                    <p className="product-business-owner">
+                        {this.props.product.businessOwner || null}
+                    </p>
+                    <p className="product-pricing">
+                        {this.props.product.pricing || null}
+                    </p>
                 </div>
             </div>
         );

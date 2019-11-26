@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
@@ -9,17 +10,32 @@ export default function Login(props) {
     const { isOpen } = props;
 
     function handleChange(event) {
-        console.log(event.target);
         setCredentials({
             ...credentials,
             [event.target.name]: event.target.value
         });
-        console.log(event.target.name);
     }
 
     function handleSubmit(event) {
         event.preventDefault();
         console.log(credentials);
+        axios
+            .post(
+                "http://10.99.104.48:8080/login",
+                {},
+                {
+                    auth: {
+                        username: credentials.user,
+                        password: credentials.password
+                    }
+                }
+            )
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 
     return (
@@ -52,7 +68,6 @@ export default function Login(props) {
                     className={classes.root}
                     variant="contained"
                     color="primary"
-                    //close if sucsesfull :^)
                 >
                     Login
                 </Button>
@@ -69,7 +84,8 @@ const useStyles = makeStyles(theme => ({
     },
     form: {
         display: "flex",
-        padding: "20px",
-        flexDirection: "column"
+        flexDirection: "column",
+        padding: "1rem",
+        borderRadius: "1.5rem"
     }
 }));

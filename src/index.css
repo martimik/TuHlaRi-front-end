@@ -35,24 +35,9 @@ code {
     color: #09d3ac;
 }
 
-div p {
-    margin: 0.5rem 1rem;
-}
-
-.ip {
-    color: #f2f2f2;
-    font-size: 28px;
-}
-
-.id {
-    color: #33ff33;
-    font-size: 28px;
-    min-width: 380px;
-}
-
-.date {
-    color: fuchsia;
-    font-size: 28px;
+a {
+    text-decoration: none;
+    color: white;
 }
 
 .nav-bar {
@@ -74,9 +59,10 @@ div p {
     position: fixed;
     right: 20px;
     transition: all 0.25s;
-    border-radius: 2px;
+    border-radius: 0.5rem;
     background-color: white;
     box-shadow: 2px 10px 10px 0.3px #868686;
+    padding: 0.5rem;
 }
 
 .login-open {
@@ -89,11 +75,6 @@ div p {
     opacity: 0;
 }
 
-a {
-    text-decoration: none;
-    color: white;
-}
-
 .logo-normal {
     border-radius: 50%;
     width: 50px;
@@ -101,12 +82,72 @@ a {
     object-fit: cover;
 }
 
+.logo-large {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-left: 2rem;
+}
+
 .product-header {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
 }
 
 .product {
+    box-shadow: 1px 2px 20px 1px#d4d4d4;
     text-align: left;
+    margin: 25px 25px;
+    width: 100%;
+    padding: 30px;
+    border-radius: 25px;
+    background-color: white;
+}
+
+.products {
+    display: flex;
+    min-height: 90vh;
+    background-color: #fafafa;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+}
+
+ul {
+    list-style: none;
+}
+
+.product-info-list {
+    display: flex;
+    justify-content: space-around;
+    border: 1px solid black;
+    max-width: 85%;
+    margin: auto;
+}
+
+.product-requirement {
+}
+
+.product-customer {
+}
+
+.product-lifecycle {
+}
+
+.product-business-owner {
+}
+
+.product-pricing {
+}
+
+.product-short-description {
+}
+
+.product-long-description {
 }

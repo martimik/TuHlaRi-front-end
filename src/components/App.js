@@ -7,8 +7,8 @@ import Products from "./Products";
 
 function App() {
     const array = [
-        { name: "products", url: "products" },
-        { name: "arr_nabbula2", url: "heh_kirjaudut_ulos" }
+        { name: "Home", url: "/" },
+        { name: "Products", url: "products" }
     ];
 
     return (
