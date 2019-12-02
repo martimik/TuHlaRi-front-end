@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Typography from "@material-ui/core/Typography";
+import axios from "axios";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -15,8 +16,16 @@ function trimString(str) {
 }
 
 export default function Sidebar(props) {
-    const { products, name, category } = props;
+    const { name, products } = props;
     const classes = useStyles();
+
+    function getProducts() {
+        axios.post(props.url).then(response => console.log(response.data));
+    }
+
+    useEffect(() => {
+        getProducts();
+    }, []);
 
     return (
         <div>
@@ -37,11 +46,11 @@ export default function Sidebar(props) {
                             <li
                                 key={i}
                                 className={
-                                    props.selected === i
+                                    props.selected === product.id
                                         ? classes.productSelected
                                         : classes.product
                                 }
-                                onClick={() => props.setProduct(i, category)}
+                                onClick={() => props.setProduct(products[i])}
                             >
                                 <div className={classes.productContainer}>
                                     <img
