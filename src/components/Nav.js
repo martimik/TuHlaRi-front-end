@@ -9,6 +9,7 @@ import Fab from "@material-ui/core/Fab";
 export default function Nav(props) {
     const classes = useStyles();
     const [isLoginOpen, setIsLoginOpen] = useState(false);
+
     function openCloseLoginWindow() {
         setIsLoginOpen(!isLoginOpen);
     }
