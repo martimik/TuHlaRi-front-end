@@ -7,6 +7,7 @@ import Grid from "@material-ui/core/Grid";
 import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
 import Image from "material-ui-image";
+import { isBlockParent } from "@babel/types";
 
 export default function CreateProduct() {
     const classes = useStyles();
@@ -23,6 +24,7 @@ export default function CreateProduct() {
     const [components, setComponents] = useState([]);
     const [technologies, setTechnologies] = useState([]);
     const [image, setImage] = useState(null);
+    const [imageIshidden, setImageIsHidden] = useState(true);
 
     function handleChange(event) {
         setInput({
@@ -52,10 +54,11 @@ export default function CreateProduct() {
     }
 
     function onUpload(event) {
+        setImageIsHidden(!imageIshidden);
         console.log(event);
+
         if (event.target.files && event.target.files[0]) {
             const reader = new FileReader();
-
             reader.onload = e => setImage(e.target.result);
 
             reader.readAsDataURL(event.target.files[0]);
@@ -106,6 +109,7 @@ export default function CreateProduct() {
 
     return (
         <div className={classes.root}>
+            <h1 className="create-product-header">Add new product</h1>
             <form
                 className={classes.form}
                 noValidate
@@ -117,11 +121,11 @@ export default function CreateProduct() {
                     direction="row"
                     alignItems="center"
                     spacing={2}
-                    style={{ marginTop: "40px" }}
+                    style={{ marginTop: "15px" }}
                 >
                     <Grid
                         item
-                        xs={6}
+                        xs={8}
                         direction="column"
                         justify="center"
                         alignItems="center"
@@ -157,8 +161,19 @@ export default function CreateProduct() {
                                 />
                             </FormControl>
                         </Grid>
+                        <Grid item xs={10} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    multiline
+                                    name="shortDescription"
+                                    label="Short description"
+                                    value={input.shortDescription}
+                                />
+                            </FormControl>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} className={classes.inputField}>
+                    <Grid item xs={4} className={classes.imageField}>
                         <div className="upload-btn-wrapper">
                             <input
                                 accept="image/*"
@@ -168,7 +183,14 @@ export default function CreateProduct() {
                                 type="file"
                                 onChange={onUpload}
                             />
-                            <label htmlFor="contained-button-file">
+                            <label
+                                htmlFor="contained-button-file"
+                                className={
+                                    imageIshidden
+                                        ? classes.imgVisible
+                                        : classes.imgHidden
+                                }
+                            >
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -179,25 +201,18 @@ export default function CreateProduct() {
                                 </Button>
                             </label>
                         </div>
-                        {/* <Image
-                            imageStyle={{ width: 128, height: 128 }}
+                        <img
+                            className={
+                                imageIshidden
+                                    ? classes.imgHidden
+                                    : classes.imgVisible
+                            }
                             src={image}
-                        /> */}
+                            alt=""
+                        />
                     </Grid>
                 </Grid>
-                <div>
-                    <FormControl fullWidth>
-                        <TextField
-                            onChange={handleChange}
-                            multiline
-                            name="shortDescription"
-                            label="Short description"
-                            value={input.shortDescription}
-                            className={classes.inputField}
-                        />
-                    </FormControl>
-                </div>
-                <div>
+                <Grid>
                     <FormControl fullWidth>
                         <TextField
                             multiline
@@ -205,10 +220,9 @@ export default function CreateProduct() {
                             name="longDescription"
                             label="Long description"
                             value={input.longDescription}
-                            className={classes.inputField}
                         />
                     </FormControl>
-                </div>
+                </Grid>
                 <Grid
                     container
                     direction="row"
@@ -225,7 +239,6 @@ export default function CreateProduct() {
                                     label="Technology"
                                     onKeyDown={readKey}
                                     value={input.technology}
-                                    className={classes.inputField}
                                 />
                             </FormControl>
                         </div>
@@ -239,7 +252,6 @@ export default function CreateProduct() {
                                     label="Components"
                                     onKeyDown={readKey}
                                     value={input.component}
-                                    className={classes.inputField}
                                 />
                             </FormControl>
                         </div>
@@ -272,7 +284,7 @@ export default function CreateProduct() {
                 <Button
                     variant="contained"
                     type="submit"
-                    style={{ marginTop: "40px" }}
+                    style={{ marginTop: "20px" }}
                 >
                     Submit
                 </Button>
@@ -282,14 +294,22 @@ export default function CreateProduct() {
 }
 
 const useStyles = makeStyles(theme => ({
-    root: { maxWidth: "70%", margin: "auto" },
+    root: {
+        maxWidth: "70%",
+        margin: "60px auto 60px auto",
+        boxShadow: "1px 2px 20px 1px#d4d4d4",
+        padding: "30px",
+        borderRadius: "25px",
+        backgroundColor: "white"
+    },
     form: {},
     chip: {
         margin: theme.spacing(0.5)
     },
     chipContainer: {
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        marginTop: "15px"
     },
     flex: {
         display: "flex",
@@ -298,12 +318,19 @@ const useStyles = makeStyles(theme => ({
     input: {
         display: "none"
     },
-    img: {
-        height: "128px",
-        width: "128px"
+    imgVisible: {
+        maxHeight: "200px",
+        maxWidth: "200px"
+    },
+    imgHidden: {
+        visibility: "Collapse"
     },
     inputField: {
-        marginTop: "10px",
-        marginBottom: "10px"
+        marginTop: "15px",
+        marginBottom: "15px"
+    },
+    imageField: {
+        marginTop: "15px",
+        marginBottom: "0 px"
     }
 }));
