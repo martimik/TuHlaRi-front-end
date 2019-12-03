@@ -115,39 +115,74 @@ export default function CreateProduct() {
                 <Grid
                     container
                     direction="row"
-                    justify="center"
                     alignItems="center"
                     spacing={2}
+                    style={{ marginTop: "40px" }}
                 >
-                    <Grid item xs={5}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                value={input.name}
-                                name="name"
-                                label="Name"
-                            />
-                        </FormControl>
+                    <Grid
+                        item
+                        xs={6}
+                        direction="column"
+                        justify="center"
+                        alignItems="center"
+                        spacing={2}
+                    >
+                        <Grid item xs={10} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    value={input.name}
+                                    name="name"
+                                    label="Name"
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={10} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    name="customer"
+                                    label="Customer"
+                                    value={input.customer}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={10} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    name="pricing"
+                                    label="Pricing"
+                                    value={input.pricing}
+                                />
+                            </FormControl>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={5}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                name="customer"
-                                label="Customer"
-                                value={input.customer}
+                    <Grid item xs={6} className={classes.inputField}>
+                        <div className="upload-btn-wrapper">
+                            <input
+                                accept="image/*"
+                                className={classes.input}
+                                id="contained-button-file"
+                                multiple
+                                type="file"
+                                onChange={onUpload}
                             />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                name="pricing"
-                                label="Pricing"
-                                value={input.pricing}
-                            />
-                        </FormControl>
+                            <label htmlFor="contained-button-file">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    component="span"
+                                    startIcon={<AddAPhoto />}
+                                >
+                                    Upload
+                                </Button>
+                            </label>
+                        </div>
+                        {/* <Image
+                            imageStyle={{ width: 128, height: 128 }}
+                            src={image}
+                        /> */}
                     </Grid>
                 </Grid>
                 <div>
@@ -158,6 +193,7 @@ export default function CreateProduct() {
                             name="shortDescription"
                             label="Short description"
                             value={input.shortDescription}
+                            className={classes.inputField}
                         />
                     </FormControl>
                 </div>
@@ -169,6 +205,7 @@ export default function CreateProduct() {
                             name="longDescription"
                             label="Long description"
                             value={input.longDescription}
+                            className={classes.inputField}
                         />
                     </FormControl>
                 </div>
@@ -188,6 +225,7 @@ export default function CreateProduct() {
                                     label="Technology"
                                     onKeyDown={readKey}
                                     value={input.technology}
+                                    className={classes.inputField}
                                 />
                             </FormControl>
                         </div>
@@ -201,6 +239,7 @@ export default function CreateProduct() {
                                     label="Components"
                                     onKeyDown={readKey}
                                     value={input.component}
+                                    className={classes.inputField}
                                 />
                             </FormControl>
                         </div>
@@ -230,28 +269,11 @@ export default function CreateProduct() {
                         </div>
                     </Grid>
                 </Grid>
-                <div className="upload-btn-wrapper">
-                    <input
-                        accept="image/*"
-                        className={classes.input}
-                        id="contained-button-file"
-                        multiple
-                        type="file"
-                        onChange={onUpload}
-                    />
-                    <label htmlFor="contained-button-file">
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            component="span"
-                            startIcon={<AddAPhoto />}
-                        >
-                            Upload
-                        </Button>
-                    </label>
-                </div>
-                <Image imageStyle={{ width: 128, height: 128 }} src={image} />
-                <Button variant="contained" type="submit">
+                <Button
+                    variant="contained"
+                    type="submit"
+                    style={{ marginTop: "40px" }}
+                >
                     Submit
                 </Button>
             </form>
@@ -279,5 +301,9 @@ const useStyles = makeStyles(theme => ({
     img: {
         height: "128px",
         width: "128px"
+    },
+    inputField: {
+        marginTop: "10px",
+        marginBottom: "10px"
     }
 }));
