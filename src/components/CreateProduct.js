@@ -8,6 +8,11 @@ import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
 import Image from "material-ui-image";
 import { isBlockParent } from "@babel/types";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
+import Switch from "@material-ui/core/Switch";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 export default function CreateProduct() {
     const classes = useStyles();
@@ -18,11 +23,18 @@ export default function CreateProduct() {
         customer: "",
         pricing: "",
         technology: "",
-        component: ""
+        component: "",
+        environmentRequirement: "",
+        salesPerson: "",
+        productOwner: "",
+        businessType: "",
+        logo: ""
     });
 
     const [components, setComponents] = useState([]);
     const [technologies, setTechnologies] = useState([]);
+    const [environmentRequirements, setEnvironmentRequirements] = useState([]);
+    const [customers, setCustomers] = useState([]);
     const [image, setImage] = useState(null);
     const [imageIshidden, setImageIsHidden] = useState(true);
 
@@ -45,12 +57,39 @@ export default function CreateProduct() {
         setInput({ ...input, technology: "" });
     }
 
+    function addCustomer(customer) {
+        if (!customer) return;
+        setCustomers([...customers, customer]);
+        setInput({ ...input, customer: "" });
+    }
+
+    function addEnvironmentRequirement(environmentRequirement) {
+        if (!environmentRequirement) return;
+        setEnvironmentRequirements([
+            ...environmentRequirements,
+            environmentRequirement
+        ]);
+        setInput({ ...input, environmentRequirement: "" });
+    }
+
     function deleteComponent(index) {
         setComponents(components.filter((component, i) => index !== i));
     }
 
     function deleteTechnology(index) {
         setTechnologies(technologies.filter((technology, i) => index !== i));
+    }
+
+    function deleteCustomer(index) {
+        setCustomers(customers.filter((customer, i) => index !== i));
+    }
+
+    function deleteEnvironmentRequirement(index) {
+        setEnvironmentRequirements(
+            environmentRequirements.filter(
+                (environmentRequirement, i) => index !== i
+            )
+        );
     }
 
     function onUpload(event) {
@@ -65,13 +104,22 @@ export default function CreateProduct() {
         }
     }
 
+    function removeImage() {
+        setImageIsHidden(!imageIshidden);
+        setImage(null);
+    }
+
     function submitProduct(event) {
         event.preventDefault();
         const product = input;
         product.technologies = technologies;
         product.components = components;
+        product.customers = customers;
+        product.environmentRequirements = environmentRequirements;
         delete product.technology;
         delete product.component;
+        delete product.environmentRequirement;
+        delete product.customer;
 
         console.log(product);
         // lähetä
@@ -79,7 +127,12 @@ export default function CreateProduct() {
 
     function readKey(event) {
         if (event.key === "Enter") {
-            const { component, technology } = input;
+            const {
+                component,
+                technology,
+                environmentRequirement,
+                customer
+            } = input;
 
             switch (event.target.name) {
                 case "component":
@@ -87,6 +140,12 @@ export default function CreateProduct() {
                     break;
                 case "technology":
                     addTechnology(technology);
+                    break;
+                case "environmentRequirement":
+                    addEnvironmentRequirement(environmentRequirement);
+                    break;
+                case "customer":
+                    addCustomer(customer);
                     break;
                 default:
                     console.log("Default case");
@@ -100,6 +159,14 @@ export default function CreateProduct() {
                     break;
                 case "technology":
                     deleteTechnology(technologies.length - 1);
+                    break;
+                case "environmentRequirement":
+                    deleteEnvironmentRequirement(
+                        environmentRequirements.length - 1
+                    );
+                    break;
+                case "customer":
+                    deleteCustomer(customers.length - 1);
                     break;
                 default:
                     console.log("Default case");
@@ -119,19 +186,19 @@ export default function CreateProduct() {
                 <Grid
                     container
                     direction="row"
-                    alignItems="center"
+                    alignItems="flex-start"
                     spacing={2}
                     style={{ marginTop: "15px" }}
                 >
                     <Grid
                         item
-                        xs={8}
+                        xs={6}
                         direction="column"
                         justify="center"
                         alignItems="center"
                         spacing={2}
                     >
-                        <Grid item xs={10} className={classes.inputField}>
+                        <Grid item xs={11} className={classes.inputField}>
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
@@ -141,40 +208,101 @@ export default function CreateProduct() {
                                 />
                             </FormControl>
                         </Grid>
-                        <Grid item xs={10} className={classes.inputField}>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="customer"
-                                    label="Customer"
-                                    value={input.customer}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={10} className={classes.inputField}>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="pricing"
-                                    label="Pricing"
-                                    value={input.pricing}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={10} className={classes.inputField}>
+                        <Grid item xs={11} className={classes.inputField}>
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
                                     multiline
                                     name="shortDescription"
                                     label="Short description"
+                                    value={input.pricing}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    name="businessType"
+                                    label="Business type"
+                                    value={input.shortDescription}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    value={input.name}
+                                    name="salesPerson"
+                                    label="Sales person"
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    name="productOwner"
+                                    label="Product owner"
+                                    value={input.pricing}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    multiline
+                                    name="pricing"
+                                    label="Pricing"
                                     value={input.shortDescription}
                                 />
                             </FormControl>
                         </Grid>
                     </Grid>
-                    <Grid item xs={4} className={classes.imageField}>
-                        <div className="upload-btn-wrapper">
+                    <Grid
+                        item
+                        xs={6}
+                        direction="column"
+                        alignItems="center"
+                        justify="center"
+                        spacing={2}
+                    >
+                        <Grid
+                            item
+                            xs={12}
+                            justify="center"
+                            alignItems="baseline"
+                            style={{ margin: "40px 0px 20px 0px" }}
+                        >
+                            <FormControlLabel
+                                control={<Switch />}
+                                label="Is an idea"
+                                labelPlacement="start"
+                            />
+                            <FormControlLabel
+                                control={<Switch />}
+                                label="Is classified"
+                                labelPlacement="start"
+                            />
+                        </Grid>
+                        <Grid item xs={12} className={classes.imageField}>
+                            <h2 className="create-product-header">
+                                Logo
+                                <IconButton
+                                    aria-label="delete"
+                                    onClick={removeImage}
+                                    className={
+                                        imageIshidden
+                                            ? classes.imgHidden
+                                            : classes.removeButton
+                                    }
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </h2>
+
                             <input
                                 accept="image/*"
                                 className={classes.input}
@@ -200,16 +328,16 @@ export default function CreateProduct() {
                                     Upload
                                 </Button>
                             </label>
-                        </div>
-                        <img
-                            className={
-                                imageIshidden
-                                    ? classes.imgHidden
-                                    : classes.imgVisible
-                            }
-                            src={image}
-                            alt=""
-                        />
+                            <img
+                                className={
+                                    imageIshidden
+                                        ? classes.imgHidden
+                                        : classes.imgVisible
+                                }
+                                src={image}
+                                alt=""
+                            />
+                        </Grid>
                     </Grid>
                 </Grid>
                 <Grid>
@@ -230,21 +358,21 @@ export default function CreateProduct() {
                     alignItems="center"
                     spacing={2}
                 >
-                    <Grid item xs={6}>
-                        <div className={classes.chipContainer}>
+                    <Grid item xs={6} className={classes.inputfield2}>
+                        <div>
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
                                     name="technology"
-                                    label="Technology"
+                                    label="Technologies"
                                     onKeyDown={readKey}
                                     value={input.technology}
                                 />
                             </FormControl>
                         </div>
                     </Grid>
-                    <Grid item xs={6}>
-                        <div className={classes.chipContainer}>
+                    <Grid item xs={6} className={classes.inputfield2}>
+                        <div>
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
@@ -256,8 +384,8 @@ export default function CreateProduct() {
                             </FormControl>
                         </div>
                     </Grid>
-                    <Grid item xs={6}>
-                        <div>
+                    <Grid item xs={6} style={{ padding: "0" }}>
+                        <div className={classes.chipContainer}>
                             {technologies.map((technology, i) => (
                                 <Chip
                                     key={i}
@@ -269,12 +397,74 @@ export default function CreateProduct() {
                         </div>
                     </Grid>
                     <Grid item xs={6}>
-                        <div>
+                        <div className={classes.chipContainer}>
                             {components.map((component, i) => (
                                 <Chip
                                     key={i}
                                     label={component}
                                     onDelete={() => deleteComponent(i)}
+                                    className={classes.chip}
+                                />
+                            ))}
+                        </div>
+                    </Grid>
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                >
+                    <Grid item xs={6} className={classes.inputfield2}>
+                        <div>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    name="environmentRequirement"
+                                    label="Environment Requirement"
+                                    onKeyDown={readKey}
+                                    value={input.environmentRequirement}
+                                />
+                            </FormControl>
+                        </div>
+                    </Grid>
+                    <Grid item xs={6} className={classes.inputfield2}>
+                        <div>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    name="customer"
+                                    label="Customer"
+                                    onKeyDown={readKey}
+                                    value={input.customer}
+                                />
+                            </FormControl>
+                        </div>
+                    </Grid>
+                    <Grid item xs={6} style={{ padding: "0" }}>
+                        <div className={classes.chipContainer}>
+                            {environmentRequirements.map(
+                                (environmentRequirement, i) => (
+                                    <Chip
+                                        key={i}
+                                        label={environmentRequirement}
+                                        onDelete={() =>
+                                            deleteEnvironmentRequirement(i)
+                                        }
+                                        className={classes.chip}
+                                    />
+                                )
+                            )}
+                        </div>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <div className={classes.chipContainer}>
+                            {customers.map((customer, i) => (
+                                <Chip
+                                    key={i}
+                                    label={customer}
+                                    onDelete={() => deleteCustomer(i)}
                                     className={classes.chip}
                                 />
                             ))}
@@ -296,7 +486,7 @@ export default function CreateProduct() {
 const useStyles = makeStyles(theme => ({
     root: {
         maxWidth: "70%",
-        margin: "60px auto 60px auto",
+        margin: "60px auto",
         boxShadow: "1px 2px 20px 1px#d4d4d4",
         padding: "30px",
         borderRadius: "25px",
@@ -307,9 +497,7 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(0.5)
     },
     chipContainer: {
-        display: "flex",
-        flexDirection: "column",
-        marginTop: "15px"
+        minHeight: "25px"
     },
     flex: {
         display: "flex",
@@ -320,17 +508,26 @@ const useStyles = makeStyles(theme => ({
     },
     imgVisible: {
         maxHeight: "200px",
-        maxWidth: "200px"
+        maxWidth: "100%",
+        margin: "auto"
     },
     imgHidden: {
-        visibility: "Collapse"
+        visibility: "Collapse",
+        position: "absolute"
     },
     inputField: {
         marginTop: "15px",
         marginBottom: "15px"
     },
-    imageField: {
+    inputfield2: {
         marginTop: "15px",
         marginBottom: "0 px"
+    },
+    imageField: {},
+    removeButton: {
+        position: "absolute",
+        right: "0px",
+        padding: "0",
+        marginTop: "4px"
     }
 }));
