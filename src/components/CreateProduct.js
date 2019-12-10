@@ -291,7 +291,6 @@ export default function CreateProduct() {
               justify="space-evenly"
               style={{ margin: "40px 0px 20px 0px" }}
             >
-<<<<<<< HEAD
                 <Grid
                     container
                     direction="row"
@@ -600,56 +599,6 @@ export default function CreateProduct() {
                         </Grid>
                     </Grid>
                 </Grid>
-=======
-              <FormControlLabel
-                control={
-                  <Switch checked={isIdea} onChange={handleIdeaSwitch} />
-                }
-                name="idea"
-                label="Is an idea"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={isClassified}
-                    onChange={handleClassifiedSwitch}
-                  />
-                }
-                name="classified"
-                label="Is classified"
-                labelPlacement="start"
-              />
-            </Grid>
-            <Grid item xs={12} className={classes.imageField}>
-              <h2 className="create-product-header">
-                Logo
-                <IconButton
-                  aria-label="delete"
-                  onClick={removeImage}
-                  className={
-                    imageIshidden ? classes.imgHidden : classes.removeButton
-                  }
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </h2>
-
-              <input
-                accept="image/*"
-                className={classes.input}
-                id="contained-button-file"
-                multiple
-                type="file"
-                onChange={onUpload}
-              />
-              <label
-                htmlFor="contained-button-file"
-                className={
-                  imageIshidden ? classes.imgVisible : classes.imgHidden
-                }
-              >
->>>>>>> 8621fc04f043ee370f8f41e4870ae13099af2faa
                 <Button
                   variant="contained"
                   color="primary"
