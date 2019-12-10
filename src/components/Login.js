@@ -8,7 +8,7 @@ import { useSnackbar } from "notistack";
 export default function Login(props) {
   const classes = useStyles();
   const [credentials, setCredentials] = useState({ user: "", password: "" });
-  const { isOpen, setAuthorization } = props;
+  const { isOpen, setAuthorization, close } = props;
   const { enqueueSnackbar } = useSnackbar();
 
   function handleChange(event) {
@@ -38,6 +38,7 @@ export default function Login(props) {
           setAuthorization({ email, name, userGroup });
           setCredentials({ user: "", password: "" });
           enqueueSnackbar("Successfully logged in", { variant: "success" });
+          close();
         } else {
           enqueueSnackbar("Failed to login", { variant: "error" });
         }
@@ -56,6 +57,7 @@ export default function Login(props) {
         const { email, name, userGroup } = response.data;
         setAuthorization({ email, name, userGroup });
         enqueueSnackbar("Successfully logged out", { variant: "info" });
+        close();
       })
       .catch(error => {
         console.error(error);

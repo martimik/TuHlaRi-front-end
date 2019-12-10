@@ -9,16 +9,22 @@ import { SnackbarProvider } from "notistack";
 axios.defaults.withCredentials = true;
 
 function App() {
-  const links = [
-    { name: "Home", url: "/" },
-    { name: "Products", url: "products" },
-    { name: "Create product", url: "create-product" }
-  ];
   const [authorization, setAuthorization] = useState({
     email: "",
     userGroup: null,
     name: ""
   });
+
+  const links = [
+    { name: "Home", url: "/" },
+    { name: "Products", url: "products" },
+    { name: "Create product", url: "create-product" }
+  ];
+
+  useEffect(() => {
+    getLoginState();
+  }, []);
+
   function getLoginState() {
     axios
       .get("http://localhost:8080/")
@@ -33,10 +39,6 @@ function App() {
       });
   }
 
-  useEffect(() => {
-    getLoginState();
-  }, []);
-
   return (
     <div className="App">
       <SnackbarProvider maxSnack={3}>
@@ -50,7 +52,7 @@ function App() {
             <Switch>
               <Route exact path="/">
                 <div>
-                  <p onClick={getLoginState}>Home</p>
+                  <p>Home</p>
                 </div>
               </Route>
               <Route path="/products">

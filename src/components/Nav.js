@@ -4,7 +4,6 @@ import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import Login from "./Login";
 import KeyboardArrowDown from "@material-ui/icons/KeyboardArrowDown";
-import Fab from "@material-ui/core/Fab";
 
 export default function Nav(props) {
   const classes = useStyles();
@@ -20,9 +19,9 @@ export default function Nav(props) {
       <ul>
         {props.links.map((link, i) => (
           <li key={i}>
-            <Button className={classes.button}>
-              <Link to={link.url}>{link.name}</Link>
-            </Button>
+            <Link to={link.url}>
+              <Button className={classes.button}>{link.name}</Button>
+            </Link>
           </li>
         ))}
       </ul>
@@ -38,6 +37,7 @@ export default function Nav(props) {
       </Button>
       <Login
         isOpen={isLoginOpen}
+        close={() => setIsLoginOpen(false)}
         setAuthorization={setAuthorization}
         authorization={authorization}
       />
