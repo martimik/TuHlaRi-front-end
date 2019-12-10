@@ -23,11 +23,12 @@ function App() {
 
   useEffect(() => {
     getLoginState();
+    setInterval(getLoginState, 1000 * 60); // Read login state every minute
   }, []);
 
   function getLoginState() {
     axios
-      .get("http://localhost:8080/")
+      .get("http://localhost:8080/session")
       .then(response => {
         const { email, name, userGroup } = response.data;
         if (email && userGroup) {
@@ -41,7 +42,7 @@ function App() {
 
   return (
     <div className="App">
-      <SnackbarProvider maxSnack={3}>
+      <SnackbarProvider preventDuplicate maxSnack={3}>
         <Router>
           <Nav
             links={links}
