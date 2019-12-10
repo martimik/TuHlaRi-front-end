@@ -6,36 +6,40 @@ import AddAPhoto from "@material-ui/icons/AddAPhoto";
 import Grid from "@material-ui/core/Grid";
 import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
-import Image from "material-ui-image";
-import { isBlockParent } from "@babel/types";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Switch from "@material-ui/core/Switch";
-import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import { MenuItem } from "@material-ui/core";
+import axios from "axios";
 
 export default function CreateProduct() {
     const classes = useStyles();
     const [input, setInput] = useState({
-        name: "",
+        productName: "",
         shortDescription: "",
         longDescription: "",
-        customer: "",
         pricing: "",
-        technology: "",
-        component: "",
-        environmentRequirement: "",
         salesPerson: "",
         productOwner: "",
         businessType: "",
-        logo: ""
+        lifecycleStatus: "",
+        technology: "",
+        component: "",
+        environmentRequirement: "",
+        customer: ""
     });
 
+    const [isIdea, setIsIdea] = useState(false);
+    const [isClassified, setIsClassified] = useState(false);
     const [components, setComponents] = useState([]);
     const [technologies, setTechnologies] = useState([]);
     const [environmentRequirements, setEnvironmentRequirements] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [image, setImage] = useState(null);
+    const [imageFile, setImageFile] = useState();
     const [imageIshidden, setImageIsHidden] = useState(true);
 
     function handleChange(event) {
@@ -43,6 +47,14 @@ export default function CreateProduct() {
             ...input,
             [event.target.name]: event.target.value
         });
+    }
+
+    function handleIdeaSwitch(event) {
+        setIsIdea(!isIdea);
+    }
+
+    function handleClassifiedSwitch(event) {
+        setIsClassified(!isClassified);
     }
 
     function addComponent(component) {
@@ -94,10 +106,11 @@ export default function CreateProduct() {
 
     function onUpload(event) {
         setImageIsHidden(!imageIshidden);
-        console.log(event);
+        // console.log(event);
 
         if (event.target.files && event.target.files[0]) {
             const reader = new FileReader();
+            setImageFile(event.target.files[0]);
             reader.onload = e => setImage(e.target.result);
 
             reader.readAsDataURL(event.target.files[0]);
@@ -112,6 +125,8 @@ export default function CreateProduct() {
     function submitProduct(event) {
         event.preventDefault();
         const product = input;
+        product.isIdea = isIdea;
+        product.isClassified = isClassified;
         product.technologies = technologies;
         product.components = components;
         product.customers = customers;
@@ -123,10 +138,41 @@ export default function CreateProduct() {
 
         console.log(product);
         // lähetä
+
+        const formData = new FormData();
+        formData.append("image", imageFile, imageFile.filename);
+
+        axios
+            .post("http://10.99.104.41:8080/uploadImage", formData)
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    product.logo = "http://10.99.104.41:8080/" + response.data;
+                    axios
+                        .post("http://10.99.104.41:8080/addProduct", product)
+                        .then(response => {
+                            console.log(response);
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        });
+                } else {
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    function disableSubmitOnEnter(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+        }
     }
 
     function readKey(event) {
         if (event.key === "Enter") {
+            event.preventDefault();
             const {
                 component,
                 technology,
@@ -190,20 +236,14 @@ export default function CreateProduct() {
                     spacing={2}
                     style={{ marginTop: "15px" }}
                 >
-                    <Grid
-                        item
-                        xs={6}
-                        direction="column"
-                        justify="center"
-                        alignItems="center"
-                        spacing={2}
-                    >
+                    <Grid item xs={6}>
                         <Grid item xs={11} className={classes.inputField}>
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
+                                    onKeyDown={disableSubmitOnEnter}
                                     value={input.name}
-                                    name="name"
+                                    name="productName"
                                     label="Name"
                                 />
                             </FormControl>
@@ -212,19 +252,10 @@ export default function CreateProduct() {
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
+                                    onKeyDown={disableSubmitOnEnter}
                                     multiline
                                     name="shortDescription"
                                     label="Short description"
-                                    value={input.pricing}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={11} className={classes.inputField}>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="businessType"
-                                    label="Business type"
                                     value={input.shortDescription}
                                 />
                             </FormControl>
@@ -233,7 +264,19 @@ export default function CreateProduct() {
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
-                                    value={input.name}
+                                    onKeyDown={disableSubmitOnEnter}
+                                    name="businessType"
+                                    label="Business type"
+                                    value={input.businessType}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    onKeyDown={disableSubmitOnEnter}
+                                    value={input.salesPerson}
                                     name="salesPerson"
                                     label="Sales person"
                                 />
@@ -243,46 +286,40 @@ export default function CreateProduct() {
                             <FormControl fullWidth>
                                 <TextField
                                     onChange={handleChange}
+                                    onKeyDown={disableSubmitOnEnter}
                                     name="productOwner"
                                     label="Product owner"
-                                    value={input.pricing}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={11} className={classes.inputField}>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    multiline
-                                    name="pricing"
-                                    label="Pricing"
-                                    value={input.shortDescription}
+                                    value={input.productOwner}
                                 />
                             </FormControl>
                         </Grid>
                     </Grid>
-                    <Grid
-                        item
-                        xs={6}
-                        direction="column"
-                        alignItems="center"
-                        justify="center"
-                        spacing={2}
-                    >
+                    <Grid item xs={6}>
                         <Grid
-                            item
-                            xs={12}
-                            justify="center"
-                            alignItems="baseline"
+                            container
+                            direction="row"
+                            justify="space-evenly"
                             style={{ margin: "40px 0px 20px 0px" }}
                         >
                             <FormControlLabel
-                                control={<Switch />}
+                                control={
+                                    <Switch
+                                        checked={isIdea}
+                                        onChange={handleIdeaSwitch}
+                                    />
+                                }
+                                name="idea"
                                 label="Is an idea"
                                 labelPlacement="start"
                             />
                             <FormControlLabel
-                                control={<Switch />}
+                                control={
+                                    <Switch
+                                        checked={isClassified}
+                                        onChange={handleClassifiedSwitch}
+                                    />
+                                }
+                                name="classified"
                                 label="Is classified"
                                 labelPlacement="start"
                             />
@@ -340,16 +377,52 @@ export default function CreateProduct() {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid>
-                    <FormControl fullWidth>
-                        <TextField
-                            multiline
-                            onChange={handleChange}
-                            name="longDescription"
-                            label="Long description"
-                            value={input.longDescription}
-                        />
-                    </FormControl>
+                <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                >
+                    <Grid item xs={6} className={classes.inputfield}>
+                        <FormControl fullWidth>
+                            <TextField
+                                onChange={handleChange}
+                                onKeyDown={disableSubmitOnEnter}
+                                name="pricing"
+                                label="Pricing"
+                                value={input.pricing}
+                            />
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} className={classes.inputfield}>
+                        <FormControl fullWidth>
+                            <InputLabel htmlFor="demo-customized-select-native">
+                                Lifecycle status
+                            </InputLabel>
+                            <Select
+                                id="demo-customized-select-native"
+                                name="lifecycleStatus"
+                                value={input.lifecycleStatus}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value={1}>(1) Idea</MenuItem>
+                                <MenuItem value={2}>(2) In innovation</MenuItem>
+                                <MenuItem value={3}>(3) Accepted idea</MenuItem>
+                                <MenuItem value={4}>(4) Planning</MenuItem>
+                                <MenuItem value={5}>
+                                    (5) In developement
+                                </MenuItem>
+                                <MenuItem value={6}>(6) Release</MenuItem>
+                                <MenuItem value={7}>(7) In production</MenuItem>
+                                <MenuItem value={8}>(8) In support</MenuItem>
+                                <MenuItem value={9}>
+                                    (9) Maintenance mode
+                                </MenuItem>
+                                <MenuItem value={10}>(10) Ended</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
                 </Grid>
                 <Grid
                     container
@@ -471,10 +544,21 @@ export default function CreateProduct() {
                         </div>
                     </Grid>
                 </Grid>
+                <Grid item className={classes.inputfield2}>
+                    <FormControl fullWidth>
+                        <TextField
+                            multiline
+                            onChange={handleChange}
+                            name="longDescription"
+                            label="Long description"
+                            value={input.longDescription}
+                        />
+                    </FormControl>
+                </Grid>
                 <Button
                     variant="contained"
                     type="submit"
-                    style={{ marginTop: "20px" }}
+                    style={{ marginTop: "30px" }}
                 >
                     Submit
                 </Button>
@@ -507,7 +591,7 @@ const useStyles = makeStyles(theme => ({
         display: "none"
     },
     imgVisible: {
-        maxHeight: "200px",
+        maxHeight: "180px",
         maxWidth: "100%",
         margin: "auto"
     },
