@@ -232,11 +232,16 @@ export default function CreateProduct() {
                 <Grid
                     container
                     direction="row"
-                    alignItems="flex-start"
                     spacing={2}
                     style={{ marginTop: "15px" }}
                 >
-                    <Grid item xs={6}>
+                    <Grid
+                        item
+                        xs={6}
+                        direction="column"
+                        alignItems="center"
+                        spacing={2}
+                    >
                         <Grid item xs={11} className={classes.inputField}>
                             <FormControl fullWidth>
                                 <TextField
@@ -265,9 +270,145 @@ export default function CreateProduct() {
                                 <TextField
                                     onChange={handleChange}
                                     onKeyDown={disableSubmitOnEnter}
-                                    name="businessType"
-                                    label="Business type"
-                                    value={input.businessType}
+                                    name="productOwner"
+                                    label="Product owner"
+                                    value={input.productOwner}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputfield}>
+                            <FormControl fullWidth>
+                                <InputLabel htmlFor="demo-customized-select-native">
+                                    Lifecycle status
+                                </InputLabel>
+                                <Select
+                                    id="demo-customized-select-native"
+                                    name="lifecycleStatus"
+                                    value={input.lifecycleStatus}
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value={1}>(1) Idea</MenuItem>
+                                    <MenuItem value={2}>
+                                        (2) Accepted idea
+                                    </MenuItem>
+                                    <MenuItem value={3}>(3) Planning</MenuItem>
+                                    <MenuItem value={4}>
+                                        (4) In developement
+                                    </MenuItem>
+                                    <MenuItem value={5}>(5) Released</MenuItem>
+                                    <MenuItem value={6}>
+                                        (6) In production
+                                    </MenuItem>
+                                    <MenuItem value={7}>(7) Closed</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    multiline
+                                    onChange={handleChange}
+                                    name="longDescription"
+                                    label="Long description"
+                                    value={input.longDescription}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <div>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        onChange={handleChange}
+                                        name="technology"
+                                        label="Technologies"
+                                        onKeyDown={readKey}
+                                        value={input.technology}
+                                    />
+                                </FormControl>
+                            </div>
+                        </Grid>
+                        <Grid item xs={11} style={{ padding: "0" }}>
+                            <div className={classes.chipContainer}>
+                                {technologies.map((technology, i) => (
+                                    <Chip
+                                        key={i}
+                                        label={technology}
+                                        onDelete={() => deleteTechnology(i)}
+                                        className={classes.chip}
+                                    />
+                                ))}
+                            </div>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <div>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        onChange={handleChange}
+                                        name="component"
+                                        label="Components"
+                                        onKeyDown={readKey}
+                                        value={input.component}
+                                    />
+                                </FormControl>
+                            </div>
+                        </Grid>
+                        <Grid item xs={11}>
+                            <div className={classes.chipContainer}>
+                                {components.map((component, i) => (
+                                    <Chip
+                                        key={i}
+                                        label={component}
+                                        onDelete={() => deleteComponent(i)}
+                                        className={classes.chip}
+                                    />
+                                ))}
+                            </div>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <div>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        onChange={handleChange}
+                                        name="environmentRequirement"
+                                        label="Environment Requirement"
+                                        onKeyDown={readKey}
+                                        value={input.environmentRequirement}
+                                    />
+                                </FormControl>
+                            </div>
+                        </Grid>
+                        <Grid item xs={11} style={{ padding: "0" }}>
+                            <div className={classes.chipContainer}>
+                                {environmentRequirements.map(
+                                    (environmentRequirement, i) => (
+                                        <Chip
+                                            key={i}
+                                            label={environmentRequirement}
+                                            onDelete={() =>
+                                                deleteEnvironmentRequirement(i)
+                                            }
+                                            className={classes.chip}
+                                        />
+                                    )
+                                )}
+                            </div>
+                        </Grid>
+                    </Grid>
+                    <Grid
+                        item
+                        xs={6}
+                        direction="column"
+                        alignItems="center"
+                        spacing={2}
+                    >
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    onKeyDown={disableSubmitOnEnter}
+                                    name="productOwner"
+                                    label="Product owner"
+                                    value={input.productOwner}
                                 />
                             </FormControl>
                         </Grid>
@@ -287,31 +428,49 @@ export default function CreateProduct() {
                                 <TextField
                                     onChange={handleChange}
                                     onKeyDown={disableSubmitOnEnter}
-                                    name="productOwner"
-                                    label="Product owner"
-                                    value={input.productOwner}
+                                    name="businessType"
+                                    label="Business type"
+                                    value={input.businessType}
                                 />
                             </FormControl>
                         </Grid>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Grid
-                            container
-                            direction="row"
-                            justify="space-evenly"
-                            style={{ margin: "40px 0px 20px 0px" }}
-                        >
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={isIdea}
-                                        onChange={handleIdeaSwitch}
+                        <Grid item xs={11} className={classes.inputField}>
+                            <FormControl fullWidth>
+                                <TextField
+                                    onChange={handleChange}
+                                    onKeyDown={disableSubmitOnEnter}
+                                    name="pricing"
+                                    label="Pricing"
+                                    value={input.pricing}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
+                            <div>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        onChange={handleChange}
+                                        name="customer"
+                                        label="Customer"
+                                        onKeyDown={readKey}
+                                        value={input.customer}
                                     />
-                                }
-                                name="idea"
-                                label="Is an idea"
-                                labelPlacement="start"
-                            />
+                                </FormControl>
+                            </div>
+                        </Grid>
+                        <Grid item xs={11}>
+                            <div className={classes.chipContainer}>
+                                {customers.map((customer, i) => (
+                                    <Chip
+                                        key={i}
+                                        label={customer}
+                                        onDelete={() => deleteCustomer(i)}
+                                        className={classes.chip}
+                                    />
+                                ))}
+                            </div>
+                        </Grid>
+                        <Grid item xs={11} className={classes.inputField}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -322,9 +481,10 @@ export default function CreateProduct() {
                                 name="classified"
                                 label="Is classified"
                                 labelPlacement="start"
+                                fullWidth
                             />
                         </Grid>
-                        <Grid item xs={12} className={classes.imageField}>
+                        <Grid item xs={11} className={classes.imageField}>
                             <h2 className="create-product-header">
                                 Logo
                                 <IconButton
@@ -377,184 +537,6 @@ export default function CreateProduct() {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    justify="center"
-                    alignItems="center"
-                    spacing={2}
-                >
-                    <Grid item xs={6} className={classes.inputfield}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                name="pricing"
-                                label="Pricing"
-                                value={input.pricing}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={6} className={classes.inputfield}>
-                        <FormControl fullWidth>
-                            <InputLabel htmlFor="demo-customized-select-native">
-                                Lifecycle status
-                            </InputLabel>
-                            <Select
-                                id="demo-customized-select-native"
-                                name="lifecycleStatus"
-                                value={input.lifecycleStatus}
-                                onChange={handleChange}
-                            >
-                                <MenuItem value={1}>(1) Idea</MenuItem>
-                                <MenuItem value={2}>(2) In innovation</MenuItem>
-                                <MenuItem value={3}>(3) Accepted idea</MenuItem>
-                                <MenuItem value={4}>(4) Planning</MenuItem>
-                                <MenuItem value={5}>
-                                    (5) In developement
-                                </MenuItem>
-                                <MenuItem value={6}>(6) Release</MenuItem>
-                                <MenuItem value={7}>(7) In production</MenuItem>
-                                <MenuItem value={8}>(8) In support</MenuItem>
-                                <MenuItem value={9}>
-                                    (9) Maintenance mode
-                                </MenuItem>
-                                <MenuItem value={10}>(10) Ended</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    justify="center"
-                    alignItems="center"
-                    spacing={2}
-                >
-                    <Grid item xs={6} className={classes.inputfield2}>
-                        <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="technology"
-                                    label="Technologies"
-                                    onKeyDown={readKey}
-                                    value={input.technology}
-                                />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={6} className={classes.inputfield2}>
-                        <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="component"
-                                    label="Components"
-                                    onKeyDown={readKey}
-                                    value={input.component}
-                                />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={6} style={{ padding: "0" }}>
-                        <div className={classes.chipContainer}>
-                            {technologies.map((technology, i) => (
-                                <Chip
-                                    key={i}
-                                    label={technology}
-                                    onDelete={() => deleteTechnology(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <div className={classes.chipContainer}>
-                            {components.map((component, i) => (
-                                <Chip
-                                    key={i}
-                                    label={component}
-                                    onDelete={() => deleteComponent(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                </Grid>
-                <Grid
-                    container
-                    direction="row"
-                    justify="center"
-                    alignItems="center"
-                    spacing={2}
-                >
-                    <Grid item xs={6} className={classes.inputfield2}>
-                        <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="environmentRequirement"
-                                    label="Environment Requirement"
-                                    onKeyDown={readKey}
-                                    value={input.environmentRequirement}
-                                />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={6} className={classes.inputfield2}>
-                        <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="customer"
-                                    label="Customer"
-                                    onKeyDown={readKey}
-                                    value={input.customer}
-                                />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={6} style={{ padding: "0" }}>
-                        <div className={classes.chipContainer}>
-                            {environmentRequirements.map(
-                                (environmentRequirement, i) => (
-                                    <Chip
-                                        key={i}
-                                        label={environmentRequirement}
-                                        onDelete={() =>
-                                            deleteEnvironmentRequirement(i)
-                                        }
-                                        className={classes.chip}
-                                    />
-                                )
-                            )}
-                        </div>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <div className={classes.chipContainer}>
-                            {customers.map((customer, i) => (
-                                <Chip
-                                    key={i}
-                                    label={customer}
-                                    onDelete={() => deleteCustomer(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                </Grid>
-                <Grid item className={classes.inputfield2}>
-                    <FormControl fullWidth>
-                        <TextField
-                            multiline
-                            onChange={handleChange}
-                            name="longDescription"
-                            label="Long description"
-                            value={input.longDescription}
-                        />
-                    </FormControl>
-                </Grid>
                 <Button
                     variant="contained"
                     type="submit"
@@ -581,7 +563,7 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(0.5)
     },
     chipContainer: {
-        minHeight: "25px"
+        minHeight: "40px"
     },
     flex: {
         display: "flex",
@@ -602,10 +584,6 @@ const useStyles = makeStyles(theme => ({
     inputField: {
         marginTop: "15px",
         marginBottom: "15px"
-    },
-    inputfield2: {
-        marginTop: "15px",
-        marginBottom: "0 px"
     },
     imageField: {},
     removeButton: {
