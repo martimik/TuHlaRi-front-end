@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Nav from "./Nav";
 import Products from "./Products";
 import CreateProduct from "./CreateProduct";
 import { SnackbarProvider } from "notistack";
+import API_URL from "../js/api"
 
 axios.defaults.withCredentials = true;
 
@@ -28,7 +29,7 @@ function App() {
 
   function getLoginState() {
     axios
-      .get("http://localhost:8080/session")
+      .get(API_URL + "session")
       .then(response => {
         const { email, name, userGroup } = response.data;
         if (email && userGroup) {

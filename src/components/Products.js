@@ -3,6 +3,7 @@ import axios from "axios";
 import Product from "./Product";
 import Sidebar from "./Sidebar";
 import SearchField from "./SearchField";
+import API_URL from "../js/api";
 
 export default class Products extends React.Component {
     constructor(props) {
@@ -22,7 +23,7 @@ export default class Products extends React.Component {
     };
 
     getProducts() {
-        axios.get("http://10.99.104.41:8080/products").then(response => {
+        axios.get(API_URL + "products").then(response => {
             console.log(response.data);
             this.setState({ products: response.data });
         });

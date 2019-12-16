@@ -15,6 +15,7 @@ import Select from "@material-ui/core/Select";
 import { MenuItem, Snackbar } from "@material-ui/core";
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import API_URL from "../js/api";
 
 export default function CreateProduct() {
     const classes = useStyles();
@@ -146,13 +147,13 @@ export default function CreateProduct() {
             formData.append("image", imageFile, imageFile.filename);
         }
         axios
-            .post("http://localhost:8080/uploadImage", formData)
+            .post(API_URL + "uploadImage", formData)
             .then(response => {
                 console.log(response);
                 if (response.status === 200) {
-                    product.logo = "http://10.99.104.41:8080/" + response.data;
+                    product.logo = API_URL + response.data;
                     axios
-                        .post("http://localhost:8080/addProduct", product)
+                        .post(API_URL + "addProduct", product)
                         .then(response => {
                             console.log(response);
                             enqueueSnackbar("Product added!", {

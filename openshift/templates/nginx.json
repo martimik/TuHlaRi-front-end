@@ -244,7 +244,7 @@
       "displayName": "Git Repository URL",
       "description": "The URL of the repository with your application source code.",
       "required": true,
-      "value": "https://github.com/sclorg/nginx-ex.git"
+      "value": "https://gitlab.labranet.jamk.fi/digiateam/front-end.git"
     },
     {
       "name": "SOURCE_REPOSITORY_REF",
@@ -255,7 +255,6 @@
       "name": "CONTEXT_DIR",
       "displayName": "Context Directory",
       "description": "Set this to the relative path to your project if it is not in the root of your repository.",
-      "value": "../build"
     },
     {
       "name": "APPLICATION_DOMAIN",

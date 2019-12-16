@@ -4,6 +4,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import { useSnackbar } from "notistack";
+import API_URL from "../js/api";
 
 export default function Login(props) {
     const classes = useStyles();
@@ -23,7 +24,7 @@ export default function Login(props) {
         console.log(credentials);
         axios
             .post(
-                "http://10.99.104.41:8080/login",
+                API_URL + "login",
                 {},
                 {
                     auth: {
@@ -71,7 +72,7 @@ export default function Login(props) {
     function logout(event) {
         event.preventDefault();
         axios
-            .post("http://10.99.104.41:8080/logout")
+            .post(API_URL + "logout")
             .then(response => {
                 const { email, name, userGroup } = response.data;
                 setAuthorization({ email, name, userGroup });
