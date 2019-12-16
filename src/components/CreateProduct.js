@@ -797,7 +797,6 @@ export default function CreateProduct() {
 }
 
 const useStyles = makeStyles(theme => ({
-<<<<<<< HEAD
     root: {
         maxWidth: "70%",
         margin: "60px auto",
@@ -840,52 +839,4 @@ const useStyles = makeStyles(theme => ({
         padding: "0",
         marginTop: "4px"
     }
-=======
-  root: {
-    maxWidth: "70%",
-    margin: "60px auto",
-    boxShadow: "1px 2px 20px 1px#d4d4d4",
-    padding: "30px",
-    borderRadius: "25px",
-    backgroundColor: "white"
-  },
-  form: {},
-  chip: {
-    margin: theme.spacing(0.5)
-  },
-  chipContainer: {
-    minHeight: "25px"
-  },
-  flex: {
-    display: "flex",
-    justifyContent: "space-around"
-  },
-  input: {
-    display: "none"
-  },
-  imgVisible: {
-    maxHeight: "180px",
-    maxWidth: "100%",
-    margin: "auto"
-  },
-  imgHidden: {
-    visibility: "Collapse",
-    position: "absolute"
-  },
-  inputField: {
-    marginTop: "15px",
-    marginBottom: "15px"
-  },
-  inputfield2: {
-    marginTop: "15px",
-    marginBottom: "0 px"
-  },
-  imageField: {},
-  removeButton: {
-    position: "absolute",
-    right: "0px",
-    padding: "0",
-    marginTop: "4px"
-  }
->>>>>>> 8621fc04f043ee370f8f41e4870ae13099af2faa
 }));
