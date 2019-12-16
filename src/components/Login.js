@@ -38,16 +38,33 @@ export default function Login(props) {
                     setAuthorization({ email, name, userGroup });
                     setCredentials({ user: "", password: "" });
                     enqueueSnackbar("Successfully logged in", {
-                        variant: "success"
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "center"
+                        }
                     });
                     close();
                 } else {
-                    enqueueSnackbar("Failed to login", { variant: "error" });
+                    enqueueSnackbar("Failed to login", {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "center"
+                        }
+                    });
                 }
             })
 
             .catch(error => {
                 console.error(error);
+                enqueueSnackbar("Failed to login", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "center"
+                    }
+                });
             });
     }
 
