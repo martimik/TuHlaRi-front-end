@@ -5,6 +5,7 @@ import Nav from "./Nav";
 import Products from "./Products";
 import CreateProduct from "./CreateProduct";
 import { SnackbarProvider } from "notistack";
+import { UserProvider } from './UserContext'
 import API_URL from "../js/api"
 
 axios.defaults.withCredentials = true;
@@ -43,6 +44,7 @@ function App() {
 
   return (
     <div className="App">
+      <UserProvider value={authorization}>
       <SnackbarProvider preventDuplicate maxSnack={3}>
         <Router>
           <Nav
@@ -67,6 +69,7 @@ function App() {
           </div>
         </Router>
       </SnackbarProvider>
+      </UserProvider>
     </div>
   );
 }
