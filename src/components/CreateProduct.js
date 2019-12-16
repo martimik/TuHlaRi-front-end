@@ -12,7 +12,7 @@ import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
-import { MenuItem, Snackbar } from "@material-ui/core";
+import { MenuItem } from "@material-ui/core";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 
@@ -33,6 +33,7 @@ export default function CreateProduct() {
         customer: ""
     });
 
+    const [formIsValid, setFormIsValid] = useState(false);
     const [isIdea, setIsIdea] = useState(false);
     const [isClassified, setIsClassified] = useState(false);
     const [components, setComponents] = useState([]);
@@ -50,10 +51,20 @@ export default function CreateProduct() {
             ...input,
             [event.target.name]: event.target.value
         });
+        formValidation();
     }
 
-    function handleIdeaSwitch(event) {
-        setIsIdea(!isIdea);
+    function formValidation() {}
+
+    function handleLifecycleStatus(event) {
+        if (event.target.value === 1) setIsIdea(true);
+        else setIsIdea(false);
+
+        setInput({
+            ...input,
+            [event.target.name]: event.target.value
+        });
+        formValidation();
     }
 
     function handleClassifiedSwitch(event) {
@@ -162,6 +173,7 @@ export default function CreateProduct() {
                                     horizontal: "center"
                                 }
                             });
+                            clearInput();
                         })
                         .catch(error => {
                             console.log(error);
@@ -192,12 +204,34 @@ export default function CreateProduct() {
                         horizontal: "center"
                     }
                 });
+                clearInput();
             });
     }
 
-    function clearForm() {
+    function clearInput() {
         setIsIdea(false);
         setIsClassified(false);
+        setInput({
+            productName: "",
+            shortDescription: "",
+            longDescription: "",
+            pricing: "",
+            salesPerson: "",
+            productOwner: "",
+            businessType: "",
+            lifecycleStatus: "",
+            technology: "",
+            component: "",
+            environmentRequirement: "",
+            customer: ""
+        });
+        setImage(null);
+        setImageIsHidden(true);
+        setImageFile(null);
+        setTechnologies([]);
+        setComponents([]);
+        setEnvironmentRequirements([]);
+        setCustomers([]);
     }
 
     function disableSubmitOnEnter(event) {
@@ -277,7 +311,6 @@ export default function CreateProduct() {
                             name="classified"
                             label="Is classified"
                             labelPlacement="start"
-                            fullWidth
                         />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
@@ -285,9 +318,10 @@ export default function CreateProduct() {
                             <TextField
                                 onChange={handleChange}
                                 onKeyDown={disableSubmitOnEnter}
-                                value={input.name}
+                                value={input.productName}
                                 name="productName"
                                 label="Name"
+                                required
                             />
                         </FormControl>
                     </Grid>
@@ -300,20 +334,24 @@ export default function CreateProduct() {
                                 name="shortDescription"
                                 label="Short description"
                                 value={input.shortDescription}
+                                required
                             />
                         </FormControl>
                     </Grid>
 
                     <Grid item xs={10} className={classes.inputField}>
                         <FormControl fullWidth>
-                            <InputLabel htmlFor="demo-customized-select-native">
+                            <InputLabel
+                                htmlFor="demo-customized-select-native"
+                                required
+                            >
                                 Lifecycle status
                             </InputLabel>
                             <Select
                                 id="demo-customized-select-native"
                                 name="lifecycleStatus"
                                 value={input.lifecycleStatus}
-                                onChange={handleChange}
+                                onChange={handleLifecycleStatus}
                             >
                                 <MenuItem value={1}>(1) Idea</MenuItem>
                                 <MenuItem value={2}>(2) Accepted idea</MenuItem>
@@ -346,6 +384,7 @@ export default function CreateProduct() {
                                 name="productOwner"
                                 label="Product owner"
                                 value={input.productOwner}
+                                required={!isIdea}
                             />
                         </FormControl>
                     </Grid>
@@ -543,6 +582,7 @@ export default function CreateProduct() {
                         variant="contained"
                         type="submit"
                         style={{ marginTop: "30px" }}
+                        disabled={!formIsValid}
                     >
                         Submit
                     </Button>
