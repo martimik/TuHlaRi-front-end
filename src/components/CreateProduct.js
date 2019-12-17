@@ -52,20 +52,19 @@ export default function CreateProduct() {
             ...input,
             [event.target.name]: event.target.value
         });
-        formValidation();
     }
 
-    function formValidation() {}
-
     function handleLifecycleStatus(event) {
-        if (event.target.value === 1) setIsIdea(true);
-        else setIsIdea(false);
-
         setInput({
             ...input,
             [event.target.name]: event.target.value
         });
-        formValidation();
+
+        if (event.target.value === 1) {
+            setIsIdea(true);
+        } else {
+            setIsIdea(false);
+        }
     }
 
     function handleClassifiedSwitch(event) {
@@ -137,56 +136,93 @@ export default function CreateProduct() {
         setImage(null);
     }
 
+    function validateSubmit() {
+        if (
+            isIdea &&
+            input.productName.length > 3 &&
+            input.shortDescription.length > 3
+        )
+            return true;
+        else if (
+            input.productName.length > 3 &&
+            input.shortDescription.length > 3 &&
+            input.productOwner.length > 3
+        )
+            return true;
+        else return false;
+    }
+
     function submitProduct(event) {
         event.preventDefault();
-        const product = input;
-        product.isIdea = isIdea;
-        product.isClassified = isClassified;
-        product.technologies = technologies;
-        product.components = components;
-        product.customers = customers;
-        product.environmentRequirements = environmentRequirements;
-        delete product.technology;
-        delete product.component;
-        delete product.environmentRequirement;
-        delete product.customer;
 
-        console.log(product);
+        if (!validateSubmit()) {
+            enqueueSnackbar("Required fields not filled!", {
+                variant: "warning",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "center"
+                }
+            });
+        } else {
+            const product = input;
+            product.isIdea = isIdea;
+            product.isClassified = isClassified;
+            product.technologies = technologies;
+            product.components = components;
+            product.customers = customers;
+            product.environmentRequirements = environmentRequirements;
+            delete product.technology;
+            delete product.component;
+            delete product.environmentRequirement;
+            delete product.customer;
 
-        const formData = new FormData();
-        if (imageFile) {
-            formData.append("image", imageFile, imageFile.filename);
-        }
-        axios
-            .post(API_URL + "uploadImage", formData)
-            .then(response => {
-                console.log(response);
-                if (response.status === 200) {
-                    product.logo = API_URL + response.data;
-                    axios
-                        .post(API_URL + "addProduct", product)
-                        .then(response => {
-                            console.log(response);
-                            enqueueSnackbar("Product added!", {
-                                variant: "success",
-                                anchorOrigin: {
-                                    vertical: "top",
-                                    horizontal: "center"
-                                }
+            console.log(product);
+
+            const formData = new FormData();
+            if (imageFile) {
+                formData.append("image", imageFile, imageFile.filename);
+            }
+            axios
+                .post(API_URL + "uploadImage", formData)
+                .then(response => {
+                    console.log(response);
+                    if (response.status === 200) {
+                        product.logo = API_URL + response.data;
+                        axios
+                            .post(API_URL + "addProduct", product)
+                            .then(response => {
+                                console.log(response);
+                                enqueueSnackbar("Product added!", {
+                                    variant: "success",
+                                    anchorOrigin: {
+                                        vertical: "top",
+                                        horizontal: "center"
+                                    }
+                                });
+                                clearInput();
+                            })
+                            .catch(error => {
+                                console.log(error);
+                                enqueueSnackbar("Product creation failed.", {
+                                    variant: "error",
+                                    anchorOrigin: {
+                                        vertical: "top",
+                                        horizontal: "center"
+                                    }
+                                });
                             });
-                            clearInput();
-                        })
-                        .catch(error => {
-                            console.log(error);
-                            enqueueSnackbar("Product creation failed.", {
-                                variant: "error",
-                                anchorOrigin: {
-                                    vertical: "top",
-                                    horizontal: "center"
-                                }
-                            });
+                    } else {
+                        enqueueSnackbar("Product creation failed.", {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "center"
+                            }
                         });
-                } else {
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
                     enqueueSnackbar("Product creation failed.", {
                         variant: "error",
                         anchorOrigin: {
@@ -194,19 +230,9 @@ export default function CreateProduct() {
                             horizontal: "center"
                         }
                     });
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                enqueueSnackbar("Product creation failed.", {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "center"
-                    }
+                    clearInput();
                 });
-                clearInput();
-            });
+        }
     }
 
     function clearInput() {
@@ -583,7 +609,6 @@ export default function CreateProduct() {
                         variant="contained"
                         type="submit"
                         style={{ marginTop: "30px" }}
-                        disabled={!formIsValid}
                     >
                         Submit
                     </Button>
