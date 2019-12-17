@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import Sidebar from "./Sidebar";
 import SearchField from "./SearchField";
-import Product from "./Product";
 import UserContext from "./UserContext";
 import axios from "axios";
 import API_URL from "../js/api";
+import EditProduct from "./EditProduct";
 
-export default class EditProduct extends React.Component {
+export default class EditProducts extends React.Component {
     static contextType = UserContext;
 
     constructor(props) {
@@ -64,10 +63,8 @@ export default class EditProduct extends React.Component {
                         name="Omat tuotteet"
                     />
                 </div>
-                <Product product={this.state.currentProduct} />
+                <EditProduct product={this.state.currentProduct} />
             </div>
         );
     }
 }
-
-const useStyles = makeStyles(theme => ({}));
