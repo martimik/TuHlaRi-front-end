@@ -106,7 +106,7 @@ export default function Login(props) {
                     <TextField
                         onChange={handleChange}
                         id="standard-password-input"
-                        label="Username"
+                        label="Email"
                         name="user"
                         className={classes.textField}
                         autoComplete="current-password"

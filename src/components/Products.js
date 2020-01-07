@@ -5,15 +5,17 @@ import Sidebar from "./Sidebar";
 import SearchField from "./SearchField";
 import UserContext from "./UserContext";
 import API_URL from "../js/api";
+import ProductEditor from "./ProductEditor";
 
 export default class Products extends React.Component {
-    static contextType = UserContext
+    static contextType = UserContext;
 
     constructor(props) {
         super(props);
         this.state = {
             currentProduct: null,
-            products: []
+            products: [],
+            isEditMode: false
         };
     }
 
@@ -39,6 +41,10 @@ export default class Products extends React.Component {
         });
     };
 
+    toggleEditMode = () => {
+        this.setState({ isEditMode: !this.state.isEditMode });
+    };
+
     render() {
         const user = this.context;
         const { currentProduct } = this.state;
@@ -62,6 +68,7 @@ export default class Products extends React.Component {
             <div className="products">
                 <div className="sidebar">
                     <SearchField onSearch={this.onSearch} />
+                    <button onClick={this.toggleEditMode}> asdasd </button>
                     <Sidebar
                         defaultExpanded
                         setProduct={this.setProduct}
@@ -82,7 +89,19 @@ export default class Products extends React.Component {
                         name="Julkiset tuotteet"
                     />
                 </div>
-                <Product product={this.state.currentProduct} />
+
+                {this.state.isEditMode ? (
+                    <ProductEditor
+                        toggleEditMode={this.toggleEditMode}
+                        product={this.state.currentProduct}
+                        title="Edit product"
+                    />
+                ) : (
+                    <Product
+                        product={this.state.currentProduct}
+                        toggleEditMode={this.toggleEditMode}
+                    />
+                )}
             </div>
         );
     }

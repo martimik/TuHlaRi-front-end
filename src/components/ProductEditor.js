@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Chip from "@material-ui/core/Chip";
@@ -16,8 +16,10 @@ import { MenuItem } from "@material-ui/core";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import API_URL from "../js/api";
+import Fab from "@material-ui/core/Fab";
+import EditIcon from "@material-ui/icons/Edit";
 
-export default function EditProduct(props) {
+export default function ProductEditor(props) {
     const classes = useStyles();
 
     const { product } = props;
@@ -37,22 +39,38 @@ export default function EditProduct(props) {
         customer: ""
     });
 
-    if (product != null) {
-        setInput({
-            productName: product.productName,
-            shortDescription: product.shortDescription,
-            longDescription: product.longDescription,
-            pricing: product.pricing,
-            salesPerson: product.salesPerson,
-            productOwner: product.productOwner,
-            businessType: product.businessType,
-            lifecycleStatus: product.lifecycleStatus,
-            technology: product.technology,
-            component: product.component,
-            environmentRequirement: product.environmentRequirement,
-            customer: product.customer
-        });
-    }
+    useEffect(() => {
+        if (product != null) {
+            setInput({
+                productName: product.productName,
+                shortDescription: product.shortDescription,
+                longDescription: product.longDescription,
+                pricing: product.pricing,
+                salesPerson: product.salesPerson,
+                productOwner: product.productOwner,
+                businessType: product.businessType,
+                lifecycleStatus: product.lifecycleStatus
+            });
+            if (product.technologies) {
+                setTechnologies(product.technologies);
+            }
+
+            if (product.components) {
+                setComponents(product.components);
+            }
+            if (product.environmentRequirements) {
+                setEnvironmentRequirements(product.environmentRequirements);
+            }
+            if (product.customers) {
+                setCustomers(product.customers);
+            }
+            setIsClassified(product.isClassified);
+            if (product.logo) {
+                setImage(product.logo);
+                setImageIsHidden(false);
+            }
+        }
+    }, [product]);
 
     const [formIsValid, setFormIsValid] = useState(false);
     const [isIdea, setIsIdea] = useState(false);
@@ -198,6 +216,45 @@ export default function EditProduct(props) {
 
             console.log(product);
 
+            if (imageFile) {
+                uploadImage();
+            } else {
+                uploadProduct();
+            }
+        }
+
+        function uploadProduct() {
+            axios
+                .post(
+                    API_URL + props.toggleEditMode
+                        ? "editProduct"
+                        : "addProduct",
+                    product
+                )
+                .then(response => {
+                    console.log(response);
+                    enqueueSnackbar("Product added!", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "center"
+                        }
+                    });
+                    clearInput();
+                })
+                .catch(error => {
+                    console.log(error);
+                    enqueueSnackbar("Product creation failed.", {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "center"
+                        }
+                    });
+                });
+        }
+
+        function uploadImage() {
             const formData = new FormData();
             if (imageFile) {
                 formData.append("image", imageFile, imageFile.filename);
@@ -208,42 +265,12 @@ export default function EditProduct(props) {
                     console.log(response);
                     if (response.status === 200) {
                         product.logo = API_URL + response.data;
-                        axios
-                            .post(API_URL + "addProduct", product)
-                            .then(response => {
-                                console.log(response);
-                                enqueueSnackbar("Product added!", {
-                                    variant: "success",
-                                    anchorOrigin: {
-                                        vertical: "top",
-                                        horizontal: "center"
-                                    }
-                                });
-                                clearInput();
-                            })
-                            .catch(error => {
-                                console.log(error);
-                                enqueueSnackbar("Product creation failed.", {
-                                    variant: "error",
-                                    anchorOrigin: {
-                                        vertical: "top",
-                                        horizontal: "center"
-                                    }
-                                });
-                            });
-                    } else {
-                        enqueueSnackbar("Product creation failed.", {
-                            variant: "error",
-                            anchorOrigin: {
-                                vertical: "top",
-                                horizontal: "center"
-                            }
-                        });
+                        uploadProduct();
                     }
                 })
                 .catch(error => {
                     console.error(error);
-                    enqueueSnackbar("Product creation failed.", {
+                    enqueueSnackbar("Image upload failed.", {
                         variant: "error",
                         anchorOrigin: {
                             vertical: "top",
@@ -339,7 +366,18 @@ export default function EditProduct(props) {
 
     return (
         <div className={classes.root}>
-            <h1 className="create-product-header">Add new product</h1>
+            {props.toggleEditMode ? (
+                <Fab
+                    color="secondary"
+                    aria-label="edit"
+                    size="small"
+                    style={{ float: "right" }}
+                    onClick={props.toggleEditMode}
+                >
+                    <EditIcon />
+                </Fab>
+            ) : null}
+            <h1 className="create-product-header">{props.title}</h1>
             <form
                 className={classes.form}
                 noValidate
@@ -353,6 +391,7 @@ export default function EditProduct(props) {
                                 <Switch
                                     checked={isClassified}
                                     onChange={handleClassifiedSwitch}
+                                    value={isClassified}
                                 />
                             }
                             name="classified"
@@ -674,7 +713,7 @@ const useStyles = makeStyles(theme => ({
         margin: "auto"
     },
     imgHidden: {
-        visibility: "Collapse",
+        visibility: "collapse",
         position: "absolute"
     },
     inputField: {
