@@ -68,7 +68,6 @@ export default class Products extends React.Component {
             <div className="products">
                 <div className="sidebar">
                     <SearchField onSearch={this.onSearch} />
-                    <button onClick={this.toggleEditMode}> asdasd </button>
                     <Sidebar
                         defaultExpanded
                         setProduct={this.setProduct}
@@ -89,19 +88,20 @@ export default class Products extends React.Component {
                         name="Julkiset tuotteet"
                     />
                 </div>
-
-                {this.state.isEditMode ? (
-                    <ProductEditor
-                        toggleEditMode={this.toggleEditMode}
-                        product={this.state.currentProduct}
-                        title="Edit product"
-                    />
-                ) : (
-                    <Product
-                        product={this.state.currentProduct}
-                        toggleEditMode={this.toggleEditMode}
-                    />
-                )}
+                <div className="product-container">
+                    {this.state.isEditMode ? (
+                        <ProductEditor
+                            toggleEditMode={this.toggleEditMode}
+                            product={this.state.currentProduct}
+                            title="Edit product"
+                        />
+                    ) : (
+                        <Product
+                            product={this.state.currentProduct}
+                            toggleEditMode={this.toggleEditMode}
+                        />
+                    )}
+                </div>
             </div>
         );
     }

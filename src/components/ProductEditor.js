@@ -22,6 +22,19 @@ import EditIcon from "@material-ui/icons/Edit";
 export default function ProductEditor(props) {
     const classes = useStyles();
 
+    const [formIsValid, setFormIsValid] = useState(false);
+    const [isIdea, setIsIdea] = useState(false);
+    const [isClassified, setIsClassified] = useState(false);
+    const [components, setComponents] = useState([]);
+    const [technologies, setTechnologies] = useState([]);
+    const [environmentRequirements, setEnvironmentRequirements] = useState([]);
+    const [customers, setCustomers] = useState([]);
+    const [image, setImage] = useState(null);
+    const [imageFile, setImageFile] = useState();
+    const [imageIshidden, setImageIsHidden] = useState(true);
+
+    const { enqueueSnackbar } = useSnackbar();
+
     const { product } = props;
 
     const [input, setInput] = useState({
@@ -40,50 +53,39 @@ export default function ProductEditor(props) {
     });
 
     useEffect(() => {
-        if (product != null) {
+        if (props.product) {
             setInput({
-                productName: product.productName,
-                shortDescription: product.shortDescription,
-                longDescription: product.longDescription,
-                pricing: product.pricing,
-                salesPerson: product.salesPerson,
-                productOwner: product.productOwner,
-                businessType: product.businessType,
-                lifecycleStatus: product.lifecycleStatus
+                productName: props.product.productName,
+                shortDescription: props.product.shortDescription,
+                longDescription: props.product.longDescription,
+                pricing: props.product.pricing,
+                salesPerson: props.product.salesPerson,
+                productOwner: props.product.productOwner,
+                businessType: props.product.businessType,
+                lifecycleStatus: props.product.lifecycleStatus
             });
-            if (product.technologies) {
-                setTechnologies(product.technologies);
+            if (props.product.technologies) {
+                setTechnologies(props.product.technologies);
             }
 
-            if (product.components) {
-                setComponents(product.components);
+            if (props.product.components) {
+                setComponents(props.product.components);
             }
-            if (product.environmentRequirements) {
-                setEnvironmentRequirements(product.environmentRequirements);
+            if (props.product.environmentRequirements) {
+                setEnvironmentRequirements(
+                    props.product.environmentRequirements
+                );
             }
-            if (product.customers) {
-                setCustomers(product.customers);
+            if (props.product.customers) {
+                setCustomers(props.product.customers);
             }
-            setIsClassified(product.isClassified);
-            if (product.logo) {
-                setImage(product.logo);
+            setIsClassified(props.product.isClassified);
+            if (props.product.logos.length) {
+                setImage(props.product.logos[props.product.logos.length - 1]);
                 setImageIsHidden(false);
             }
         }
-    }, [product]);
-
-    const [formIsValid, setFormIsValid] = useState(false);
-    const [isIdea, setIsIdea] = useState(false);
-    const [isClassified, setIsClassified] = useState(false);
-    const [components, setComponents] = useState([]);
-    const [technologies, setTechnologies] = useState([]);
-    const [environmentRequirements, setEnvironmentRequirements] = useState([]);
-    const [customers, setCustomers] = useState([]);
-    const [image, setImage] = useState(null);
-    const [imageFile, setImageFile] = useState();
-    const [imageIshidden, setImageIsHidden] = useState(true);
-
-    const { enqueueSnackbar } = useSnackbar();
+    }, [props]);
 
     function handleChange(event) {
         setInput({
@@ -105,7 +107,7 @@ export default function ProductEditor(props) {
         }
     }
 
-    function handleClassifiedSwitch(event) {
+    function handleClassifiedSwitch() {
         setIsClassified(!isClassified);
     }
 
@@ -187,7 +189,7 @@ export default function ProductEditor(props) {
             input.productOwner.length > 3
         )
             return true;
-        else return false;
+        return false;
     }
 
     function submitProduct(event) {
@@ -202,84 +204,81 @@ export default function ProductEditor(props) {
                 }
             });
         } else {
-            const product = input;
-            product.isIdea = isIdea;
-            product.isClassified = isClassified;
-            product.technologies = technologies;
-            product.components = components;
-            product.customers = customers;
-            product.environmentRequirements = environmentRequirements;
-            delete product.technology;
-            delete product.component;
-            delete product.environmentRequirement;
-            delete product.customer;
-
-            console.log(product);
-
             if (imageFile) {
-                uploadImage();
+                uploadImage(); // Upload image will handle product upload
             } else {
                 uploadProduct();
             }
         }
+    }
 
-        function uploadProduct() {
-            axios
-                .post(
-                    API_URL + props.toggleEditMode
-                        ? "editProduct"
-                        : "addProduct",
-                    product
-                )
-                .then(response => {
-                    console.log(response);
-                    enqueueSnackbar("Product added!", {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "center"
-                        }
-                    });
-                    clearInput();
-                })
-                .catch(error => {
-                    console.log(error);
-                    enqueueSnackbar("Product creation failed.", {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "center"
-                        }
-                    });
-                });
-        }
+    function uploadImage() {
+        const formData = new FormData();
+        formData.append("image", imageFile, imageFile.filename);
 
-        function uploadImage() {
-            const formData = new FormData();
-            if (imageFile) {
-                formData.append("image", imageFile, imageFile.filename);
-            }
-            axios
-                .post(API_URL + "uploadImage", formData)
-                .then(response => {
-                    console.log(response);
-                    if (response.status === 200) {
-                        product.logo = API_URL + response.data;
-                        uploadProduct();
+        axios
+            .post(API_URL + "uploadImage", formData)
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    uploadProduct(API_URL + response.data);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                enqueueSnackbar("Image upload failed.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "center"
                     }
-                })
-                .catch(error => {
-                    console.error(error);
-                    enqueueSnackbar("Image upload failed.", {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "center"
-                        }
-                    });
-                    clearInput();
                 });
-        }
+            });
+    }
+
+    function uploadProduct(imageURL) {
+        const id = props.product ? props.product._id : null;
+        const product = input;
+        product.isIdea = isIdea;
+        product.isClassified = isClassified;
+        product.technologies = technologies;
+        product.components = components;
+        product.customers = customers;
+        product.environmentRequirements = environmentRequirements;
+        product.logo = imageURL || "";
+        product.id = id ? id : null;
+        delete product.technology;
+        delete product.component;
+        delete product.environmentRequirement;
+        delete product.customer;
+
+        axios
+            .post(API_URL + (id ? "editProduct" : "addProduct"), product)
+            .then(response => {
+                console.log(response);
+                enqueueSnackbar("Product added!", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "center"
+                    }
+                });
+                if (!props.toggleEditMode) {
+                    clearInput();
+                } else {
+                    props.toggleEditMode();
+                }
+            })
+            .catch(error => {
+                console.log(error.response);
+                enqueueSnackbar("Product creation failed.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "center"
+                    }
+                });
+            });
     }
 
     function clearInput() {
@@ -391,7 +390,7 @@ export default function ProductEditor(props) {
                                 <Switch
                                     checked={isClassified}
                                     onChange={handleClassifiedSwitch}
-                                    value={isClassified}
+                                    value="isClassified"
                                 />
                             }
                             name="classified"
@@ -679,8 +678,6 @@ export default function ProductEditor(props) {
 
 const useStyles = makeStyles(theme => ({
     root: {
-        maxWidth: "50%",
-        margin: "60px auto",
         boxShadow: "1px 2px 20px 1px#d4d4d4",
         padding: "30px",
         borderRadius: "25px",
