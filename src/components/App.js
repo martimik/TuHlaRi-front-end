@@ -4,12 +4,13 @@ import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Nav from "./Nav";
 import Products from "./Products";
 import CreateProduct from "./CreateProduct";
+import CreateUser from "./CreateUser";
+import Users from "./Users";
 import Settings from "./Settings";
 import { SnackbarProvider } from "notistack";
 import { UserProvider } from "./UserContext";
 import { ThemeProvider } from "@material-ui/core/styles";
 import theme from "../theme";
-import CreateUser from "./CreateUser";
 import API_URL from "../js/api";
 
 axios.defaults.withCredentials = true;
@@ -37,6 +38,7 @@ function App() {
   }
 
   if (authorization.userGroup === USERGROUP.ADMIN) {
+    links.push({ name: "Users", url: "users" });
     links.push({ name: "Create user", url: "create-user" });
   }
 
@@ -85,6 +87,9 @@ function App() {
                   </Route>
                   <Route path="/settings">
                     <Settings />
+                  </Route>
+                  <Route path="/Users">
+                    <Users />
                   </Route>
                   <Route path="/create-user">
                     {authorization.userGroup === USERGROUP.ADMIN ? (
