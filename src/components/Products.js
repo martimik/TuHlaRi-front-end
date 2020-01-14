@@ -28,10 +28,13 @@ export default class Products extends React.Component {
     };
 
     getProducts() {
-        axios.get(API_URL + "products").then(response => {
-            console.log(response.data);
-            this.setState({ products: response.data });
-        });
+        axios
+            .get(API_URL + "products")
+            .then(response => {
+                console.log(response.data);
+                this.setState({ products: response.data });
+            })
+            .catch(err => console.log(err.message));
     }
 
     setProduct = product => {
