@@ -88,7 +88,7 @@ function App() {
                   <Route path="/settings">
                     <Settings />
                   </Route>
-                  <Route path="/Users">
+                  <Route path="/users">
                     <Users />
                   </Route>
                   <Route path="/create-user">

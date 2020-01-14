@@ -1,85 +1,98 @@
-import React, { useState } from "react";
+import React from "react";
 import MaterialTable from "material-table";
-import { makeStyles } from "@material-ui/core/styles";
+import axios from "axios";
+import API_URL from "../js/api";
 import { useSnackbar } from "notistack";
 
-export default function Users() {
-  const classes = useStyles();
-
-  const [state, setState] = React.useState({
-    columns: [
-      { title: "Name", field: "name" },
-      { title: "email", field: "email" },
-      {
-        title: "Usergroup",
-        field: "usergroup",
-        type: "numeric",
-        lookup: { 0: "admin", 1: "Product owner", 2: "Merchant :-D" }
-      }
-    ],
-    data: [
-      { name: "Mehmet", email: "Baran", birthYear: 1987, usergroup: 2 },
-      {
-        name: "Zerya Betül",
-        email: "Baran",
-        birthYear: 2017,
-        usergroup: 2
-      }
-    ]
-  });
-
-  return (
-    <MaterialTable
-      title="All Users"
-      columns={state.columns}
-      data={state.data}
-      editable={{
-        onRowAdd: newData =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              setState(prevState => {
-                const data = [...prevState.data];
-                data.push(newData);
-                return { ...prevState, data };
-              });
-            }, 600);
-          }),
-        onRowUpdate: (newData, oldData) =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              if (oldData) {
-                setState(prevState => {
-                  const data = [...prevState.data];
-                  data[data.indexOf(oldData)] = newData;
-                  return { ...prevState, data };
-                });
-              }
-            }, 600);
-          }),
-        onRowDelete: oldData =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              setState(prevState => {
-                const data = [...prevState.data];
-                data.splice(data.indexOf(oldData), 1);
-                return { ...prevState, data };
-              });
-            }, 600);
-          })
-      }}
-    />
-  );
-}
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: 700,
-    margin: "auto",
-    "& > *": {
-      margin: theme.spacing(1)
-    }
+export default class Users extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      columns: [
+        { title: "Name", field: "name" },
+        {
+          title: "Email",
+          field: "email"
+        },
+        {
+          title: "Usergroup",
+          field: "userGroup",
+          lookup: { 0: "Admin", 1: "Product Owner", 2: "Merchant" }
+        }
+      ],
+      data: []
+    };
   }
-}));
+
+  componentDidMount() {
+    this.getProducts();
+  }
+
+  getProducts() {
+    axios.get(API_URL + "users").then(response => {
+      console.log(response.data);
+      this.setState({ data: response.data });
+    });
+  }
+
+  editUser(reqEmail, newData) {
+    console.log("Email: " + reqEmail + " -- newData: ");
+    console.log(newData);
+
+    newData.oldEmail = reqEmail;
+
+    axios
+      .post(API_URL + "editUser", newData)
+      .then(res => {
+        console.log(res);
+        if (res.status === 201) {
+          console.log("ok");
+        } else {
+          console.log("no ok");
+        }
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+  }
+
+  deleteUser() {}
+
+  render() {
+    return (
+      <MaterialTable
+        title="All Users"
+        columns={this.state.columns}
+        data={this.state.data}
+        options={{ actionsColumnIndex: -1 }}
+        editable={{
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                {
+                  this.editUser(oldData.email, newData);
+                  const data = this.state.data;
+                  const index = data.indexOf(oldData);
+                  data[index] = newData;
+                  this.setState({ data }, () => resolve());
+                }
+                resolve();
+              }, 1000);
+            }),
+          onRowDelete: oldData =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                {
+                  let data = this.state.data;
+                  const index = data.indexOf(oldData);
+                  data.splice(index, 1);
+                  this.setState({ data }, () => resolve());
+                }
+                resolve();
+              }, 1000);
+            })
+        }}
+      />
+    );
+  }
+}
