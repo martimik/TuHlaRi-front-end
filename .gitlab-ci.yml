@@ -39,23 +39,6 @@ dependency_scanning:
     expire_in: 1 week
   tags:
     - general
-    
-pass_check:
-    image: docker:stable
-    variables:
-        DOCKER_DRIVER: overlay2
-    allow_failure: true
-    services:
-        - docker:stable-dind
-    before_script:
-        - echo $"$OPENSHIFT_TOKEN"
-        - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
-        - oc status
-        - oc whoami
-        - echo $CI_PROJECT_NAME
-    tags:
-        -general
-
 
 code_quality:
   stage: test
@@ -96,11 +79,9 @@ code_quality:
     - general
 
 
-
-
-
 .deploy: &deploy
   before_script:
+    - echo "$OPENSHIFT_TOKEN"
     - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
     - oc status
     - oc whoami
