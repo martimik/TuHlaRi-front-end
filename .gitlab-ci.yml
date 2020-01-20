@@ -40,7 +40,7 @@ dependency_scanning:
   tags:
     - general
     
-passcheck:
+pass_check:
     image: docker:stable
     variables:
         DOCKER_DRIVER: overlay2
