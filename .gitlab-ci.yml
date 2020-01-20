@@ -15,7 +15,7 @@ variables:
   OPENSHIFT_DOMAIN: rahti.csc.fi
   
   # Configure this variable in Secure Variables:
-  OPENSHIFT_TOKEN: OPENSHIFT_TOKEN
+  # OPENSHIFT_TOKEN: variable
   
 
 dependency_scanning:
@@ -39,6 +39,22 @@ dependency_scanning:
     expire_in: 1 week
   tags:
     - general
+    
+passcheck:
+    image: docker:stable
+    variables:
+        DOCKER_DRIVER: overlay2
+    allow_failure: true
+    services:
+        - docker:stable-dind
+    before_script:
+        - echo $"$OPENSHIFT_TOKEN"
+        - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
+        - oc status
+        - oc whoami
+        - echo $CI_PROJECT_NAME
+    tags:
+        -general
 
 
 code_quality:
@@ -136,7 +152,6 @@ stop-review:
 
 # OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
 # OPENSHIFT_DOMAIN: rahti.csc.fi
-# - echo $CI_PROJECT_NAME
 
 staging:
   <<: *deploy
