@@ -9,7 +9,9 @@ import { UserProvider } from "./UserContext";
 import { ThemeProvider } from "@material-ui/core/styles";
 import theme from "../theme";
 import CreateUser from "./CreateUser";
+import ProductsView from "./ProductsView";
 import API_URL from "../js/api";
+import ProductView from "./ProductView";
 
 axios.defaults.withCredentials = true;
 
@@ -28,15 +30,15 @@ function App() {
 
     const links = [
         { name: "Home", url: "/" },
-        { name: "Products", url: "products" }
+        { name: "Products", url: "/products" }
     ];
 
     if (authorization.userGroup) {
-        links.push({ name: "Create product", url: "create-product" });
+        links.push({ name: "Create product", url: "/create-product" });
     }
 
     if (authorization.userGroup === USERGROUP.ADMIN) {
-        links.push({ name: "Create user", url: "create-user" });
+        links.push({ name: "Create user", url: "/create-user" });
     }
 
     useEffect(() => {
@@ -71,16 +73,27 @@ function App() {
                             />
                             <div>
                                 <Switch>
-                                    <Route exact path="/">
-                                        <div>
-                                            <p>Home</p>
-                                        </div>
-                                    </Route>
-                                    <Route path="/products">
+                                    <Route
+                                        exact
+                                        path="/"
+                                        component={ProductsView}
+                                    />
+                                    <Route path="/products-old">
                                         <Products />
                                     </Route>
+                                    <Route
+                                        path="/products"
+                                        component={ProductsView}
+                                    />
+                                    <Route path="/product/:id">
+                                        <ProductView />
+                                    </Route>
                                     <Route path="/create-product">
-                                        <CreateProduct />
+                                        {authorization.userGroup ? (
+                                            <CreateProduct />
+                                        ) : (
+                                            <div>Not found</div>
+                                        )}
                                     </Route>
                                     <Route path="/create-user">
                                         {authorization.userGroup ===
