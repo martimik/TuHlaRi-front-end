@@ -85,7 +85,9 @@ code_quality:
     - oc status
     - oc whoami
     - echo $CI_PROJECT_NAME
-    
+    # -npm install
+    # -npm build front-end
+    # - oc start-build nginx-front-end --follow --git-repository=GITLAB_REPO_LINK_HERE
     - oc project tuhlari
   script:
     - "oc get services $APP 2> /dev/null || oc new-app . --name=$APP --strategy=docker"
