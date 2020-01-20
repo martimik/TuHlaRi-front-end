@@ -1,28 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { useSnackbar } from "notistack";
+import axios from "axios";
+import API_URL from "../js/api";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import { useSnackbar } from "notistack";
-import API_URL from "../js/api";
-import axios from "axios";
 
-const CreateUser = () => {
+export default function Profile() {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
+
   const emptyInput = {
-    name: "",
-    email: "",
+    oldPassword: "",
     password: "",
-    confirmPassword: "",
-    userGroup: 2
+    confirmPassword: ""
   };
   const [input, setInput] = useState(emptyInput);
 
   const [errors, setErrors] = useState({
-    name: false,
-    email: false,
     password: false,
     confirmPassword: false
   });
@@ -33,8 +28,14 @@ const CreateUser = () => {
     }
   }, [input, errors]);
 
-  const handleSubmit = () => {
-    const { name, email, password, confirmPassword, userGroup } = input;
+  const handleChange = e => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const { oldPassword, password, confirmPassword } = input;
 
     if (password !== confirmPassword) {
       setErrors({ ...errors, confirmPassword: true });
@@ -43,13 +44,22 @@ const CreateUser = () => {
     console.log(input);
 
     axios
-      .post(API_URL + "newUser", { name, email, password, userGroup })
+      .post(API_URL + "editPassword", { oldPassword, password })
       .then(res => {
         console.log(res);
-        if (res.status === 200) {
+        if (res.status === 201) {
+          setInput(emptyInput);
+          enqueueSnackbar("Password changed.", {
+            variant: "success",
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "center"
+            }
+          });
+        } else {
           setInput(emptyInput);
           enqueueSnackbar(res.data.message, {
-            variant: "success",
+            variant: "error",
             anchorOrigin: {
               vertical: "bottom",
               horizontal: "center"
@@ -59,7 +69,7 @@ const CreateUser = () => {
       })
       .catch(err => {
         console.log(err.response);
-        enqueueSnackbar("User creation failed", {
+        enqueueSnackbar("Password update failed.", {
           variant: "error",
           anchorOrigin: {
             vertical: "bottom",
@@ -67,33 +77,22 @@ const CreateUser = () => {
           }
         });
       });
-  };
-
-  const handleChange = e => {
-    setInput({ ...input, [e.target.name]: e.target.value });
-  };
+  }
 
   return (
     <div className={classes.root}>
-      <h1 className={classes.header}>Create User</h1>
+      <h1 className={classes.header}>Change Password</h1>
       <TextField
-        name="name"
-        label="Name"
-        value={input.name}
+        name="oldPassword"
+        label="Old Password"
+        value={input.oldPassword}
         onChange={handleChange}
         fullWidth
-      />
-      <TextField
-        name="email"
-        label="Email"
-        type="email"
-        value={input.email}
-        onChange={handleChange}
-        fullWidth
+        type="password"
       />
       <TextField
         name="password"
-        label="Password"
+        label="New password"
         type="password"
         value={input.password}
         onChange={handleChange}
@@ -109,25 +108,12 @@ const CreateUser = () => {
         error={errors.confirmPassword}
         helperText={errors.confirmPassword ? "Passwords do not match" : ""}
       />
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={input.userGroup}
-        onChange={handleChange}
-        name="userGroup"
-        fullWidth
-        style={{ marginTop: "20px" }}
-      >
-        <MenuItem value={2}>Salesperson (2)</MenuItem>
-        <MenuItem value={1}>Product owner (1)</MenuItem>
-        <MenuItem value={0}>Admin (0)</MenuItem>
-      </Select>
       <Button color="primary" variant="contained" onClick={handleSubmit}>
         Submit
       </Button>
     </div>
   );
-};
+}
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -150,5 +136,3 @@ const useStyles = makeStyles(theme => ({
     textAlign: "center"
   }
 }));
-
-export default CreateUser;
