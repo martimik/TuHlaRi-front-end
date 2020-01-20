@@ -20,7 +20,8 @@ export default class Users extends React.Component {
           lookup: { 0: "Admin", 1: "Product Owner", 2: "Merchant" }
         }
       ],
-      data: []
+      data: [],
+      popup: props.enqueueSnackbar
     };
   }
 
@@ -36,17 +37,22 @@ export default class Users extends React.Component {
   }
 
   editUser(reqEmail, newData) {
-    console.log("Email: " + reqEmail + " -- newData: ");
-    console.log(newData);
-
-    newData.oldEmail = reqEmail;
+    newData.reqEmail = reqEmail;
 
     axios
       .post(API_URL + "editUser", newData)
       .then(res => {
         console.log(res);
-        if (res.status === 201) {
+        if (res.status === 200) {
           console.log("ok");
+          this.state.popup(res.data.message, {
+            variant: "success",
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "center"
+            }
+          });
+          this.refreshTable();
         } else {
           console.log("no ok");
         }
@@ -56,7 +62,22 @@ export default class Users extends React.Component {
       });
   }
 
-  deleteUser() {}
+  deleteUser(userData) {
+    const email = userData.email;
+    axios
+      .post(API_URL + "deleteUser", { email: email })
+      .then(res => {
+        console.log(res);
+        if (res.status === 200) {
+          console.log("ok");
+        } else {
+          console.log("no ok");
+        }
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+  }
 
   render() {
     return (
@@ -71,7 +92,7 @@ export default class Users extends React.Component {
               setTimeout(() => {
                 {
                   this.editUser(oldData.email, newData);
-                  const data = this.state.data;
+                  const data = [...this.state.data];
                   const index = data.indexOf(oldData);
                   data[index] = newData;
                   this.setState({ data }, () => resolve());
@@ -83,7 +104,8 @@ export default class Users extends React.Component {
             new Promise((resolve, reject) => {
               setTimeout(() => {
                 {
-                  let data = this.state.data;
+                  this.deleteUser(oldData);
+                  let data = [...this.state.data];
                   const index = data.indexOf(oldData);
                   data.splice(index, 1);
                   this.setState({ data }, () => resolve());

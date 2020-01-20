@@ -46,9 +46,9 @@ const CreateUser = () => {
       .post(API_URL + "newUser", { name, email, password, userGroup })
       .then(res => {
         console.log(res);
-        if (res.status === 201) {
+        if (res.status === 200) {
           setInput(emptyInput);
-          enqueueSnackbar("User created", {
+          enqueueSnackbar(res.data.message, {
             variant: "success",
             anchorOrigin: {
               vertical: "bottom",

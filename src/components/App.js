@@ -12,6 +12,7 @@ import { UserProvider } from "./UserContext";
 import { ThemeProvider } from "@material-ui/core/styles";
 import theme from "../theme";
 import API_URL from "../js/api";
+import DeletedProducts from "./DeletedProducts";
 
 axios.defaults.withCredentials = true;
 
@@ -40,6 +41,7 @@ function App() {
   if (authorization.userGroup === USERGROUP.ADMIN) {
     links.push({ name: "Users", url: "users" });
     links.push({ name: "Create user", url: "create-user" });
+    links.push({ name: "Deleted products", url: "deleted-products" });
   }
 
   useEffect(() => {
@@ -97,6 +99,9 @@ function App() {
                     ) : (
                       <div>Not found</div>
                     )}
+                  </Route>
+                  <Route path="/deleted-products">
+                    <DeletedProducts />
                   </Route>
                 </Switch>
               </div>
