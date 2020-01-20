@@ -29,9 +29,9 @@ variables:
     - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
   # expose our application
 
-develop:
+deplou:
   <<: *deploy
-  stage: deployToOpenShift
+  stage: deply
   tags:
     - docker
   variables:
