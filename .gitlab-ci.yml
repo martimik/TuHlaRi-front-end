@@ -23,7 +23,7 @@ variables:
 # List of the variables: https://gitlab.com/gitlab-org/security-products/license-management#settings
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
- .deploy: &deploy
+.deploy: &deploy
   before_script:
     - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
     - oc status
