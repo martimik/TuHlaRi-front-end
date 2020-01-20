@@ -86,7 +86,7 @@ code_quality:
     - oc whoami
     - echo $CI_PROJECT_NAME
     
-    - new-project front-end
+    - oc new-project Tuhlari
   script:
     - "oc get services $APP 2> /dev/null || oc new-app . --name=$APP --strategy=docker"
     - "oc start-build $APP --from-dir=. --follow || sleep 3s && oc start-build $APP --from-dir=. --follow"
