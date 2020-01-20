@@ -1,75 +1,64 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import Chip from "@material-ui/core/Chip";
-import PermIdentityIcon from "@material-ui/icons/PermIdentity";
-import Avatar from "@material-ui/core/Avatar";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Product from "./Product";
+import { useParams } from "react-router-dom";
+import API_URL from "../js/api";
+import ProductEditor from "./ProductEditor";
+import makeStyles from "@material-ui/styles/makeStyles";
 
-export default function ProductsView(props) {
+const ProductView = () => {
     const classes = useStyles();
-    const { product } = props;
+    const [product, setProduct] = useState(null);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const { id } = useParams();
+
+    useEffect(() => {
+        if (id) {
+            axios
+                .get(API_URL + "product/" + id)
+                .then(res => setProduct(res.data))
+                .catch(err => console.log(err));
+        }
+    }, [id]);
+
+    const onEdit = () => {
+        axios
+            .get(API_URL + "product/" + id)
+            .then(res => setProduct(res.data))
+            .catch(err => console.log(err));
+        setIsEditMode(false);
+    };
+
+    const toggleEditMode = () => {
+        setIsEditMode(state => !state);
+    };
+
+    if (!product) return <div>Loading...</div>;
 
     return (
-        <Grid item xs>
-            <Card className={classes.card}>
-                <CardActionArea>
-                    <Link to={"product/" + product._id}>
-                        <CardMedia
-                            className={classes.media}
-                            image={product.logos[product.logos.length - 1]}
-                            title="Contemplative Reptile"
-                        />
-                        <CardContent>
-                            <Typography
-                                gutterBottom
-                                variant="h5"
-                                component="h2"
-                            >
-                                {product.productName}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                component="p"
-                                className={classes.shortDescription}
-                            >
-                                {product.shortDescription}
-                            </Typography>
-                        </CardContent>
-                    </Link>
-                </CardActionArea>
-                <CardActions>
-                    <Button size="small" color="primary">
-                        Share
-                    </Button>
-                    <Button size="small" color="primary">
-                        Learn More
-                    </Button>
-                </CardActions>
-            </Card>
-        </Grid>
+        <div className={classes.root}>
+            {isEditMode ? (
+                <ProductEditor
+                    product={product}
+                    toggleEditMode={toggleEditMode}
+                    onEdit={onEdit}
+                />
+            ) : (
+                <Product
+                    product={product}
+                    toggleEditMode={
+                        product.isAllowedToEdit ? toggleEditMode : null
+                    }
+                />
+            )}
+        </div>
     );
-}
+};
 
 const useStyles = makeStyles(theme => ({
-    card: {
-        textAlign: "center",
-        color: theme.palette.text.secondary,
-        maxWidth: 300,
-        minWidth: 200
-    },
-    media: {
-        height: 140
-    },
-    shortDescription: {
-        minHeight: 62
+    root: {
+        margin: theme.spacing(4)
     }
 }));
+
+export default ProductView;

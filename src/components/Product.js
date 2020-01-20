@@ -41,8 +41,8 @@ export default function Product(props) {
 
     if (product) {
         return (
-            <div className={classes.root}>
-                <Paper elevation={4} className={classes.paper}>
+            <div className={props.className}>
+                <Paper elevation={2} className={classes.paper}>
                     {product.isClassified ? (
                         <SecurityIcon color="primary" fontSize="large" />
                     ) : null}
@@ -225,9 +225,6 @@ export default function Product(props) {
 }
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        marginTop: theme.spacing(4)
-    },
     paper: {
         maxWidth: 1000,
         padding: theme.spacing(4),

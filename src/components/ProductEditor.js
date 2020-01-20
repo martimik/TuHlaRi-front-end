@@ -18,6 +18,7 @@ import { useSnackbar } from "notistack";
 import API_URL from "../js/api";
 import Fab from "@material-ui/core/Fab";
 import EditIcon from "@material-ui/icons/Edit";
+import Paper from "@material-ui/core/Paper";
 
 export default function ProductEditor(props) {
     const classes = useStyles();
@@ -256,7 +257,7 @@ export default function ProductEditor(props) {
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
             .then(response => {
                 console.log(response);
-                enqueueSnackbar("Product added!", {
+                enqueueSnackbar(id ? "Product edited" : "Product added", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
@@ -266,12 +267,12 @@ export default function ProductEditor(props) {
                 if (!props.toggleEditMode) {
                     clearInput();
                 } else {
-                    props.toggleEditMode();
+                    props.onEdit();
                 }
             })
             .catch(error => {
                 console.log(error.response);
-                enqueueSnackbar("Product creation failed.", {
+                enqueueSnackbar(error.response.data.message, {
                     variant: "error",
                     anchorOrigin: {
                         vertical: "top",
@@ -364,7 +365,7 @@ export default function ProductEditor(props) {
     }
 
     return (
-        <div className={classes.root}>
+        <Paper elevation={2} className={classes.root}>
             {props.toggleEditMode ? (
                 <Fab
                     color="secondary"
@@ -672,16 +673,15 @@ export default function ProductEditor(props) {
                     </Button>
                 </Grid>
             </form>
-        </div>
+        </Paper>
     );
 }
 
 const useStyles = makeStyles(theme => ({
     root: {
-        boxShadow: "1px 2px 20px 1px#d4d4d4",
-        padding: "30px",
-        borderRadius: "25px",
-        backgroundColor: "white"
+        maxWidth: 1000,
+        padding: theme.spacing(4),
+        margin: "auto"
     },
     form: {},
     chip: {

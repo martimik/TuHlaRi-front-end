@@ -11,7 +11,7 @@ import theme from "../theme";
 import CreateUser from "./CreateUser";
 import ProductsView from "./ProductsView";
 import API_URL from "../js/api";
-import Product from "./Product";
+import ProductView from "./ProductView";
 
 axios.defaults.withCredentials = true;
 
@@ -73,11 +73,11 @@ function App() {
                             />
                             <div>
                                 <Switch>
-                                    <Route exact path="/">
-                                        <div>
-                                            <p>Home</p>
-                                        </div>
-                                    </Route>
+                                    <Route
+                                        exact
+                                        path="/"
+                                        component={ProductsView}
+                                    />
                                     <Route path="/products-old">
                                         <Products />
                                     </Route>
@@ -86,7 +86,7 @@ function App() {
                                         component={ProductsView}
                                     />
                                     <Route path="/product/:id">
-                                        <Product />
+                                        <ProductView />
                                     </Route>
                                     <Route path="/create-product">
                                         {authorization.userGroup ? (
