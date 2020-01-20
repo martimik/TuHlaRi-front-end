@@ -1,7 +1,14 @@
 image: ebits/openshift-client
 
 stages:
-  - develop
+  - build  # dummy stage to follow the template guidelines
+  - test
+  - deploy  # dummy stage to follow the template guidelines
+  - review
+  - staging
+  - production
+  - cleanup
+
 
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
