@@ -15,7 +15,7 @@ variables:
   OPENSHIFT_DOMAIN: rahti.csc.fi
   
   # Configure this variable in Secure Variables:
-  # OPENSHIFT_TOKEN: my.openshift.token
+  OPENSHIFT_TOKEN: my.openshift.token
 
 markdownlint:
   stage: test
