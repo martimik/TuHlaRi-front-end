@@ -15,23 +15,8 @@ variables:
   OPENSHIFT_DOMAIN: rahti.csc.fi
   
   # Configure this variable in Secure Variables:
-  OPENSHIFT_TOKEN: my_openshift_token
+  OPENSHIFT_TOKEN: eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJ0dWhsYXJpIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InJvYm90LXRva2VuLWxxMm4yIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InJvYm90Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiOGNiMjQ2MTctM2I1OC0xMWVhLTk1ODEtZmExNjNlYjRiZDkyIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OnR1aGxhcmk6cm9ib3QifQ.gEgJO8hI8BUKYACuyoZEz6_g06LXaCUWa8lVtEzDCjpAYxXbaH6112WfQUfjXt0pvTO7BwG0RnXRjO_GsL2Ynp_CjpC4sPZeFxofuz-b9Kx9pZdVOcc87WY4iIa5j0AVJQy3DY_Agzj0o9uRaKbHV3zDUEhDt5BQ_GdwqT_86lpDGypwAYU0BJ61X154AIF9Mpup5kZ_1vXwOo2v1QW5otTJDhXkO09kSOhwE9LSaGeGhHaHV82ZXFr6SMCE4m896-s-L31l-IiV5gCzoICc1QxDUJyDuVGJuq-ik6P16ID4ZKXoZcXooZy2VV5LEB7Op8-m5N0-B_UIBIC_r2l0OA
 
-markdownlint:
-  stage: test
-  image: pipelinecomponents/markdownlint:latest
-  script:
-    - mdl --style all --warnings . > markdownlint.txt
-  artifacts:
-    paths:
-    - $CI_PROJECT_DIR/markdownlint.txt 
-    when: on_failure
-    expire_in: 1 week
-  tags:
-    - general
-    
-  allow_failure: true
-  
 
 dependency_scanning:
   image: docker:stable
@@ -52,43 +37,6 @@ dependency_scanning:
       dependency_scanning: $CI_PROJECT_DIR/gl-dependency-scanning-report.json
     when: on_failure
     expire_in: 1 week
-  tags:
-    - general
-
-
-# Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/license_management/
-#
-# Configure the scanning tool through the environment variables.
-# List of the variables: https://gitlab.com/gitlab-org/security-products/license-management#settings
-# How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
-
-variables:
-  LICENSE_MANAGEMENT_SETUP_CMD: ''  # If needed, specify a command to setup your environment with a custom package manager.
-
-license_management:
-  stage: test
-  image:
-    name: "registry.gitlab.com/gitlab-org/security-products/license-management:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable"
-    entrypoint: [""]
-  variables:
-    SETUP_CMD: $LICENSE_MANAGEMENT_SETUP_CMD
-  allow_failure: true
-  script:
-    - /run.sh analyze .
-  artifacts:
-    reports:
-      license_management: $CI_PROJECT_DIR/gl-license-management-report.json
-    expire_in: 1 week
-  dependencies: []
-  only:
-    refs:
-      - branches
-    variables:
-      - $GITLAB_FEATURES =~ /\blicense_management\b/
-  except:
-    variables:
-      - $LICENSE_MANAGEMENT_DISABLED
-
   tags:
     - general
 
@@ -185,6 +133,10 @@ stop-review:
     - branches
   except:
     - master
+
+# OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
+# OPENSHIFT_DOMAIN: rahti.csc.fi
+# - echo $CI_PROJECT_NAME
 
 staging:
   <<: *deploy
