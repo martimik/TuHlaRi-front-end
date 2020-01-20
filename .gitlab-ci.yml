@@ -4,8 +4,8 @@ stages:
   - deployToOpenShift
 
 variables:
-  OPENSHIFT_SERVER: https://master.openshift.devopstales.intra:443
-  OPENSHIFT_DOMAIN: openshift.devopstales.intra
+  OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
+  OPENSHIFT_DOMAIN: rahti.csc.fi
   # Configure this variable in Secure Variables:
   # OPENSHIFT_TOKEN: eyJ...<very-long-token>...-cw
 
