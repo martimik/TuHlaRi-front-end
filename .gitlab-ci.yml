@@ -1,7 +1,7 @@
 image: ebits/openshift-client
 
 stages:
-  - deployToOpenShift
+  - develop
 
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
