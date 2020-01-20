@@ -1,93 +1,242 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Fab from "@material-ui/core/Fab";
 import EditIcon from "@material-ui/icons/Edit";
+import Chip from "@material-ui/core/Chip";
+import makeStyles from "@material-ui/styles/makeStyles";
+import Avatar from "@material-ui/core/Avatar";
+import Typography from "@material-ui/core/Typography";
+import Divider from "@material-ui/core/Divider";
+import PermIdentityIcon from "@material-ui/icons/PermIdentity";
+import Stepper from "@material-ui/core/Stepper";
+import Step from "@material-ui/core/Step";
+import StepLabel from "@material-ui/core/StepLabel";
+import SecurityIcon from "@material-ui/icons/Security";
+import Paper from "@material-ui/core/Paper";
+import axios from "axios";
+import API_URL from "../js/api";
+import { useParams } from "react-router-dom";
 
-export default class Product extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    render() {
-        if (this.props.product) {
-            return (
-                <div className="product">
-                    {this.props.toggleEditMode ? (
+export default function Product(props) {
+    const classes = useStyles();
+    const [product, setProduct] = useState(null);
+    const { id } = useParams();
+    const lifecycleStatuses = [
+        "Idea",
+        "Accepted",
+        "Planning",
+        "Developement",
+        "Released",
+        "Production",
+        "Closed"
+    ];
+
+    useEffect(() => {
+        if (id) {
+            axios
+                .get(API_URL + "product/" + id)
+                .then(res => setProduct(res.data))
+                .catch(err => console.log(err));
+        }
+    }, [id]);
+
+    if (product) {
+        return (
+            <div className={props.className}>
+                <Paper elevation={2} className={classes.paper}>
+                    {product.isClassified ? (
+                        <SecurityIcon color="primary" fontSize="large" />
+                    ) : null}
+                    {props.toggleEditMode ? (
                         <Fab
                             color="secondary"
                             aria-label="edit"
                             size="small"
                             style={{ float: "right" }}
-                            onClick={this.props.toggleEditMode}
+                            onClick={props.toggleEditMode}
                         >
                             <EditIcon />
                         </Fab>
                     ) : null}
                     <div className="product-header">
-                        <h1>{this.props.product.productName}</h1>
+                        <h1>{product.productName}</h1>
                         <img
                             className="logo-large"
                             src={
-                                this.props.product.logo ||
+                                product.logos[product.logos.length - 1] ||
                                 "https://image.shutterstock.com/image-vector/ui-image-placeholder-wireframes-apps-260nw-1037719204.jpg"
                             }
-                            alt={this.props.product.productName}
+                            alt={product.productName}
                         ></img>
                     </div>
+                    <Stepper
+                        alternativeLabel
+                        activeStep={product.lifecycleStatus - 1}
+                    >
+                        {lifecycleStatuses.map((label, index) => {
+                            return (
+                                <Step key={label}>
+                                    <StepLabel>{label}</StepLabel>
+                                </Step>
+                            );
+                        })}
+                    </Stepper>
                     <div>
                         <p className="product-short-description">
-                            {this.props.product.shortDescription}
+                            {product.shortDescription}
                         </p>
                     </div>
                     <div>
                         <p className="product-long-description">
-                            {this.props.product.longDescription}
+                            {product.longDescription}
                         </p>
-                        <div className="product-info-list">
+                        {product.technologies.length ? (
                             <div>
-                                <p>Teknologiat</p>
-                                <ul>
-                                    {this.props.product.technologies.map(
+                                <Divider />
+                                <Typography variant="caption">
+                                    Technologies:
+                                </Typography>
+                                <div className={classes.chips}>
+                                    {product.technologies.map(
                                         (technology, i) => (
-                                            <li key={i}>{technology}</li>
+                                            <Chip
+                                                key={i}
+                                                label={technology}
+                                                color="secondary"
+                                                variant="outlined"
+                                            />
                                         )
                                     )}
-                                </ul>
+                                </div>
                             </div>
+                        ) : null}
+                        {product.components.length ? (
                             <div>
-                                <p>Komponentit</p>
-                                <ul>
-                                    {this.props.product.components.map(
-                                        (component, i) => (
-                                            <li key={i}>{component}</li>
+                                <Divider />
+                                <Typography variant="caption">
+                                    Components:
+                                </Typography>
+                                <div className={classes.chips}>
+                                    {product.components.map((component, i) => (
+                                        <Chip
+                                            key={i}
+                                            label={component}
+                                            color="secondary"
+                                            variant="outlined"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+                        {product.environmentRequirements.length ? (
+                            <div>
+                                <Divider />
+                                <Typography variant="caption">
+                                    Environment Requirements:
+                                </Typography>
+                                <div className={classes.chips}>
+                                    {product.environmentRequirements.map(
+                                        (requirement, i) => (
+                                            <Chip
+                                                key={i}
+                                                label={requirement}
+                                                color="secondary"
+                                                variant="outlined"
+                                            />
                                         )
                                     )}
-                                </ul>
+                                </div>
                             </div>
+                        ) : null}
+                        {product.customers.length ? (
+                            <div>
+                                <Divider />
+                                <Typography variant="caption">
+                                    Customers:
+                                </Typography>
+                                <div className={classes.chips}>
+                                    {product.customers.map((customer, i) => (
+                                        <Chip
+                                            key={i}
+                                            label={customer}
+                                            color="secondary"
+                                            variant="outlined"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+                        <Divider />
+                        <div className={classes.bottomChipGroup}>
+                            {product.pricing ? (
+                                <div>
+                                    <Typography variant="caption">
+                                        Pricing:
+                                    </Typography>
+                                    <div>
+                                        <Chip
+                                            color="primary"
+                                            label={product.pricing}
+                                            avatar={<Avatar>€</Avatar>}
+                                        />
+                                    </div>
+                                </div>
+                            ) : null}
+                            {product.productOwner ? (
+                                <div>
+                                    <Typography variant="caption">
+                                        Product Owner:
+                                    </Typography>
+                                    <div>
+                                        <Chip
+                                            variant="outlined"
+                                            color="primary"
+                                            label={product.productOwner}
+                                            icon={<PermIdentityIcon />}
+                                        />
+                                    </div>
+                                </div>
+                            ) : null}
+                            {product.salesPerson ? (
+                                <div>
+                                    <Typography variant="caption">
+                                        Sales Person:
+                                    </Typography>
+                                    <div>
+                                        <Chip
+                                            variant="outlined"
+                                            color="primary"
+                                            label={product.salesPerson}
+                                            icon={<PermIdentityIcon />}
+                                        />
+                                    </div>
+                                </div>
+                            ) : null}
                         </div>
-                        <p className="product-requirement">
-                            {this.props.product.requirement || null}
-                        </p>
-                        <p className="product-customer">
-                            {this.props.product.customer || null}
-                        </p>
-                        <p className="product-lifecycle">
-                            {this.props.product.lifecycle || null}
-                        </p>
-                        <p className="product-business-owner">
-                            {this.props.product.businessOwner || null}
-                        </p>
-                        <p className="product-pricing">
-                            {this.props.product.pricing || null}
-                        </p>
                     </div>
-                </div>
-            );
-        } else {
-            return (
-                <div>
-                    <p>Please select an item</p>
-                </div>
-            );
-        }
+                </Paper>
+            </div>
+        );
     }
+    return (
+        <div>
+            <p>Loading...</p>
+        </div>
+    );
 }
+
+const useStyles = makeStyles(theme => ({
+    paper: {
+        maxWidth: 1000,
+        padding: theme.spacing(4),
+        margin: "auto"
+    },
+    chips: {
+        "& > *": {
+            margin: theme.spacing(0.6)
+        }
+    },
+    bottomChipGroup: {
+        display: "flex",
+        justifyContent: "space-evenly"
+    }
+}));

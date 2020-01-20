@@ -169,3 +169,8 @@ ul {
 
 .product-long-description {
 }
+
+.product-container {
+    margin: 40px;
+    min-width: 550px;
+}

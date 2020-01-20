@@ -28,10 +28,13 @@ export default class Products extends React.Component {
     };
 
     getProducts() {
-        axios.get(API_URL + "products").then(response => {
-            console.log(response.data);
-            this.setState({ products: response.data });
-        });
+        axios
+            .get(API_URL + "products")
+            .then(response => {
+                console.log(response.data);
+                this.setState({ products: response.data });
+            })
+            .catch(err => console.log(err.message));
     }
 
     setProduct = product => {
@@ -68,7 +71,6 @@ export default class Products extends React.Component {
             <div className="products">
                 <div className="sidebar">
                     <SearchField onSearch={this.onSearch} />
-                    <button onClick={this.toggleEditMode}> asdasd </button>
                     <Sidebar
                         defaultExpanded
                         setProduct={this.setProduct}
@@ -89,19 +91,20 @@ export default class Products extends React.Component {
                         name="Julkiset tuotteet"
                     />
                 </div>
-
-                {this.state.isEditMode ? (
-                    <ProductEditor
-                        toggleEditMode={this.toggleEditMode}
-                        product={this.state.currentProduct}
-                        title="Edit product"
-                    />
-                ) : (
-                    <Product
-                        product={this.state.currentProduct}
-                        toggleEditMode={this.toggleEditMode}
-                    />
-                )}
+                <div className="product-container">
+                    {this.state.isEditMode ? (
+                        <ProductEditor
+                            toggleEditMode={this.toggleEditMode}
+                            product={this.state.currentProduct}
+                            title="Edit product"
+                        />
+                    ) : (
+                        <Product
+                            product={this.state.currentProduct}
+                            toggleEditMode={this.toggleEditMode}
+                        />
+                    )}
+                </div>
             </div>
         );
     }
