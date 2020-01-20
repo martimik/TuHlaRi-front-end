@@ -1,4 +1,5 @@
-image: ebits/openshift-client
+# This file is a template, and might need editing before it works on your project.
+image: ayufan/openshift-cli
 
 stages:
   - build  # dummy stage to follow the template guidelines
@@ -12,33 +13,204 @@ stages:
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
   OPENSHIFT_DOMAIN: rahti.csc.fi
+  
   # Configure this variable in Secure Variables:
-  # OPENSHIFT_TOKEN: eyJ...<very-long-token>...-cw
+  # OPENSHIFT_TOKEN: my.openshift.token
+
+markdownlint:
+  stage: test
+  image: pipelinecomponents/markdownlint:latest
+  script:
+    - mdl --style all --warnings . > markdownlint.txt
+  artifacts:
+    paths:
+    - $CI_PROJECT_DIR/markdownlint.txt 
+    when: on_failure
+    expire_in: 1 week
+  tags:
+    - general
+    
+  allow_failure: true
+  
+
+dependency_scanning:
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
+    - docker run
+        --env DEP_SCAN_DISABLE_REMOTE_CHECKS="${DEP_SCAN_DISABLE_REMOTE_CHECKS:-false}"
+        --volume "$PWD:/code"
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        "registry.gitlab.com/gitlab-org/security-products/dependency-scanning:$SP_VERSION" /code
+  artifacts:
+    reports:
+      dependency_scanning: $CI_PROJECT_DIR/gl-dependency-scanning-report.json
+    when: on_failure
+    expire_in: 1 week
+  tags:
+    - general
+
+
+# Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/license_management/
+#
+# Configure the scanning tool through the environment variables.
+# List of the variables: https://gitlab.com/gitlab-org/security-products/license-management#settings
+# How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
+
+variables:
+  LICENSE_MANAGEMENT_SETUP_CMD: ''  # If needed, specify a command to setup your environment with a custom package manager.
+
+license_management:
+  stage: test
+  image:
+    name: "registry.gitlab.com/gitlab-org/security-products/license-management:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable"
+    entrypoint: [""]
+  variables:
+    SETUP_CMD: $LICENSE_MANAGEMENT_SETUP_CMD
+  allow_failure: true
+  script:
+    - /run.sh analyze .
+  artifacts:
+    reports:
+      license_management: $CI_PROJECT_DIR/gl-license-management-report.json
+    expire_in: 1 week
+  dependencies: []
+  only:
+    refs:
+      - branches
+    variables:
+      - $GITLAB_FEATURES =~ /\blicense_management\b/
+  except:
+    variables:
+      - $LICENSE_MANAGEMENT_DISABLED
+
+  tags:
+    - general
+
+
+code_quality:
+  stage: test
+  image: docker:stable
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - |
+      if ! docker info &>/dev/null; then
+        if [ -z "$DOCKER_HOST" -a "$KUBERNETES_PORT" ]; then
+          export DOCKER_HOST='tcp://localhost:2375'
+        fi
+      fi
+    - docker run
+        --env SOURCE_CODE="$PWD"
+        --volume "$PWD":/code
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        "registry.gitlab.com/gitlab-org/security-products/codequality:12-0-stable" /code
+  artifacts:
+    reports:
+      codequality: $CI_PROJECT_DIR/gl-code-quality-report.json
+    expire_in: 1 week
+    when: always
+  dependencies: []
+  only:
+    refs:
+      - branches
+      - tags
+  except:
+    variables:
+      - $CODE_QUALITY_DISABLED
+
+  tags:
+    - general
+
+
+
+
 
 .deploy: &deploy
   before_script:
     - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
-  # login with the service account
-    - oc project "slides-openshift"
-  # enter into our slides project on OpenShift
+    - oc status
+    - oc whoami
+    - echo $CI_PROJECT_NAME
+    
+    - oc project "$CI_PROJECT_NAME" 
   script:
-    - "oc get services $APP 2> /dev/null || oc new-app . --name=$APP"
-  # create a new application from the image in the OpenShift registry
-    - "oc start-build $APP --from-dir=. --follow || sleep 3s"
-  # start a new build
+    - "oc get services $APP 2> /dev/null || oc new-app . --name=$APP --strategy=docker"
+    - "oc start-build $APP --from-dir=. --follow || sleep 3s && oc start-build $APP --from-dir=. --follow"
     - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
-  # expose our application
-
-deploy:
-  <<: *deploy
-  stage: deploy
   tags:
-    - docker
+    - shell
+
+
+review:
+  <<: *deploy
+  stage: review
   variables:
-    APP: slides-openshift
-    APP_HOST: demo-slides.$OPENSHIFT_DOMAIN
+    APP: review-$CI_COMMIT_REF_NAME
+    APP_HOST: $CI_PROJECT_NAME-$CI_ENVIRONMENT_SLUG.$OPENSHIFT_DOMAIN
   environment:
-    name: develop
-    url: http://demo-slides.$OPENSHIFT_DOMAIN
+    name: review/$CI_COMMIT_REF_NAME
+    url: http://$CI_PROJECT_NAME-$CI_ENVIRONMENT_SLUG.$OPENSHIFT_DOMAIN
+    on_stop: stop-review
+  only:
+    - branches
   except:
+    - master
+  tags:
+    - shell
+
+
+stop-review:
+  <<: *deploy
+  stage: cleanup
+  script:
+    - oc delete all -l "app=$APP"
+  when: manual
+  variables:
+    APP: review-$CI_COMMIT_REF_NAME
+    GIT_STRATEGY: none
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    action: stop
+  only:
+    - branches
+  except:
+    - master
+
+staging:
+  <<: *deploy
+  stage: staging
+  variables:
+    APP: staging
+    APP_HOST: $CI_PROJECT_NAME-staging.$OPENSHIFT_DOMAIN
+  environment:
+    name: staging
+    url: http://$CI_PROJECT_NAME-staging.$OPENSHIFT_DOMAIN
+  only:
+    - master
+  tags:
+    - shell
+
+
+
+production:
+  <<: *deploy
+  stage: production
+  variables:
+    APP: production
+    APP_HOST: $CI_PROJECT_NAME.$OPENSHIFT_DOMAIN
+  when: manual
+  environment:
+    name: production
+    url: http://$CI_PROJECT_NAME.$OPENSHIFT_DOMAIN
+  only:
     - master
