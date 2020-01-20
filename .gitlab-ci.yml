@@ -15,7 +15,7 @@ variables:
   OPENSHIFT_DOMAIN: rahti.csc.fi
   
   # Configure this variable in Secure Variables:
-  # OPENSHIFT_TOKEN: variable
+  OPENSHIFT_TOKEN: OPENSHIFT_TOKEN
   
 
 dependency_scanning:
