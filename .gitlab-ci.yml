@@ -23,6 +23,7 @@ variables:
     - oc status
     - oc whoami
     - echo $CI_PROJECT_NAME
+    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
     - cd front-end
     - npm install # Install all dependencies
     - npm run build --prod # Build for prod
