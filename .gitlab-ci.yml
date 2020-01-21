@@ -1,4 +1,4 @@
-# This file is a template, and might need editing before it works on your project.
+# This file is a template, and might need editing before it works on your project. testcomment
 image: ayufan/openshift-cli
 
 stages:
