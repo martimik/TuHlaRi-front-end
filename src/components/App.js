@@ -79,9 +79,6 @@ function App() {
               <div>
                 <Switch>
                   <Route exact path="/" component={ProductsView} />
-                  <Route path="/products-old">
-                    <Products />
-                  </Route>
                   <Route path="/products" component={ProductsView} />
                   <Route path="/product/:id">
                     <ProductView />
@@ -90,10 +87,18 @@ function App() {
                     <Settings />
                   </Route>
                   <Route path="/users">
-                    <Users />
+                    {authorization.userGroup === USERGROUP.ADMIN ? (
+                      <Users />
+                    ) : (
+                      <div>Not found</div>
+                    )}
                   </Route>
                   <Route path="/deleted-products">
-                    <DeletedProducts />
+                    {authorization.userGroup === USERGROUP.ADMIN ? (
+                      <DeletedProducts />
+                    ) : (
+                      <div>Not found</div>
+                    )}
                   </Route>
                   <Route path="/create-product">
                     {authorization.userGroup ? (
