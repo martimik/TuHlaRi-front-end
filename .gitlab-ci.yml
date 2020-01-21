@@ -25,8 +25,8 @@ variables:
     - echo $CI_PROJECT_NAME
     - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
     - cd front-end
-    - npm install # Install all dependencies
-    - npm ci --prod # Build for prod
+    - npm ci # Build for prod
+    - npm run build --prod
     - pwd
     - oc project tuhlari
   script:
