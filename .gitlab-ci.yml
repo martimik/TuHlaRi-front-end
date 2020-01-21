@@ -26,7 +26,7 @@ variables:
     - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
     - cd front-end
     - npm install # Install all dependencies
-    - npm run build --prod # Build for prod
+    - npm ci --prod # Build for prod
     - oc project tuhlari
   script:
     - oc start-build front-end --from-dir="build" --follow
