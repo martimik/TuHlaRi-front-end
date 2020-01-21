@@ -8,16 +8,16 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import Checkbox from "@material-ui/core/Checkbox";
 import UserContext from "./UserContext";
 import SearchField from "./SearchField";
 
+axios.defaults.withCredentials = true;
+
 export default function ProductsView() {
     const classes = useStyles();
     const [products, setProducts] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const [queryHasChanged, setQueryHasChanged] = useState(false);
+    const [cancelTimeout, setCancelTimeout] = useState(null);
     const [search, setSearch] = useState("");
     const [filters, setFilters] = useState({
         myProducts: false,
@@ -28,27 +28,37 @@ export default function ProductsView() {
 
     const user = useContext(UserContext);
 
+    const getProducts = () => {
+        axios
+            .get(API_URL + "products", {
+                params: {
+                    filters,
+                    search
+                }
+            })
+            .then(response => {
+                setProducts(response.data);
+            })
+            .catch(err => console.log(err.message));
+    };
+
     useEffect(() => {
-        if (!isSearching) {
-            setIsSearching(true);
-            axios
-                .get(API_URL + "products", {
-                    params: {
-                        filters,
-                        search
-                    }
-                })
-                .then(response => {
-                    setProducts(response.data);
-                })
-                .catch(err => console.log(err.message))
-                .finally(() => setIsSearching(false));
-            console.log(1);
-        }
-    }, [filters, user, search]);
+        debounce(search, getProducts);
+    }, [search]);
+
+    useEffect(getProducts, [filters, user.userGroup]);
 
     const handleFilterChange = e => {
         setFilters({ ...filters, [e.target.name]: e.target.checked });
+    };
+
+    const debounce = (text, callback) => {
+        if (cancelTimeout) {
+            clearTimeout(cancelTimeout);
+            setCancelTimeout(null);
+        }
+        const t = setTimeout(callback, 250);
+        setCancelTimeout(t);
     };
 
     return (
@@ -57,7 +67,7 @@ export default function ProductsView() {
                 <SearchField onSearch={e => setSearch(e.target.value)} />
             </div>
             <FormControl component="fieldset" className={classes.formControl}>
-                <FormLabel component="legend">Ehdot</FormLabel>
+                <FormLabel component="legend">Filters</FormLabel>
                 <FormGroup>
                     {user.userGroup ? (
                         <FormControlLabel
@@ -69,7 +79,7 @@ export default function ProductsView() {
                                     name="myProducts"
                                 />
                             }
-                            label="Luomani"
+                            label="Created by me"
                         />
                     ) : null}
                     {user.userGroup ? (
@@ -82,7 +92,7 @@ export default function ProductsView() {
                                     name="isParticipant"
                                 />
                             }
-                            label="Osallinen"
+                            label="Participant"
                         />
                     ) : null}
                     <FormControlLabel
@@ -94,23 +104,31 @@ export default function ProductsView() {
                                 onChange={handleFilterChange}
                             />
                         }
-                        label="Ideat"
+                        label="Idea"
                     />
-                    {user.userGroup ? (
+                </FormGroup>
+            </FormControl>
+            {user.userGroup ? (
+                <FormControl
+                    component="fieldset"
+                    className={classes.formControl}
+                >
+                    <FormLabel component="legend">Warning</FormLabel>
+                    <FormGroup>
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={filters.classifieds}
+                                    checked={filters.isClassified}
                                     color="primary"
                                     onChange={handleFilterChange}
                                     name="isClassified"
                                 />
                             }
-                            label="Salaiset"
+                            label="Include classified products"
                         />
-                    ) : null}
-                </FormGroup>
-            </FormControl>
+                    </FormGroup>
+                </FormControl>
+            ) : null}
             <Grid container spacing={3}>
                 {products.map(product => (
                     <ProductCard key={product._id} product={product} />
