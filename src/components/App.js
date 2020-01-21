@@ -84,7 +84,11 @@ function App() {
                     <ProductView />
                   </Route>
                   <Route path="/settings">
-                    <Settings />
+                    {authorization.userGroup ? (
+                      <Settings />
+                    ) : (
+                      <div>Not found</div>
+                    )}
                   </Route>
                   <Route path="/users">
                     {authorization.userGroup === USERGROUP.ADMIN ? (
