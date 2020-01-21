@@ -26,7 +26,7 @@ export default function ProductsView() {
         isClassified: false
     });
 
-    const user = useContext(UserContext);
+  const user = useContext(UserContext);
 
     const getProducts = () => {
         axios
@@ -48,9 +48,9 @@ export default function ProductsView() {
 
     useEffect(getProducts, [filters, user.userGroup]);
 
-    const handleFilterChange = e => {
-        setFilters({ ...filters, [e.target.name]: e.target.checked });
-    };
+  const handleFilterChange = e => {
+    setFilters({ ...filters, [e.target.name]: e.target.checked });
+  };
 
     const debounce = (text, callback) => {
         if (cancelTimeout) {
@@ -139,25 +139,25 @@ export default function ProductsView() {
 }
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        flexGrow: 1,
-        margin: theme.spacing(2),
-        textAlign: "left"
-    },
-    searchField: {
-        width: 200
-    },
-    formControl: {
-        margin: theme.spacing(3)
-    },
-    image: {
-        width: 128,
-        height: 128
-    },
-    img: {
-        margin: "auto",
-        display: "block",
-        maxWidth: "100%",
-        maxHeight: "100%"
-    }
+  root: {
+    flexGrow: 1,
+    margin: theme.spacing(2),
+    textAlign: "left"
+  },
+  searchField: {
+    width: 200
+  },
+  formControl: {
+    margin: theme.spacing(3)
+  },
+  image: {
+    width: 128,
+    height: 128
+  },
+  img: {
+    margin: "auto",
+    display: "block",
+    maxWidth: "100%",
+    maxHeight: "100%"
+  }
 }));
