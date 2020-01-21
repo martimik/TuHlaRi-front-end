@@ -2,7 +2,6 @@ import React from "react";
 import MaterialTable from "material-table";
 import axios from "axios";
 import API_URL from "../js/api";
-import { useSnackbar } from "notistack";
 
 export default class Users extends React.Component {
   constructor(props) {
@@ -20,8 +19,7 @@ export default class Users extends React.Component {
           lookup: { 0: "Admin", 1: "Product Owner", 2: "Merchant" }
         }
       ],
-      data: [],
-      popup: props.enqueueSnackbar
+      data: []
     };
   }
 

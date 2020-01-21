@@ -23,7 +23,6 @@ import Paper from "@material-ui/core/Paper";
 export default function ProductEditor(props) {
     const classes = useStyles();
 
-    const [formIsValid, setFormIsValid] = useState(false);
     const [isIdea, setIsIdea] = useState(false);
     const [isClassified, setIsClassified] = useState(false);
     const [components, setComponents] = useState([]);
@@ -35,8 +34,6 @@ export default function ProductEditor(props) {
     const [imageIshidden, setImageIsHidden] = useState(true);
 
     const { enqueueSnackbar } = useSnackbar();
-
-    const { product } = props;
 
     const [input, setInput] = useState({
         productName: "",
