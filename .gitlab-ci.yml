@@ -27,6 +27,7 @@ variables:
     - cd front-end
     - npm install # Install all dependencies
     - npm ci --prod # Build for prod
+    - echo pwd
     - oc project tuhlari
   script:
     - oc start-build front-end --from-dir="build" --follow
