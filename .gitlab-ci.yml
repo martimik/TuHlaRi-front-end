@@ -40,6 +40,8 @@ ESLint:
     - ls
     - cd eslint
     - ls
+    - cd node_modules
+    - ls
     #- "/node_modules/.bin/eslint ./*"
  #continueOnError: true
 
