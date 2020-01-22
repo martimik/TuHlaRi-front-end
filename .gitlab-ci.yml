@@ -25,7 +25,7 @@ ESLint:
     - sudo npm install -g eslint-plugin-react
     - eslint --init
     - eslint front-end
-    - continueOnError: true
+    #- continueOnError: true
 
 
 buildProductToOpenshift:
