@@ -22,6 +22,7 @@ variables:
 
 ESLint:
  script:
+    - npm install -g eslint
     - npm install -g eslint-plugin-react
     - eslint --init
     - eslint front-end
