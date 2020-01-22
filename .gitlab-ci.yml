@@ -16,40 +16,20 @@ variables:
     - oc status
     - oc whoami
     - echo $CI_PROJECT_NAME
+    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
   tags:
     - shell
 
-steps:
-# Install Node.js
-- task: NodeTool@0
-  inputs:
-    versionSpec: $(nodeVersion)
-  displayName: 'Install Node.js'
+ESLint:
+ script:
+    - sudo npm install -g eslint-plugin-react
+    - eslint --init
+    - eslint front-end
+    - continueOnError: true
 
-# Install node modules.
-- script: |
-    npm install
-  displayName: 'NPM Install'
-
-# Uses NPM to run the `lint` script that I included in my package.json
-- task: Npm@1
-  inputs:
-    command: custom
-    customCommand: 'run lint'
-  displayName: Run ESLint
-  # Uncomment the following line if you *don't* want the pipeline to fail when ESLint fails.
-  #continueOnError: true 
-
-# Runs the `test` script that I included in my package.json
-- task: Npm@1
-  inputs:
-    command: custom
-    customCommand: 'test'
-  displayName: Run Tests
 
 buildProductToOpenshift:
  script:
-    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
     - cd front-end
     - unset CI
     - npm ci # Build for prod
