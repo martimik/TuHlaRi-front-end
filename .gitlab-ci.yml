@@ -27,11 +27,11 @@ variables:
     - cd front-end
     - unset CI
     - npm ci # Build for prod
-    - npm run build --prod
+    - API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
     - pwd
     - oc project tuhlari
   script:
-    - oc start-build front-end --from-dir="build" --follow --wait --env=API_URL="http://backend-tuhlari.rahtiapp.fi/"
+    - oc start-build front-end --from-dir="build" --follow --wait
   tags:
     - shell
 
