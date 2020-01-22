@@ -22,19 +22,12 @@ variables:
 
 ESLint:
  script:
-    - cd
-    - pwd
-    - ls
-    - cd builds
+    - cd /home/gitlab-runner/builds/s2mU8de_/0/digiateam/front-end
     - ls
     - npm ci
     - npm install eslint --save-dev
-    - ls
     - pwd
-    - cd
-    - ls
-    - pwd
-    - "./node_modules/.bin/eslint front-end/*"
+    - "./node_modules/.bin/eslint ./*"
  #continueOnError: true
 
 #
