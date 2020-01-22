@@ -24,7 +24,7 @@ ESLint:
  script:
     - npm install
     - npm install eslint --save-dev
-    - "./node_modules/.bin/eslint front-end"
+    - "./node_modules/.bin/eslint front-end/**"
  #continueOnError: true
 
 
