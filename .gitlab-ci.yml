@@ -3,6 +3,7 @@ image: ayufan/openshift-cli
 
 stages:
     - lint
+    - build
 
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
@@ -37,6 +38,7 @@ eslint:
 
 
 buildProductToOpenshift:
+ stage: build
  script:
     - cd front-end
     - unset CI
