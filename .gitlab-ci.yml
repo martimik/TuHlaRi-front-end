@@ -36,7 +36,9 @@ ESLint:
     #- "1'\n'"
     #- "3'\n'"
     - ls
-    - "/node_modules/.bin/eslint ./*"
+    - cd node_modules
+    - ls
+    #- "/node_modules/.bin/eslint ./*"
  #continueOnError: true
 
 #
