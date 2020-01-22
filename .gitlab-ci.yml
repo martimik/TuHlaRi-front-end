@@ -43,9 +43,9 @@ ESLint:
     - cd node_modules
     - ls
     #- "/node_modules/.bin/eslint ./*"
-    -cd
-    -rm -r builds/s2mU8de_/0/digiateam/front-end
-    -ls
+    - cd
+    - rm -r builds/s2mU8de_/0/digiateam/front-end
+    - ls
  #continueOnError: true
 
 #
