@@ -29,12 +29,12 @@ ESLint:
     - "./node_modules/.bin/eslint front-end/*"
  #continueOnError: true
 
-
-buildProductToOpenshift:
- script:
-    - cd front-end
-    - unset CI
-    - npm ci # Build for prod
-    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
-    - oc project tuhlari
-    - oc start-build front-end --from-dir="build" --follow --wait
+#
+#buildProductToOpenshift:
+# script:
+#    - cd front-end
+#    - unset CI
+#    - npm ci # Build for prod
+#    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
+#    - oc project tuhlari
+#    - oc start-build front-end --from-dir="build" --follow --wait
