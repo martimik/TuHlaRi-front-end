@@ -22,12 +22,12 @@ variables:
 
 ESLint:
  script:
-    - cd /home/gitlab-runner/builds/s2mU8de_/0/digiateam/front-end
+    # - cd /home/gitlab-runner/builds/s2mU8de_/0/digiateam/front-end
     - ls
-    - npm ci
-    - npm install eslint --save-dev
-    - npm install eslint-plugin-react --save-dev
-    - npm install eslint typescript --save-dev
+    # - npm ci
+    # - npm install eslint --save-dev
+    # - npm install eslint-plugin-react --save-dev
+    # - npm install eslint typescript --save-dev
     # - node_modules/.bin/eslint --init
     #- "2'\n'"
     #- "1'\n'"
@@ -37,7 +37,7 @@ ESLint:
     #- "3'\n'"
     #- "/node_modules/.bin/eslint ./*"
     - cd
-    - rm -r builds/
+    # - rm -r builds/
     - ls
  #continueOnError: true
 
