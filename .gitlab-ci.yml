@@ -31,7 +31,7 @@ variables:
     - pwd
     - oc project tuhlari
   script:
-    - oc start-build front-end --from-dir="build" --follow
+    - oc start-build front-end --from-dir="build" --follow --wait --env=API_URL="http://backend-tuhlari.rahtiapp.fi/"
   tags:
     - shell
 
