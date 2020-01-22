@@ -25,6 +25,7 @@ ESLint:
     - cd
     - pwd
     - ls
+    - cd builds
     - npm ci
     - npm install eslint --save-dev
     - ls
