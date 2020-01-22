@@ -24,9 +24,18 @@ const ProductView = () => {
     const onEdit = () => {
         axios
             .get(API_URL + "product/" + id)
-            .then(res => setProduct(res.data))
+            .then(res => {
+                setProduct(res.data);
+                setIsEditMode(false);
+            })
             .catch(err => console.log(err));
-        setIsEditMode(false);
+    };
+
+    const deleteProduct = () => {
+        axios
+            .delete(API_URL + "product/" + id)
+            .then(res => setProduct(null))
+            .catch(err => console.log(err.response));
     };
 
     const toggleEditMode = () => {
@@ -42,6 +51,7 @@ const ProductView = () => {
                     product={product}
                     toggleEditMode={toggleEditMode}
                     onEdit={onEdit}
+                    onDelete={deleteProduct}
                 />
             ) : (
                 <Product

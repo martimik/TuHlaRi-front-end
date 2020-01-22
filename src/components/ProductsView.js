@@ -11,6 +11,9 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import UserContext from "./UserContext";
 import SearchField from "./SearchField";
+import Select from "@material-ui/core/Select";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
 
 axios.defaults.withCredentials = true;
 
@@ -19,21 +22,34 @@ export default function ProductsView() {
     const [products, setProducts] = useState([]);
     const [cancelTimeout, setCancelTimeout] = useState(null);
     const [search, setSearch] = useState("");
+    const [page, setPage] = useState(0);
     const [filters, setFilters] = useState({
         myProducts: false,
-        isIdea: false,
         isParticipant: false,
-        isClassified: false
+        isClassified: false,
+        lifecycleStatus: 0
     });
 
-  const user = useContext(UserContext);
+    const user = useContext(UserContext);
+
+    const lifecycleStatuses = [
+        "All",
+        "Idea",
+        "Accepted",
+        "Planning",
+        "Developement",
+        "Released",
+        "Production",
+        "Closed"
+    ];
 
     const getProducts = () => {
         axios
             .get(API_URL + "products", {
                 params: {
                     filters,
-                    search
+                    search,
+                    page
                 }
             })
             .then(response => {
@@ -43,16 +59,33 @@ export default function ProductsView() {
     };
 
     useEffect(() => {
-        debounce(search, getProducts);
+        const onScroll = () => {
+            if (
+                window.innerHeight + window.scrollY >=
+                document.documentElement.scrollHeight
+            ) {
+                setPage(state => state + 1);
+            }
+        };
+        document.addEventListener("scroll", onScroll);
+        return () => document.removeEventListener("scroll", onScroll);
+    }, []);
+
+    useEffect(() => {
+        debounce(getProducts);
     }, [search]);
 
     useEffect(getProducts, [filters, user.userGroup]);
 
-  const handleFilterChange = e => {
-    setFilters({ ...filters, [e.target.name]: e.target.checked });
-  };
+    const handleFilterChange = e => {
+        setFilters({ ...filters, [e.target.name]: e.target.checked });
+    };
 
-    const debounce = (text, callback) => {
+    const handlelifecycleStatus = e => {
+        setFilters({ ...filters, lifecycleStatus: e.target.value });
+    };
+
+    const debounce = callback => {
         if (cancelTimeout) {
             clearTimeout(cancelTimeout);
             setCancelTimeout(null);
@@ -65,6 +98,21 @@ export default function ProductsView() {
         <div className={classes.root}>
             <div className={classes.searchField}>
                 <SearchField onSearch={e => setSearch(e.target.value)} />
+                <FormControl className={classes.formControl} fullWidth>
+                    <InputLabel id="demo-simple-select-label">
+                        Status
+                    </InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="lifecycle-status-select"
+                        onChange={handlelifecycleStatus}
+                        value={filters.lifecycleStatus}
+                    >
+                        {lifecycleStatuses.map((status, i) => (
+                            <MenuItem value={i}>{status}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </div>
             <FormControl component="fieldset" className={classes.formControl}>
                 <FormLabel component="legend">Filters</FormLabel>
@@ -95,17 +143,6 @@ export default function ProductsView() {
                             label="Participant"
                         />
                     ) : null}
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={filters.ideas}
-                                color="primary"
-                                name="isIdea"
-                                onChange={handleFilterChange}
-                            />
-                        }
-                        label="Idea"
-                    />
                 </FormGroup>
             </FormControl>
             {user.userGroup ? (
@@ -129,6 +166,7 @@ export default function ProductsView() {
                     </FormGroup>
                 </FormControl>
             ) : null}
+            <div></div>
             <Grid container spacing={3}>
                 {products.map(product => (
                     <ProductCard key={product._id} product={product} />
@@ -139,25 +177,26 @@ export default function ProductsView() {
 }
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-    margin: theme.spacing(2),
-    textAlign: "left"
-  },
-  searchField: {
-    width: 200
-  },
-  formControl: {
-    margin: theme.spacing(3)
-  },
-  image: {
-    width: 128,
-    height: 128
-  },
-  img: {
-    margin: "auto",
-    display: "block",
-    maxWidth: "100%",
-    maxHeight: "100%"
-  }
+    root: {
+        flexGrow: 1,
+        margin: theme.spacing(2),
+        textAlign: "left"
+    },
+    searchField: {
+        width: 200
+    },
+    formControl: {
+        margin: theme.spacing(3),
+        minWidth: 120
+    },
+    image: {
+        width: 128,
+        height: 128
+    },
+    img: {
+        margin: "auto",
+        display: "block",
+        maxWidth: "100%",
+        maxHeight: "100%"
+    }
 }));

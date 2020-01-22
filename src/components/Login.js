@@ -21,7 +21,6 @@ export default function Login(props) {
 
     function login(event) {
         event.preventDefault();
-        console.log(credentials);
         axios
             .post(
                 API_URL + "login",
@@ -42,7 +41,7 @@ export default function Login(props) {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "bottom",
-                            horizontal: "center"
+                            horizontal: "right"
                         }
                     });
                     close();
@@ -51,7 +50,7 @@ export default function Login(props) {
                         variant: "error",
                         anchorOrigin: {
                             vertical: "bottom",
-                            horizontal: "center"
+                            horizontal: "right"
                         }
                     });
                 }
@@ -63,7 +62,7 @@ export default function Login(props) {
                     variant: "error",
                     anchorOrigin: {
                         vertical: "bottom",
-                        horizontal: "center"
+                        horizontal: "right"
                     }
                 });
             });
@@ -76,7 +75,13 @@ export default function Login(props) {
             .then(response => {
                 const { email, name, userGroup } = response.data;
                 setAuthorization({ email, name, userGroup });
-                enqueueSnackbar("Successfully logged out", { variant: "info" });
+                enqueueSnackbar("Successfully logged out", {
+                    variant: "info",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "right"
+                    }
+                });
                 close();
             })
             .catch(error => {

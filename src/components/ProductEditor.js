@@ -18,7 +18,9 @@ import { useSnackbar } from "notistack";
 import API_URL from "../js/api";
 import Fab from "@material-ui/core/Fab";
 import EditIcon from "@material-ui/icons/Edit";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import Paper from "@material-ui/core/Paper";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
 export default function ProductEditor(props) {
     const classes = useStyles();
@@ -32,10 +34,9 @@ export default function ProductEditor(props) {
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState();
     const [imageIshidden, setImageIsHidden] = useState(true);
-
+    const [users, setUsers] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
-
-    const [input, setInput] = useState({
+    const emptyInput = {
         productName: "",
         shortDescription: "",
         longDescription: "",
@@ -48,7 +49,8 @@ export default function ProductEditor(props) {
         component: "",
         environmentRequirement: "",
         customer: ""
-    });
+    };
+    const [input, setInput] = useState(emptyInput);
 
     useEffect(() => {
         if (props.product) {
@@ -62,21 +64,10 @@ export default function ProductEditor(props) {
                 businessType: props.product.businessType,
                 lifecycleStatus: props.product.lifecycleStatus
             });
-            if (props.product.technologies) {
-                setTechnologies(props.product.technologies);
-            }
-
-            if (props.product.components) {
-                setComponents(props.product.components);
-            }
-            if (props.product.environmentRequirements) {
-                setEnvironmentRequirements(
-                    props.product.environmentRequirements
-                );
-            }
-            if (props.product.customers) {
-                setCustomers(props.product.customers);
-            }
+            setTechnologies(props.product.technologies);
+            setComponents(props.product.components);
+            setEnvironmentRequirements(props.product.environmentRequirements);
+            setCustomers(props.product.customers);
             setIsClassified(props.product.isClassified);
             if (props.product.logos.length) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
@@ -85,12 +76,29 @@ export default function ProductEditor(props) {
         }
     }, [props]);
 
+    useEffect(() => {
+        axios
+            .get(API_URL + "users")
+            .then(res => {
+                setUsers(res.data);
+            })
+            .catch(err => console.error(err));
+    }, []);
+
     function handleChange(event) {
         setInput({
             ...input,
             [event.target.name]: event.target.value
         });
     }
+
+    const handleAutoCompleteChange = name => e => {
+        if (!e) return;
+        setInput({
+            ...input,
+            [name]: e.target.value || e.target.innerText || ""
+        });
+    };
 
     function handleLifecycleStatus(event) {
         setInput({
@@ -158,7 +166,6 @@ export default function ProductEditor(props) {
 
     function onUpload(event) {
         setImageIsHidden(!imageIshidden);
-        // console.log(event);
 
         if (event.target.files && event.target.files[0]) {
             const reader = new FileReader();
@@ -197,8 +204,8 @@ export default function ProductEditor(props) {
             enqueueSnackbar("Required fields not filled!", {
                 variant: "warning",
                 anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "center"
+                    vertical: "bottom",
+                    horizontal: "right"
                 }
             });
         } else {
@@ -217,7 +224,6 @@ export default function ProductEditor(props) {
         axios
             .post(API_URL + "uploadImage", formData)
             .then(response => {
-                console.log(response);
                 if (response.status === 200) {
                     uploadProduct(API_URL + response.data);
                 }
@@ -227,8 +233,8 @@ export default function ProductEditor(props) {
                 enqueueSnackbar("Image upload failed.", {
                     variant: "error",
                     anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "center"
+                        vertical: "bottom",
+                        horizontal: "right"
                     }
                 });
             });
@@ -257,8 +263,8 @@ export default function ProductEditor(props) {
                 enqueueSnackbar(id ? "Product edited" : "Product added", {
                     variant: "success",
                     anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "center"
+                        vertical: "bottom",
+                        horizontal: "right"
                     }
                 });
                 if (!props.toggleEditMode) {
@@ -272,8 +278,8 @@ export default function ProductEditor(props) {
                 enqueueSnackbar(error.response.data.message, {
                     variant: "error",
                     anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "center"
+                        vertical: "bottom",
+                        horizontal: "right"
                     }
                 });
             });
@@ -282,20 +288,7 @@ export default function ProductEditor(props) {
     function clearInput() {
         setIsIdea(false);
         setIsClassified(false);
-        setInput({
-            productName: "",
-            shortDescription: "",
-            longDescription: "",
-            pricing: "",
-            salesPerson: "",
-            productOwner: "",
-            businessType: "",
-            lifecycleStatus: "",
-            technology: "",
-            component: "",
-            environmentRequirement: "",
-            customer: ""
-        });
+        setInput(emptyInput);
         setImage(null);
         setImageIsHidden(true);
         setImageFile(null);
@@ -363,17 +356,28 @@ export default function ProductEditor(props) {
 
     return (
         <Paper elevation={2} className={classes.root}>
-            {props.toggleEditMode ? (
-                <Fab
-                    color="secondary"
-                    aria-label="edit"
-                    size="small"
-                    style={{ float: "right" }}
-                    onClick={props.toggleEditMode}
-                >
-                    <EditIcon />
-                </Fab>
-            ) : null}
+            <div style={{ float: "right" }}>
+                {props.onDelete ? (
+                    <Fab
+                        color="secondary"
+                        aria-label="edit"
+                        size="small"
+                        onClick={props.onDelete}
+                    >
+                        <DeleteForeverIcon />
+                    </Fab>
+                ) : null}
+                {props.toggleEditMode ? (
+                    <Fab
+                        color="secondary"
+                        aria-label="edit"
+                        size="small"
+                        onClick={props.toggleEditMode}
+                    >
+                        <EditIcon />
+                    </Fab>
+                ) : null}
+            </div>
             <h1 className="create-product-header">{props.title}</h1>
             <form
                 className={classes.form}
@@ -397,29 +401,27 @@ export default function ProductEditor(props) {
                         />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                value={input.productName}
-                                name="productName"
-                                label="Name"
-                                required
-                            />
-                        </FormControl>
+                        <TextField
+                            onChange={handleChange}
+                            onKeyDown={disableSubmitOnEnter}
+                            value={input.productName}
+                            name="productName"
+                            label="Name"
+                            required
+                            fullWidth
+                        />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                multiline
-                                name="shortDescription"
-                                label="Short description"
-                                value={input.shortDescription}
-                                required
-                            />
-                        </FormControl>
+                        <TextField
+                            onChange={handleChange}
+                            onKeyDown={disableSubmitOnEnter}
+                            multiline
+                            name="shortDescription"
+                            label="Short description"
+                            value={input.shortDescription}
+                            required
+                            fullWidth
+                        />
                     </Grid>
 
                     <Grid item xs={10} className={classes.inputField}>
@@ -449,72 +451,86 @@ export default function ProductEditor(props) {
                         </FormControl>
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                multiline
-                                onChange={handleChange}
-                                name="longDescription"
-                                label="Long description"
-                                value={input.longDescription}
-                            />
-                        </FormControl>
+                        <TextField
+                            multiline
+                            onChange={handleChange}
+                            name="longDescription"
+                            label="Long description"
+                            value={input.longDescription}
+                            fullWidth
+                        />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                name="productOwner"
-                                label="Product owner"
-                                value={input.productOwner}
-                                required={!isIdea}
-                            />
-                        </FormControl>
+                        <Autocomplete
+                            onInputChange={handleAutoCompleteChange(
+                                "productOwner"
+                            )}
+                            options={users}
+                            getOptionLabel={user => user.email}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            inputValue={input.productOwner}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    label="Product owner"
+                                    required={!isIdea}
+                                />
+                            )}
+                        />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                value={input.salesPerson}
-                                name="salesPerson"
-                                label="Sales person"
-                            />
-                        </FormControl>
+                        <Autocomplete
+                            onInputChange={handleAutoCompleteChange(
+                                "salesPerson"
+                            )}
+                            options={users}
+                            getOptionLabel={user => user.email}
+                            inputValue={input.salesPerson}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    label="Sales person"
+                                />
+                            )}
+                        />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                name="businessType"
-                                label="Business type"
-                                value={input.businessType}
-                            />
-                        </FormControl>
+                        <TextField
+                            onChange={handleChange}
+                            onKeyDown={disableSubmitOnEnter}
+                            name="businessType"
+                            label="Business type"
+                            value={input.businessType}
+                            fullWidth
+                        />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                name="pricing"
-                                label="Pricing"
-                                value={input.pricing}
-                            />
-                        </FormControl>
+                        <TextField
+                            onChange={handleChange}
+                            onKeyDown={disableSubmitOnEnter}
+                            name="pricing"
+                            label="Pricing (€)"
+                            value={input.pricing}
+                            fullWidth
+                        />
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
                         <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="technology"
-                                    label="Technologies"
-                                    onKeyDown={readKey}
-                                    value={input.technology}
-                                />
-                            </FormControl>
+                            <TextField
+                                onChange={handleChange}
+                                name="technology"
+                                label="Technologies"
+                                onKeyDown={readKey}
+                                value={input.technology}
+                                fullWidth
+                            />
                         </div>
                     </Grid>
                     <Grid item xs={10} style={{ padding: "0" }}>
@@ -531,15 +547,14 @@ export default function ProductEditor(props) {
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
                         <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="component"
-                                    label="Components"
-                                    onKeyDown={readKey}
-                                    value={input.component}
-                                />
-                            </FormControl>
+                            <TextField
+                                onChange={handleChange}
+                                name="component"
+                                label="Components"
+                                onKeyDown={readKey}
+                                value={input.component}
+                                fullWidth
+                            />
                         </div>
                     </Grid>
                     <Grid item xs={10}>
@@ -556,15 +571,14 @@ export default function ProductEditor(props) {
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
                         <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="environmentRequirement"
-                                    label="Environment Requirement"
-                                    onKeyDown={readKey}
-                                    value={input.environmentRequirement}
-                                />
-                            </FormControl>
+                            <TextField
+                                onChange={handleChange}
+                                name="environmentRequirement"
+                                label="Environment Requirement"
+                                onKeyDown={readKey}
+                                value={input.environmentRequirement}
+                                fullWidth
+                            />
                         </div>
                     </Grid>
                     <Grid item xs={10} style={{ padding: "0" }}>
@@ -585,15 +599,14 @@ export default function ProductEditor(props) {
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
                         <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="customer"
-                                    label="Customer"
-                                    onKeyDown={readKey}
-                                    value={input.customer}
-                                />
-                            </FormControl>
+                            <TextField
+                                onChange={handleChange}
+                                name="customer"
+                                label="Customer"
+                                onKeyDown={readKey}
+                                value={input.customer}
+                                fullWidth
+                            />
                         </div>
                     </Grid>
                     <Grid item xs={10}>
