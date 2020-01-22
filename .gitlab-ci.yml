@@ -26,6 +26,7 @@ ESLint:
     - ls
     - npm ci
     - npm install eslint --save-dev
+    - npm install eslint-plugin-react --save-dev
     - pwd
     - "./node_modules/.bin/eslint ./*"
  #continueOnError: true
