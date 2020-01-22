@@ -23,11 +23,9 @@ variables:
 ESLint:
  script:
     - npm install
-    - npm install -g eslint
-    - npm install -g eslint-plugin-react
     - eslint --init
     - eslint front-end
- continueOnError: true
+ #continueOnError: true
 
 
 buildProductToOpenshift:
