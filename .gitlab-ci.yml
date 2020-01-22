@@ -36,7 +36,8 @@ ESLint:
     #- "N'\n'"
     #- "1'\n'"
     #- "3'\n'"
-    - rm -rf builds
+    - cd builds
+    # - rm -rf builds
     #- "/node_modules/.bin/eslint ./*"
     # - rm -r builds/
     - ls
