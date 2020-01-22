@@ -22,8 +22,8 @@ variables:
 
 ESLint:
  script:
-    - sudo npm install -g eslint
-    - sudo npm install -g eslint-plugin-react
+    - npm install -g eslint
+    - npm install -g eslint-plugin-react
     - eslint --init
     - eslint front-end
     #- continueOnError: true
