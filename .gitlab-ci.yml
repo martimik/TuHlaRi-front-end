@@ -1,14 +1,14 @@
 # This file is a template, and might need editing before it works on your project. testcomment
 image: ayufan/openshift-cli
 
-stages:
-  - build  # dummy stage to follow the template guidelines
+stages:  # dummy stage to follow the template guidelines
   - test
   - deploy  # dummy stage to follow the template guidelines
   - review
   - staging
   - production
   - cleanup
+  - Build
 
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
@@ -27,6 +27,7 @@ variables:
     - shell
 
 buildProductToOpenshift:
+  stage: Build
   before_script:
     - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
     - cd front-end
