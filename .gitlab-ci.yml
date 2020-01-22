@@ -16,7 +16,7 @@ variables:
     - oc status
     - oc whoami
     - echo $CI_PROJECT_NAME
-    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
+    # - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
   tags:
     - shell
 
