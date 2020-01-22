@@ -37,7 +37,7 @@ ESLint:
     #- "3'\n'"
     #- "/node_modules/.bin/eslint ./*"
     - cd
-    - rm -r builds/s2mU8de_/0/digiateam/front-end
+    - rm -r builds/
     - ls
  #continueOnError: true
 
