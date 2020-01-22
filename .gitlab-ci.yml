@@ -23,6 +23,7 @@ variables:
 ESLint:
  script:
     # - cd /home/gitlab-runner/builds/s2mU8de_/0/digiateam/front-end
+    - cd
     - ls
     # - npm ci
     # - npm install eslint --save-dev
@@ -36,7 +37,7 @@ ESLint:
     #- "1'\n'"
     #- "3'\n'"
     #- "/node_modules/.bin/eslint ./*"
-    - cd
+    - cd builds
     # - rm -r builds/
     - ls
  #continueOnError: true
