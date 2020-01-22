@@ -27,16 +27,13 @@ variables:
     - shell
 
 buildProductToOpenshift:
-  <<: *deploy
-  stage: Build
-  before_script:
+ script:
     - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
     - cd front-end
     - unset CI
     - npm ci # Build for prod
     - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
     - oc project tuhlari
-  script:
     - oc start-build front-end --from-dir="build" --follow --wait
 
 review:
