@@ -29,7 +29,7 @@ ESLint:
     - npm install eslint-plugin-react --save-dev
     - npm uninstall -g typescript
     - npm install -g tslint typescript
-    - ./node_modules/.bin/eslint --init
+    #- ./node_modules/.bin/eslint --init
     #- "2'\n'"
     #- "1'\n'"
     #- "1'\n'"
