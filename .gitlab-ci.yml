@@ -32,8 +32,6 @@ eslint:
     - npm install eslint-plugin-react --save-dev
     - ./node_modules/.bin/eslint --init
     - ./node_modules/.bin/eslint src/**
-  after-script:
-    -cd
 
 
 #
