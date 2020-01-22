@@ -35,8 +35,8 @@ ESLint:
     #- "N'\n'"
     #- "1'\n'"
     #- "3'\n'"
-    - pwd
-    - "./node_modules/.bin/eslint ./*"
+    - ls
+    #- "./node_modules/.bin/eslint ./*"
  #continueOnError: true
 
 #
