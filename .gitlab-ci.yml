@@ -23,8 +23,8 @@ variables:
 ESLint:
  script:
     - npm install
-    - eslint --init
-    - eslint front-end
+    - npm install eslint --save-dev
+    -./node_modules/.bin/eslint front-end
  #continueOnError: true
 
 
