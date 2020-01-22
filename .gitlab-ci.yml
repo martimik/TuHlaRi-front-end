@@ -28,12 +28,12 @@ ESLint:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react --save-dev
     - ./node_modules/.bin/eslint --init
-    - "2"
-    - "1"
-    - "1"
-    - "N"
-    - "1"
-    - "3"
+    - "2'\n'"
+    - "1'\n'"
+    - "1'\n'"
+    - "N'\n'"
+    - "1'\n'"
+    - "3'\n'"
     - pwd
     - "./node_modules/.bin/eslint ./*"
  #continueOnError: true
