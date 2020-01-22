@@ -27,7 +27,7 @@ variables:
     - cd front-end
     - unset CI
     - npm ci # Build for prod
-    - API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
+    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
     - pwd
     - oc project tuhlari
   script:
