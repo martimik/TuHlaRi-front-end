@@ -40,7 +40,7 @@ eslint:
 buildProductToOpenshift:
  stage: build
  script:
-    - cd front-end
+    - ls
     - unset CI
     - npm ci # Build for prod
     - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
