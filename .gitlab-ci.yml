@@ -27,6 +27,7 @@ image: node
 eslint:
   stage: lint
   script:
+    - ls
     - cd front-end
     - npm install eslint --save-dev
     - npm install eslint-plugin-react --save-dev
