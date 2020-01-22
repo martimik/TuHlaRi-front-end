@@ -18,24 +18,24 @@ variables:
   OPENSHIFT_TOKEN: "$OPENSHIFT_TOKEN"
 
 .deploy: &deploy
-   before_script:
-        - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
-        - oc status
-        - oc whoami
-        - echo $CI_PROJECT_NAME
+  before_script:
+    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
+    - oc status
+    - oc whoami
+    - echo $CI_PROJECT_NAME
   tags:
     - shell
 
 buildProductToOpenshift:
-    before_script:
-        - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
-        - cd front-end
-        - unset CI
-        - npm ci # Build for prod
-        - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
-        - oc project tuhlari
-    script:
-        - oc start-build front-end --from-dir="build" --follow --wait
+  before_script:
+    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
+    - cd front-end
+    - unset CI
+    - npm ci # Build for prod
+    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
+    - oc project tuhlari
+  script:
+    - oc start-build front-end --from-dir="build" --follow --wait
 
 review:
   <<: *deploy
