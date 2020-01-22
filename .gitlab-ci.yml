@@ -27,13 +27,15 @@ ESLint:
     - npm ci
     - npm install eslint --save-dev
     - npm install eslint-plugin-react --save-dev
+    - npm uninstall -g typescript
+    - npm install -g tslint typescript
     - ./node_modules/.bin/eslint --init
-    - "2'\n'"
-    - "1'\n'"
-    - "1'\n'"
-    - "N'\n'"
-    - "1'\n'"
-    - "3'\n'"
+    #- "2'\n'"
+    #- "1'\n'"
+    #- "1'\n'"
+    #- "N'\n'"
+    #- "1'\n'"
+    #- "3'\n'"
     - pwd
     - "./node_modules/.bin/eslint ./*"
  #continueOnError: true
