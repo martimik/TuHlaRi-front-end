@@ -3,11 +3,7 @@ image: ayufan/openshift-cli
 
 stages:
   - test
-  - deploy  # dummy stage to follow the template guidelines
-  - staging
-  - production
-  - cleanup
-  - build
+
 
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
@@ -34,20 +30,3 @@ buildProductToOpenshift:
     - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
     - oc project tuhlari
     - oc start-build front-end --from-dir="build" --follow --wait
-
-stop-review:
-  <<: *deploy
-  stage: cleanup
-  script:
-    - oc delete all -l "app=$APP"
-  when: manual
-  variables:
-    APP: review-$CI_COMMIT_REF_NAME
-    GIT_STRATEGY: none
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    action: stop
-  only:
-    - branches
-  except:
-    - master
