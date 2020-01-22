@@ -28,7 +28,7 @@ ESLint:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react --save-dev
     - npm install eslint typescript --save-dev
-    #- ./node_modules/.bin/eslint --init
+    - node_modules/.bin/eslint --init
     #- "2'\n'"
     #- "1'\n'"
     #- "1'\n'"
