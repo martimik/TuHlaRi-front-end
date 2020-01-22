@@ -26,6 +26,7 @@ ESLint:
     - npm install eslint --save-dev
     - ls
     - pwd
+    - cd
     - "./node_modules/.bin/eslint front-end/*"
  #continueOnError: true
 
