@@ -2,8 +2,6 @@
 image: ayufan/openshift-cli
 
 stages:
-  - test
-
 
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
