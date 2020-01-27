@@ -1,4 +1,3 @@
-# This file is a template, and might need editing before it works on your project. testcomment
 image: ayufan/openshift-cli
 
 stages:
@@ -175,30 +174,6 @@ retire-js-dependency_scanning:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
         $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
-
-license_management:
-  stage: testing
-  image:
-    name: "registry.gitlab.com/gitlab-org/security-products/license-management:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable"
-    entrypoint: [""]
-  variables:
-    SETUP_CMD: $LICENSE_MANAGEMENT_SETUP_CMD
-  allow_failure: true
-  script:
-    - /run.sh analyze .
-  artifacts:
-    reports:
-      license_management: gl-license-management-report.json
-  dependencies: []
-  only:
-    refs:
-      - branches
-    variables:
-      - $GITLAB_FEATURES =~ /\blicense_management\b/
-  except:
-    variables:
-      - $LICENSE_MANAGEMENT_DISABLED
-
 
 buildProductToOpenshift:
  stage: build
