@@ -33,17 +33,11 @@ eslint:
     - npm install eslint-plugin-react --save-dev
     - ./node_modules/.bin/eslint --init
     - printf '2\r '
-    - sleep 2
     - printf '1\r'
-    - sleep 2
     - printf '1\r'
-    - sleep 2
     - printf 'N\r'
-    - sleep 2
     - printf 'a\r'
-    - sleep 2
     - printf '3\r'
-    - sleep 2
     - printf 'Y\r'
     #1\r 1\r N\r a\r 3\r Y\r' | 
     - ./node_modules/.bin/eslint src/**
