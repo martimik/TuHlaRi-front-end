@@ -74,16 +74,14 @@ code_quality:
   tags:
     - shell
     
-    # This file is a template, and might need editing before it works on your project.
+
 # Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
-#
-# Configure the scanning tool through the environment variables.
 # List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
 variables:
   DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-  DS_DEFAULT_ANALYZERS: "bundler-audit, retire.js, gemnasium, gemnasium-maven, gemnasium-python"
+  DS_DEFAULT_ANALYZERS: "retire.js, gemnasium"
   DS_MAJOR_VERSION: 2
   DS_DISABLE_DIND: "false"
 
@@ -168,36 +166,6 @@ gemnasium-dependency_scanning:
         $DS_DEFAULT_ANALYZERS =~ /gemnasium/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby|javascript|php/
 
-gemnasium-maven-dependency_scanning:
-  extends: .ds-analyzer
-  image:
-    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-maven:$DS_MAJOR_VERSION"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
-        $DS_DEFAULT_ANALYZERS =~ /gemnasium-maven/ &&
-        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjava\b/
-
-gemnasium-python-dependency_scanning:
-  extends: .ds-analyzer
-  image:
-    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-python:$DS_MAJOR_VERSION"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
-        $DS_DEFAULT_ANALYZERS =~ /gemnasium-python/ &&
-        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /python/
-
-bundler-audit-dependency_scanning:
-  extends: .ds-analyzer
-  image:
-    name: "$DS_ANALYZER_IMAGE_PREFIX/bundler-audit:$DS_MAJOR_VERSION"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
-        $DS_DEFAULT_ANALYZERS =~ /bundler-audit/ &&
-        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby/
-
 retire-js-dependency_scanning:
   extends: .ds-analyzer
   image:
@@ -207,6 +175,32 @@ retire-js-dependency_scanning:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
         $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
+        
+        variables:
+  LICENSE_MANAGEMENT_SETUP_CMD: ''  # If needed, specify a command to setup your environment with a custom package manager.
+
+license_management:
+  stage: test
+  image:
+    name: "registry.gitlab.com/gitlab-org/security-products/license-management:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable"
+    entrypoint: [""]
+  variables:
+    SETUP_CMD: $LICENSE_MANAGEMENT_SETUP_CMD
+  allow_failure: true
+  script:
+    - /run.sh analyze .
+  artifacts:
+    reports:
+      license_management: gl-license-management-report.json
+  dependencies: []
+  only:
+    refs:
+      - branches
+    variables:
+      - $GITLAB_FEATURES =~ /\blicense_management\b/
+  except:
+    variables:
+      - $LICENSE_MANAGEMENT_DISABLED
 
 
 buildProductToOpenshift:
