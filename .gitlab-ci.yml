@@ -175,9 +175,6 @@ retire-js-dependency_scanning:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
         $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
-        
-        variables:
-  LICENSE_MANAGEMENT_SETUP_CMD: ''  # If needed, specify a command to setup your environment with a custom package manager.
 
 license_management:
   stage: test
