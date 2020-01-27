@@ -31,9 +31,9 @@ eslint:
   script:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react --save-dev
-    - eslint --ext .js --env browser --plugin react lib/
+    - ./node_modules/.bin/eslint --ext .js --env browser --plugin react src/**
     #- echo '1\r 1\r N\r a\r 3\r Y\r' | ./node_modules/.bin/eslint --init
-    - ./node_modules/.bin/eslint src/**
+    #- ./node_modules/.bin/eslint src/**
   
 
 
