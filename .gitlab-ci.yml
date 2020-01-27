@@ -177,7 +177,7 @@ retire-js-dependency_scanning:
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
 
 license_management:
-  stage: test
+  stage: testing
   image:
     name: "registry.gitlab.com/gitlab-org/security-products/license-management:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable"
     entrypoint: [""]
