@@ -1,4 +1,6 @@
 # This file is a template, and might need editing before it works on your project. testcomment
+include:
+  template: Dependency-Scanning.gitlab-ci.yml
 image: ayufan/openshift-cli
 
 stages:
@@ -35,8 +37,7 @@ eslint:
     #- echo '1\r 1\r N\r a\r 3\r Y\r' | ./node_modules/.bin/eslint --init
     #- ./node_modules/.bin/eslint src/**
   
-include:
-  template: Dependency-Scanning.gitlab-ci.yml
+
 
 code_quality:
   stage: testing
