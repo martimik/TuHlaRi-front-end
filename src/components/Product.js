@@ -15,10 +15,23 @@ import Paper from "@material-ui/core/Paper";
 import axios from "axios";
 import API_URL from "../js/api";
 import { useParams } from "react-router-dom";
+import Dialog from "./Dialog";
+import BarChartIcon from "@material-ui/icons/BarChart";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend
+} from "recharts";
 
 export default function Product(props) {
     const classes = useStyles();
     const [product, setProduct] = useState(null);
+    const [graphData, setGraphData] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { id } = useParams();
     const lifecycleStatuses = [
         "Idea",
@@ -34,7 +47,22 @@ export default function Product(props) {
         if (id) {
             axios
                 .get(API_URL + "product/" + id)
-                .then(res => setProduct(res.data))
+                .then(res => {
+                    if (res.data.statusChanges) {
+                        const statuses = res.data.statusChanges.map(status => ({
+                            Hours: (
+                                ((status.endedAt || Date.now()) -
+                                    status.startedAt) /
+                                1000 /
+                                60 /
+                                60
+                            ).toFixed(2),
+                            status: lifecycleStatuses[status.statusCode - 1]
+                        }));
+                        setGraphData(statuses);
+                    }
+                    setProduct(res.data);
+                })
                 .catch(err => console.log(err));
         }
     }, [id]);
@@ -43,10 +71,10 @@ export default function Product(props) {
         return (
             <div className={props.className}>
                 <Paper elevation={2} className={classes.paper}>
-                    {product.isClassified ? (
+                    {product.isClassified && (
                         <SecurityIcon color="primary" fontSize="large" />
-                    ) : null}
-                    {props.toggleEditMode ? (
+                    )}
+                    {props.toggleEditMode && (
                         <Fab
                             color="secondary"
                             aria-label="edit"
@@ -56,7 +84,7 @@ export default function Product(props) {
                         >
                             <EditIcon />
                         </Fab>
-                    ) : null}
+                    )}
                     <div className="product-header">
                         <h1>{product.productName}</h1>
                         <img
@@ -66,13 +94,13 @@ export default function Product(props) {
                                 "https://image.shutterstock.com/image-vector/ui-image-placeholder-wireframes-apps-260nw-1037719204.jpg"
                             }
                             alt={product.productName}
-                        ></img>
+                        />
                     </div>
                     <Stepper
                         alternativeLabel
                         activeStep={product.lifecycleStatus - 1}
                     >
-                        {lifecycleStatuses.map((label, index) => {
+                        {lifecycleStatuses.map(label => {
                             return (
                                 <Step key={label}>
                                     <StepLabel>{label}</StepLabel>
@@ -80,6 +108,16 @@ export default function Product(props) {
                             );
                         })}
                     </Stepper>
+                    <Fab
+                        color="primary"
+                        variant="extended"
+                        size="medium"
+                        disabled={!Boolean(graphData)}
+                        onClick={() => setIsDialogOpen(true)}
+                    >
+                        <BarChartIcon />
+                        Check time usage
+                    </Fab>
                     <div>
                         <p className="product-short-description">
                             {product.shortDescription}
@@ -214,6 +252,29 @@ export default function Product(props) {
                         </div>
                     </div>
                 </Paper>
+                <Dialog
+                    title="Graph"
+                    isOpen={isDialogOpen}
+                    setOpen={setIsDialogOpen}
+                >
+                    {graphData && (
+                        <div style={{ width: "100%" }}>
+                            <BarChart
+                                width={550}
+                                height={300}
+                                data={graphData}
+                                style={{ margin: "auto" }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="status" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="Hours" fill="#8884d8" />
+                            </BarChart>
+                        </div>
+                    )}
+                </Dialog>
             </div>
         );
     }
