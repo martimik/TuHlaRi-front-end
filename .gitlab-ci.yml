@@ -1,6 +1,5 @@
 # This file is a template, and might need editing before it works on your project. testcomment
 image: ayufan/openshift-cli
-include: template: Dependency-Scanning.gitlab-ci.yml
 
 stages:
     - testing
@@ -35,8 +34,6 @@ eslint:
     - ./node_modules/.bin/eslint --ext .js --env browser --plugin react src/**
     #- echo '1\r 1\r N\r a\r 3\r Y\r' | ./node_modules/.bin/eslint --init
     #- ./node_modules/.bin/eslint src/**
-  
-
 
 code_quality:
   stage: testing
@@ -76,7 +73,140 @@ code_quality:
       - $CODE_QUALITY_DISABLED
   tags:
     - shell
+    
+    # This file is a template, and might need editing before it works on your project.
+# Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
+#
+# Configure the scanning tool through the environment variables.
+# List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
+# How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
+variables:
+  DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
+  DS_DEFAULT_ANALYZERS: "bundler-audit, retire.js, gemnasium, gemnasium-maven, gemnasium-python"
+  DS_MAJOR_VERSION: 2
+  DS_DISABLE_DIND: "false"
+
+dependency_scanning:
+  stage: testing
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - export DS_VERSION=${SP_VERSION:-$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')}
+    - |
+      if ! docker info &>/dev/null; then
+        if [ -z "$DOCKER_HOST" -a "$KUBERNETES_PORT" ]; then
+          export DOCKER_HOST='tcp://localhost:2375'
+        fi
+      fi
+    - | # this is required to avoid undesirable reset of Docker image ENV variables being set on build stage
+      function propagate_env_vars() {
+        CURRENT_ENV=$(printenv)
+
+        for VAR_NAME; do
+          echo $CURRENT_ENV | grep "${VAR_NAME}=" > /dev/null && echo "--env $VAR_NAME "
+        done
+      }
+    - |
+      docker run \
+        $(propagate_env_vars \
+          DS_ANALYZER_IMAGES \
+          DS_ANALYZER_IMAGE_PREFIX \
+          DS_ANALYZER_IMAGE_TAG \
+          DS_DEFAULT_ANALYZERS \
+          DS_EXCLUDED_PATHS \
+          DS_DOCKER_CLIENT_NEGOTIATION_TIMEOUT \
+          DS_PULL_ANALYZER_IMAGE_TIMEOUT \
+          DS_RUN_ANALYZER_TIMEOUT \
+          DS_PYTHON_VERSION \
+          DS_PIP_VERSION \
+          DS_PIP_DEPENDENCY_PATH \
+          PIP_INDEX_URL \
+          PIP_EXTRA_INDEX_URL \
+          PIP_REQUIREMENTS_FILE \
+          MAVEN_CLI_OPTS \
+          BUNDLER_AUDIT_UPDATE_DISABLED \
+        ) \
+        --volume "$PWD:/code" \
+        --volume /var/run/docker.sock:/var/run/docker.sock \
+        "registry.gitlab.com/gitlab-org/security-products/dependency-scanning:$DS_VERSION" /code
+  artifacts:
+    reports:
+      dependency_scanning: gl-dependency-scanning-report.json
+  dependencies: []
+  only:
+    refs:
+      - branches
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/
+  except:
+    variables:
+      - $DEPENDENCY_SCANNING_DISABLED
+      - $DS_DISABLE_DIND == 'true'
+
+.ds-analyzer:
+  extends: dependency_scanning
+  services: []
+  except:
+    variables:
+      - $DS_DISABLE_DIND == 'false'
+  script:
+    - /analyzer run
+
+gemnasium-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium:$DS_MAJOR_VERSION"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /gemnasium/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby|javascript|php/
+
+gemnasium-maven-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-maven:$DS_MAJOR_VERSION"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /gemnasium-maven/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjava\b/
+
+gemnasium-python-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-python:$DS_MAJOR_VERSION"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /gemnasium-python/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /python/
+
+bundler-audit-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/bundler-audit:$DS_MAJOR_VERSION"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /bundler-audit/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby/
+
+retire-js-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/retire.js:$DS_MAJOR_VERSION"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
 
 
 buildProductToOpenshift:
