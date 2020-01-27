@@ -31,7 +31,7 @@ eslint:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react@latest --save-dev
     #- ./node_modules/.bin/eslint --env browser --plugin eslint-plugin-react src/**
-    # -  yes | ./node_modules/.bin/eslint --init
+     -  yes "" | ./node_modules/.bin/eslint --init
     #- ./node_modules/.bin/eslint src/**
 
 code_quality:
