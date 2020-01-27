@@ -9,45 +9,28 @@ export default function Nav(props) {
   const classes = useStyles();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const { authorization, setAuthorization } = props;
-
   function openCloseLoginWindow() {
     setIsLoginOpen(!isLoginOpen);
   }
 
   return (
     <nav className={classes.root}>
-      <ul>
-        {props.links.map((link, i) => (
-          <li key={i}>
-            <Link to={link.url}>
-              <Button className={classes.button}>{link.name}</Button>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <ul>
-        <Link to="settings" className={classes.settingsLink}>
-          <Button className={classes.button}>{"Settings"}</Button>
-        </Link>
-        <Button
-          onClick={openCloseLoginWindow}
-          color="primary"
-          className={classes.button}
-        >
-          {authorization.email ? "Logged in" : "Login"}{" "}
-          <KeyboardArrowDown
-            className={
-              isLoginOpen ? classes.loginIconUp : classes.loginIconDown
-            }
-          />
-        </Button>
-        <Login
-          isOpen={isLoginOpen}
-          close={() => setIsLoginOpen(false)}
-          setAuthorization={setAuthorization}
-          authorization={authorization}
+      <Button
+        onClick={openCloseLoginWindow}
+        color="primary"
+        className={classes.button}
+      >
+        {authorization.email ? "Logged in" : "Login"}{" "}
+        <KeyboardArrowDown
+          className={isLoginOpen ? classes.loginIconUp : classes.loginIconDown}
         />
-      </ul>
+      </Button>
+      <Login
+        isOpen={isLoginOpen}
+        close={() => setIsLoginOpen(false)}
+        setAuthorization={setAuthorization}
+        authorization={authorization}
+      />
     </nav>
   );
 }
@@ -56,7 +39,9 @@ const useStyles = makeStyles(theme => ({
   root: {
     backgroundColor: theme.palette.primary.main,
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
+    height: "100%",
+    width: "100%",
     "& ul": {
       listStyle: "none",
       margin: 0

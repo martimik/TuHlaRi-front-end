@@ -22,6 +22,7 @@ code {
 
 .App {
   text-align: center;
+  display: flex;
 }
 
 .App-logo {
@@ -171,6 +172,6 @@ ul {
 }
 
 .product-container {
-    margin: 40px;
-    min-width: 550px;
+  margin: 40px;
+  min-width: 550px;
 }

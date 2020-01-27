@@ -31,6 +31,7 @@ export default function ProductEditor(props) {
     const [technologies, setTechnologies] = useState([]);
     const [environmentRequirements, setEnvironmentRequirements] = useState([]);
     const [customers, setCustomers] = useState([]);
+    const [participants, setParticipants] = useState([]);
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState();
     const [imageIshidden, setImageIsHidden] = useState(true);
@@ -48,7 +49,8 @@ export default function ProductEditor(props) {
         technology: "",
         component: "",
         environmentRequirement: "",
-        customer: ""
+        customer: "",
+        participant: ""
     };
     const [input, setInput] = useState(emptyInput);
 
@@ -69,6 +71,7 @@ export default function ProductEditor(props) {
             setEnvironmentRequirements(props.product.environmentRequirements);
             setCustomers(props.product.customers);
             setIsClassified(props.product.isClassified);
+            setParticipants(props.product.participants);
             if (props.product.logos.length) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
                 setImageIsHidden(false);
@@ -135,6 +138,12 @@ export default function ProductEditor(props) {
         setInput({ ...input, customer: "" });
     }
 
+    function addParticipant(participant) {
+        if (!participant) return;
+        setParticipants([...participants, participant]);
+        setInput({ ...input, participant: "" });
+    }
+
     function addEnvironmentRequirement(environmentRequirement) {
         if (!environmentRequirement) return;
         setEnvironmentRequirements([
@@ -154,6 +163,10 @@ export default function ProductEditor(props) {
 
     function deleteCustomer(index) {
         setCustomers(customers.filter((customer, i) => index !== i));
+    }
+
+    function deleteParticipant(index) {
+        setParticipants(participants.filter((participant, i) => index !== i));
     }
 
     function deleteEnvironmentRequirement(index) {
@@ -248,6 +261,7 @@ export default function ProductEditor(props) {
         product.technologies = technologies;
         product.components = components;
         product.customers = customers;
+        product.participants = participants;
         product.environmentRequirements = environmentRequirements;
         product.logo = imageURL || "";
         product.id = id ? id : null;
@@ -255,6 +269,7 @@ export default function ProductEditor(props) {
         delete product.component;
         delete product.environmentRequirement;
         delete product.customer;
+        delete product.participant;
 
         axios
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
@@ -296,6 +311,7 @@ export default function ProductEditor(props) {
         setComponents([]);
         setEnvironmentRequirements([]);
         setCustomers([]);
+        setParticipants([]);
     }
 
     function disableSubmitOnEnter(event) {
@@ -311,7 +327,8 @@ export default function ProductEditor(props) {
                 component,
                 technology,
                 environmentRequirement,
-                customer
+                customer,
+                participant
             } = input;
 
             switch (event.target.name) {
@@ -326,6 +343,9 @@ export default function ProductEditor(props) {
                     break;
                 case "customer":
                     addCustomer(customer);
+                    break;
+                case "participant":
+                    addParticipant(participant);
                     break;
                 default:
                     console.log("Default case");
@@ -347,6 +367,9 @@ export default function ProductEditor(props) {
                     break;
                 case "customer":
                     deleteCustomer(customers.length - 1);
+                    break;
+                case "participant":
+                    deleteParticipant(participants.length - 1);
                     break;
                 default:
                     console.log("Default case");
@@ -602,7 +625,7 @@ export default function ProductEditor(props) {
                             <TextField
                                 onChange={handleChange}
                                 name="customer"
-                                label="Customer"
+                                label="Customers"
                                 onKeyDown={readKey}
                                 value={input.customer}
                                 fullWidth
@@ -616,6 +639,30 @@ export default function ProductEditor(props) {
                                     key={i}
                                     label={customer}
                                     onDelete={() => deleteCustomer(i)}
+                                    className={classes.chip}
+                                />
+                            ))}
+                        </div>
+                    </Grid>
+                    <Grid item xs={10} className={classes.inputField}>
+                        <div>
+                            <TextField
+                                onChange={handleChange}
+                                name="participant"
+                                label="Participants"
+                                onKeyDown={readKey}
+                                value={input.participant}
+                                fullWidth
+                            />
+                        </div>
+                    </Grid>
+                    <Grid item xs={10}>
+                        <div className={classes.chipContainer}>
+                            {participants.map((participant, i) => (
+                                <Chip
+                                    key={i}
+                                    label={participant}
+                                    onDelete={() => deleteParticipant(i)}
                                     className={classes.chip}
                                 />
                             ))}
