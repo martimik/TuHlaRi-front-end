@@ -1,7 +1,6 @@
 # This file is a template, and might need editing before it works on your project. testcomment
-include: template: Dependency-Scanning.gitlab-ci.yml
-
 image: ayufan/openshift-cli
+include: template: Dependency-Scanning.gitlab-ci.yml
 
 stages:
     - testing
