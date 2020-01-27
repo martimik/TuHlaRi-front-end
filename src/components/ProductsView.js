@@ -37,7 +37,7 @@ export default function ProductsView() {
         "Idea",
         "Accepted",
         "Planning",
-        "Developement",
+        "Development",
         "Released",
         "Production",
         "Closed"

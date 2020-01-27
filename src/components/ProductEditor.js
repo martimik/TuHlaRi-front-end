@@ -357,7 +357,7 @@ export default function ProductEditor(props) {
     return (
         <Paper elevation={2} className={classes.root}>
             <div style={{ float: "right" }}>
-                {props.onDelete ? (
+                {props.onDelete && (
                     <Fab
                         color="secondary"
                         aria-label="edit"
@@ -366,8 +366,8 @@ export default function ProductEditor(props) {
                     >
                         <DeleteForeverIcon />
                     </Fab>
-                ) : null}
-                {props.toggleEditMode ? (
+                )}
+                {props.toggleEditMode && (
                     <Fab
                         color="secondary"
                         aria-label="edit"
@@ -376,7 +376,7 @@ export default function ProductEditor(props) {
                     >
                         <EditIcon />
                     </Fab>
-                ) : null}
+                )}
             </div>
             <h1 className="create-product-header">{props.title}</h1>
             <form
@@ -621,20 +621,17 @@ export default function ProductEditor(props) {
                             ))}
                         </div>
                     </Grid>
-                    <Grid item xs={12} className={classes.imageField}>
+                    <Grid item xs={12}>
                         <h2 className={classes.logoText}>
                             Logo
-                            <IconButton
-                                aria-label="delete"
-                                onClick={removeImage}
-                                className={
-                                    imageIshidden
-                                        ? classes.imgHidden
-                                        : classes.removeButton
-                                }
-                            >
-                                <DeleteIcon />
-                            </IconButton>
+                            {image && (
+                                <IconButton
+                                    aria-label="delete"
+                                    onClick={removeImage}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            )}
                         </h2>
 
                         <input
@@ -645,32 +642,25 @@ export default function ProductEditor(props) {
                             type="file"
                             onChange={onUpload}
                         />
-                        <label
-                            htmlFor="contained-button-file"
-                            className={
-                                imageIshidden
-                                    ? classes.imgVisible
-                                    : classes.imgHidden
-                            }
-                        >
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                component="span"
-                                startIcon={<AddAPhoto />}
-                            >
-                                Upload
-                            </Button>
-                        </label>
-                        <img
-                            className={
-                                imageIshidden
-                                    ? classes.imgHidden
-                                    : classes.imgVisible
-                            }
-                            src={image}
-                            alt=""
-                        />
+                        {!image && (
+                            <label htmlFor="contained-button-file">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    component="span"
+                                    startIcon={<AddAPhoto />}
+                                >
+                                    Upload
+                                </Button>
+                            </label>
+                        )}
+                        {image && (
+                            <img
+                                className={classes.img}
+                                src={image}
+                                alt="product logo"
+                            />
+                        )}
                     </Grid>
                 </Grid>
                 <Grid item xs={12} style={{ margin: "20px" }}>
@@ -693,7 +683,6 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(4),
         margin: "auto"
     },
-    form: {},
     chip: {
         margin: theme.spacing(0.5)
     },
@@ -714,7 +703,7 @@ const useStyles = makeStyles(theme => ({
         fontStyle: "italic",
         margin: "10px"
     },
-    imgVisible: {
+    img: {
         maxHeight: "180px",
         maxWidth: "100%",
         margin: "auto"
@@ -729,7 +718,6 @@ const useStyles = makeStyles(theme => ({
         marginLeft: "10%",
         marginRight: "10%"
     },
-    imageField: {},
     removeButton: {
         position: "absolute",
         right: "0px",

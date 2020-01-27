@@ -5,11 +5,14 @@ import { useParams } from "react-router-dom";
 import API_URL from "../js/api";
 import ProductEditor from "./ProductEditor";
 import makeStyles from "@material-ui/styles/makeStyles";
+import ConfirmDialog from "./ConfirmDialog";
+import DialogContentText from "@material-ui/core/DialogContentText";
 
 const ProductView = () => {
     const classes = useStyles();
     const [product, setProduct] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { id } = useParams();
 
     useEffect(() => {
@@ -51,7 +54,7 @@ const ProductView = () => {
                     product={product}
                     toggleEditMode={toggleEditMode}
                     onEdit={onEdit}
-                    onDelete={deleteProduct}
+                    onDelete={() => setIsDialogOpen(true)}
                 />
             ) : (
                 <Product
@@ -61,6 +64,17 @@ const ProductView = () => {
                     }
                 />
             )}
+            <ConfirmDialog
+                isOpen={isDialogOpen}
+                setOpen={setIsDialogOpen}
+                onConfirm={deleteProduct}
+                title="Confirm delete"
+            >
+                <DialogContentText id="alert-dialog-description">
+                    Are you sure you want to delete product{" "}
+                    {product.productName}?
+                </DialogContentText>
+            </ConfirmDialog>
         </div>
     );
 };
