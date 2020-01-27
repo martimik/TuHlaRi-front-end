@@ -17,6 +17,7 @@ import API_URL from "../js/api";
 import { useParams } from "react-router-dom";
 import Dialog from "./Dialog";
 import BarChartIcon from "@material-ui/icons/BarChart";
+import { useSnackbar } from "notistack";
 import {
     BarChart,
     Bar,
@@ -29,6 +30,7 @@ import {
 
 export default function Product(props) {
     const classes = useStyles();
+    const { enqueueSnackbar } = useSnackbar();
     const [product, setProduct] = useState(null);
     const [graphData, setGraphData] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -42,6 +44,8 @@ export default function Product(props) {
         "Production",
         "Closed"
     ];
+
+    const textAreaRef = React.useRef(null);
 
     useEffect(() => {
         if (id) {
@@ -66,6 +70,21 @@ export default function Product(props) {
                 .catch(err => console.log(err));
         }
     }, [id]);
+
+    const copyText = text => () => {
+        try {
+            navigator.clipboard.writeText(text);
+            enqueueSnackbar(text + " copied to clipboard", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right"
+                }
+            });
+        } catch (e) {
+            console.error(e.message);
+        }
+    };
 
     if (product) {
         return (
@@ -226,6 +245,9 @@ export default function Product(props) {
                                     </Typography>
                                     <div>
                                         <Chip
+                                            onClick={copyText(
+                                                product.productOwner
+                                            )}
                                             variant="outlined"
                                             color="primary"
                                             label={product.productOwner}
@@ -241,6 +263,9 @@ export default function Product(props) {
                                     </Typography>
                                     <div>
                                         <Chip
+                                            onClick={copyText(
+                                                product.salesPerson
+                                            )}
                                             variant="outlined"
                                             color="primary"
                                             label={product.salesPerson}
