@@ -30,9 +30,9 @@ eslint:
   script:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react@latest --save-dev
-    - ./node_modules/.bin/eslint --env browser --plugin eslint-plugin-react src/**
-    #- echo '1\r 1\r N\r a\r 3\r Y\r' | ./node_modules/.bin/eslint --init
-    #- ./node_modules/.bin/eslint src/**
+    #- ./node_modules/.bin/eslint --env browser --plugin eslint-plugin-react src/**
+    - echo '1\r' | echo '1\r' | echo 'N\r' | echo 'a\r' | echo '3\r' | echo 'Y\r' | ./node_modules/.bin/eslint --init
+    - ./node_modules/.bin/eslint src/**
 
 code_quality:
   stage: testing
