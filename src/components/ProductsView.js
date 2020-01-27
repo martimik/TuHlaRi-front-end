@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import ProductCard from "./ProductCard";
@@ -14,6 +14,8 @@ import SearchField from "./SearchField";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 axios.defaults.withCredentials = true;
 
@@ -30,6 +32,7 @@ export default function ProductsView() {
         lifecycleStatus: 0
     });
 
+    const [isLoading, setIsLoading] = useState(false);
     const user = useContext(UserContext);
 
     const lifecycleStatuses = [
@@ -44,6 +47,7 @@ export default function ProductsView() {
     ];
 
     const getProducts = () => {
+        setIsLoading(true);
         axios
             .get(API_URL + "products", {
                 params: {
@@ -55,7 +59,17 @@ export default function ProductsView() {
             .then(response => {
                 setProducts(response.data);
             })
-            .catch(err => console.log(err.message));
+            .catch(err => console.log(err.message))
+            .finally(() => setIsLoading(false));
+    };
+
+    const debounce = callback => {
+        if (cancelTimeout) {
+            clearTimeout(cancelTimeout);
+            setCancelTimeout(null);
+        }
+        const t = setTimeout(callback, 250);
+        setCancelTimeout(t);
     };
 
     useEffect(() => {
@@ -72,10 +86,12 @@ export default function ProductsView() {
     }, []);
 
     useEffect(() => {
+        getProducts();
+    }, [filters, user.userGroup]);
+
+    useEffect(() => {
         debounce(getProducts);
     }, [search]);
-
-    useEffect(getProducts, [filters, user.userGroup]);
 
     const handleFilterChange = e => {
         setFilters({ ...filters, [e.target.name]: e.target.checked });
@@ -85,20 +101,11 @@ export default function ProductsView() {
         setFilters({ ...filters, lifecycleStatus: e.target.value });
     };
 
-    const debounce = callback => {
-        if (cancelTimeout) {
-            clearTimeout(cancelTimeout);
-            setCancelTimeout(null);
-        }
-        const t = setTimeout(callback, 250);
-        setCancelTimeout(t);
-    };
-
     return (
         <div className={classes.root}>
             <div className={classes.searchField}>
                 <SearchField onSearch={e => setSearch(e.target.value)} />
-                <FormControl className={classes.formControl} fullWidth>
+                <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">
                         Status
                     </InputLabel>
@@ -114,64 +121,72 @@ export default function ProductsView() {
                     </Select>
                 </FormControl>
             </div>
-            <FormControl component="fieldset" className={classes.formControl}>
-                <FormLabel component="legend">Filters</FormLabel>
-                <FormGroup>
-                    {user.userGroup ? (
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.myProducts}
-                                    color="primary"
-                                    onChange={handleFilterChange}
-                                    name="myProducts"
-                                />
-                            }
-                            label="Created by me"
-                        />
-                    ) : null}
-                    {user.userGroup ? (
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.isParticipant}
-                                    color="primary"
-                                    onChange={handleFilterChange}
-                                    name="isParticipant"
-                                />
-                            }
-                            label="Participant"
-                        />
-                    ) : null}
-                </FormGroup>
-            </FormControl>
-            {user.userGroup ? (
-                <FormControl
-                    component="fieldset"
-                    className={classes.formControl}
-                >
-                    <FormLabel component="legend">Warning</FormLabel>
-                    <FormGroup>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters.isClassified}
-                                    color="primary"
-                                    onChange={handleFilterChange}
-                                    name="isClassified"
-                                />
-                            }
-                            label="Include classified products"
-                        />
-                    </FormGroup>
-                </FormControl>
-            ) : null}
-            <div></div>
+            {user.userGroup && (
+                <React.Fragment>
+                    <FormControl
+                        component="fieldset"
+                        className={classes.formControl}
+                    >
+                        <FormLabel component="legend">Filters</FormLabel>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={filters.myProducts}
+                                        color="primary"
+                                        onChange={handleFilterChange}
+                                        name="myProducts"
+                                    />
+                                }
+                                label="Created by me"
+                            />
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={filters.isParticipant}
+                                        color="primary"
+                                        onChange={handleFilterChange}
+                                        name="isParticipant"
+                                    />
+                                }
+                                label="Participant"
+                            />
+                        </FormGroup>
+                    </FormControl>
+                    <FormControl
+                        component="fieldset"
+                        className={classes.formControl}
+                    >
+                        <FormLabel component="legend">Warning</FormLabel>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={filters.isClassified}
+                                        color="primary"
+                                        onChange={handleFilterChange}
+                                        name="isClassified"
+                                    />
+                                }
+                                label="Include classified products"
+                            />
+                        </FormGroup>
+                    </FormControl>
+                </React.Fragment>
+            )}
             <Grid container spacing={3}>
                 {products.map(product => (
                     <ProductCard key={product._id} product={product} />
                 ))}
             </Grid>
+            <Backdrop
+                transitionDuration={500}
+                className={classes.backdrop}
+                open={isLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </div>
     );
 }
@@ -183,7 +198,9 @@ const useStyles = makeStyles(theme => ({
         textAlign: "left"
     },
     searchField: {
-        width: 200
+        width: 450,
+        display: "flex",
+        alignItems: "center"
     },
     formControl: {
         margin: theme.spacing(3),
@@ -198,5 +215,9 @@ const useStyles = makeStyles(theme => ({
         display: "block",
         maxWidth: "100%",
         maxHeight: "100%"
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: "#fff"
     }
 }));
