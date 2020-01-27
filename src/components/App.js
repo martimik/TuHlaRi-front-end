@@ -15,6 +15,7 @@ import DeletedProducts from "./DeletedProducts";
 import ProductsView from "./ProductsView";
 import API_URL from "../js/api";
 import ProductView from "./ProductView";
+import AuthorizedRoute from "./AuthorizedRoute";
 
 axios.defaults.withCredentials = true;
 console.log(process.env.REACT_APP_API_URL);
@@ -94,30 +95,44 @@ function App() {
                                     <Route path="/product/:id">
                                         <ProductView />
                                     </Route>
-                                    <Route path="/settings">
-                                        <Settings />
-                                    </Route>
-                                    <Route path="/users">
-                                        <Users />
-                                    </Route>
-                                    <Route path="/deleted-products">
-                                        <DeletedProducts />
-                                    </Route>
-                                    <Route path="/create-product">
-                                        {authorization.userGroup ? (
-                                            <CreateProduct />
-                                        ) : (
-                                            <div>Not found</div>
+                                    <AuthorizedRoute
+                                        authorized={Boolean(
+                                            authorization.userGroup
                                         )}
-                                    </Route>
-                                    <Route path="/create-user">
-                                        {authorization.userGroup ===
-                                        USERGROUP.ADMIN ? (
-                                            <CreateUser />
-                                        ) : (
-                                            <div>Not found</div>
+                                        path="/settings"
+                                        component={Settings}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={
+                                            authorization.userGroup ===
+                                            USERGROUP.ADMIN
+                                        }
+                                        path="/users"
+                                        component={Users}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={
+                                            authorization.userGroup ===
+                                            USERGROUP.ADMIN
+                                        }
+                                        path="/deleted-products"
+                                        component={DeletedProducts}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={Boolean(
+                                            authorization.userGroup
                                         )}
-                                    </Route>
+                                        path="/create-product"
+                                        component={CreateProduct}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={
+                                            authorization.userGroup ===
+                                            USERGROUP.ADMIN
+                                        }
+                                        path="/create-user"
+                                        component={CreateUser}
+                                    />
                                 </Switch>
                             </div>
                         </Router>
