@@ -31,7 +31,7 @@ eslint:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react@latest --save-dev
     #- ./node_modules/.bin/eslint --env browser --plugin eslint-plugin-react src/**
-    -  echo 'Y\r' | sleep 25 | echo '3\r' | sleep 25 | echo '\r' | sleep 25 | echo 'N\r'| sleep 25 | echo '1\r' | sleep 25 | echo '1\r' | sleep 25 | echo '2\r' #./node_modules/.bin/eslint --init
+    -  echo 'Y\r3\r\rN\r1\r1\r2\r' | ./node_modules/.bin/eslint --init
     #- ./node_modules/.bin/eslint src/**
 
 code_quality:
