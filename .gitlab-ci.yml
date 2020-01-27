@@ -31,14 +31,7 @@ eslint:
   script:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react --save-dev
-    - ./node_modules/.bin/eslint --init
-    - 2 --sk
-    - 1 --sk
-    - 1 --sk
-    - N --sk
-    - a --sk
-    - 3 --sk
-    - Y --sk
+    - printf '2\n1\n1\nN\na\n3\nY\n' | ./node_modules/.bin/eslint --init
     - ./node_modules/.bin/eslint src/**
   
 
