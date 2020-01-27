@@ -274,7 +274,6 @@ export default function ProductEditor(props) {
         axios
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
             .then(response => {
-                console.log(response);
                 enqueueSnackbar(id ? "Product edited" : "Product added", {
                     variant: "success",
                     anchorOrigin: {
@@ -379,7 +378,7 @@ export default function ProductEditor(props) {
 
     return (
         <Paper elevation={2} className={classes.root}>
-            <div style={{ float: "right" }}>
+            <div className={classes.actionButtons}>
                 {props.onDelete && (
                     <Fab
                         color="secondary"
@@ -729,6 +728,12 @@ const useStyles = makeStyles(theme => ({
         maxWidth: 1000,
         padding: theme.spacing(4),
         margin: "auto"
+    },
+    actionButtons: {
+        float: "right",
+        "& > *": {
+            marginLeft: theme.spacing(1)
+        }
     },
     chip: {
         margin: theme.spacing(0.5)

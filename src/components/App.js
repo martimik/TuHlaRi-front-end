@@ -15,6 +15,7 @@ import DeletedProducts from "./DeletedProducts";
 import ProductsView from "./ProductsView";
 import API_URL from "../js/api";
 import ProductView from "./ProductView";
+<<<<<<< HEAD
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import AppBar from "@material-ui/core/AppBar";
@@ -33,6 +34,9 @@ import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { Link } from "react-router-dom";
+=======
+import AuthorizedRoute from "./AuthorizedRoute";
+>>>>>>> 4e7a47453c053f58b9d904621c8b8e0e020d1101
 
 axios.defaults.withCredentials = true;
 console.log(process.env.REACT_APP_API_URL);
@@ -90,6 +94,7 @@ function App() {
       });
   }
 
+<<<<<<< HEAD
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -220,6 +225,82 @@ function App() {
       </ThemeProvider>
     </div>
   );
+=======
+    return (
+        <div className="App">
+            <ThemeProvider theme={theme}>
+                <UserProvider value={authorization}>
+                    <SnackbarProvider preventDuplicate maxSnack={3}>
+                        <Router>
+                            <Nav
+                                links={links}
+                                authorization={authorization}
+                                setAuthorization={setAuthorization}
+                            />
+                            <div>
+                                <Switch>
+                                    <Route
+                                        exact
+                                        path="/"
+                                        component={ProductsView}
+                                    />
+                                    <Route path="/products-old">
+                                        <Products />
+                                    </Route>
+                                    <Route
+                                        path="/products"
+                                        component={ProductsView}
+                                    />
+                                    <Route path="/product/:id">
+                                        <ProductView />
+                                    </Route>
+                                    <AuthorizedRoute
+                                        authorized={Boolean(
+                                            authorization.userGroup
+                                        )}
+                                        path="/settings"
+                                        component={Settings}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={
+                                            authorization.userGroup ===
+                                            USERGROUP.ADMIN
+                                        }
+                                        path="/users"
+                                        component={Users}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={
+                                            authorization.userGroup ===
+                                            USERGROUP.ADMIN
+                                        }
+                                        path="/deleted-products"
+                                        component={DeletedProducts}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={Boolean(
+                                            authorization.userGroup
+                                        )}
+                                        path="/create-product"
+                                        component={CreateProduct}
+                                    />
+                                    <AuthorizedRoute
+                                        authorized={
+                                            authorization.userGroup ===
+                                            USERGROUP.ADMIN
+                                        }
+                                        path="/create-user"
+                                        component={CreateUser}
+                                    />
+                                </Switch>
+                            </div>
+                        </Router>
+                    </SnackbarProvider>
+                </UserProvider>
+            </ThemeProvider>
+        </div>
+    );
+>>>>>>> 4e7a47453c053f58b9d904621c8b8e0e020d1101
 }
 
 export default App;
