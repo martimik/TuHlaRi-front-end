@@ -19,8 +19,6 @@ variables:
   tags:
     - shell
 
-
-
 #Remove comments once csc works
 #Login:
 #  stage: preparation
@@ -52,7 +50,6 @@ BuildProductionToOpenshift_Manual:
     - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
     - oc project tuhlari
     - oc start-build front-end --from-dir="build" --follow --wait
-
 
 code_quality:
   stage: testing
@@ -92,7 +89,6 @@ code_quality:
       - $CODE_QUALITY_DISABLED
   tags:
     - shell
-    
 
 # Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
 # List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
