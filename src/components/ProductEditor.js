@@ -36,6 +36,7 @@ export default function ProductEditor(props) {
     const [imageFile, setImageFile] = useState();
     const [imageIshidden, setImageIsHidden] = useState(true);
     const [users, setUsers] = useState([]);
+    const [properties, setProperties] = useState({});
     const { enqueueSnackbar } = useSnackbar();
     const emptyInput = {
         productName: "",
@@ -55,8 +56,9 @@ export default function ProductEditor(props) {
     const [input, setInput] = useState(emptyInput);
 
     useEffect(() => {
-        if (props.product) {
+        if (props.product && !input.productName) {
             setInput({
+                ...input,
                 productName: props.product.productName,
                 shortDescription: props.product.shortDescription,
                 longDescription: props.product.longDescription,
@@ -88,6 +90,22 @@ export default function ProductEditor(props) {
             .catch(err => console.error(err));
     }, []);
 
+    useEffect(() => {
+        ["technologies", "components", "environmentRequirements"].forEach(
+            property => {
+                axios
+                    .get(API_URL + property)
+                    .then(res => {
+                        setProperties(state => ({
+                            ...state,
+                            [property]: res.data
+                        }));
+                    })
+                    .catch(err => console.error(err));
+            }
+        );
+    }, []);
+
     function handleChange(event) {
         setInput({
             ...input,
@@ -97,10 +115,68 @@ export default function ProductEditor(props) {
 
     const handleAutoCompleteChange = name => e => {
         if (!e) return;
-        setInput({
-            ...input,
-            [name]: e.target.value || e.target.innerText || ""
-        });
+        const text = e.target.value || e.target.innerText || "";
+
+        if (text.length - 1 && text.substr(text.length - 1) === ",") {
+            setInput({ ...input, [name]: "" });
+            addProperty(name, text.slice(0, text.length - 1));
+        } else {
+            setInput({ ...input, [name]: text });
+        }
+    };
+
+    const handleAutoCompleteKeyDown = name => e => {
+        if (e.key === "Enter" && input[name]) {
+            addProperty(name, input[name]);
+            setInput({ ...input, [name]: "" });
+        }
+        if (e.key === "Backspace" && !input[name]) {
+            removeProperty(name);
+        }
+    };
+
+    const addProperty = (name, text) => {
+        switch (name) {
+            case "technology":
+                setTechnologies(state => [...state, text]);
+                break;
+            case "component":
+                setComponents(state => [...state, text]);
+                break;
+            case "environmentRequirement":
+                setEnvironmentRequirements(state => [...state, text]);
+                break;
+            default:
+                break;
+        }
+    };
+
+    const removeProperty = name => {
+        switch (name) {
+            case "technology":
+                setTechnologies(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            case "component":
+                setComponents(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            case "environmentRequirement":
+                setEnvironmentRequirements(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            default:
+                break;
+        }
     };
 
     function handleLifecycleStatus(event) {
@@ -118,18 +194,6 @@ export default function ProductEditor(props) {
 
     function handleClassifiedSwitch() {
         setIsClassified(!isClassified);
-    }
-
-    function addComponent(component) {
-        if (!component) return;
-        setComponents([...components, component]);
-        setInput({ ...input, component: "" });
-    }
-
-    function addTechnology(technology) {
-        if (!technology) return;
-        setTechnologies([...technologies, technology]);
-        setInput({ ...input, technology: "" });
     }
 
     function addCustomer(customer) {
@@ -313,33 +377,11 @@ export default function ProductEditor(props) {
         setParticipants([]);
     }
 
-    function disableSubmitOnEnter(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-        }
-    }
-
     function readKey(event) {
         if (event.key === "Enter") {
             event.preventDefault();
-            const {
-                component,
-                technology,
-                environmentRequirement,
-                customer,
-                participant
-            } = input;
-
+            const { customer } = input;
             switch (event.target.name) {
-                case "component":
-                    addComponent(component);
-                    break;
-                case "technology":
-                    addTechnology(technology);
-                    break;
-                case "environmentRequirement":
-                    addEnvironmentRequirement(environmentRequirement);
-                    break;
                 case "customer":
                     addCustomer(customer);
                     break;
@@ -353,17 +395,6 @@ export default function ProductEditor(props) {
 
         if (event.key === "Backspace" && !event.target.value) {
             switch (event.target.name) {
-                case "component":
-                    deleteComponent(components.length - 1);
-                    break;
-                case "technology":
-                    deleteTechnology(technologies.length - 1);
-                    break;
-                case "environmentRequirement":
-                    deleteEnvironmentRequirement(
-                        environmentRequirements.length - 1
-                    );
-                    break;
                 case "customer":
                     deleteCustomer(customers.length - 1);
                     break;
@@ -401,222 +432,233 @@ export default function ProductEditor(props) {
                 )}
             </div>
             <h1 className="create-product-header">{props.title}</h1>
-            <form
-                className={classes.form}
-                noValidate
-                autoComplete="off"
-                onSubmit={submitProduct}
-            >
-                <Grid container direction="column" spacing={1}>
-                    <Grid item xs={12} className={classes.inputField}>
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={isClassified}
-                                    onChange={handleClassifiedSwitch}
-                                    value="isClassified"
-                                />
-                            }
-                            name="classified"
-                            label="Is classified"
-                            labelPlacement="start"
-                        />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <TextField
-                            onChange={handleChange}
-                            onKeyDown={disableSubmitOnEnter}
-                            value={input.productName}
-                            name="productName"
-                            label="Name"
-                            required
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <TextField
-                            onChange={handleChange}
-                            onKeyDown={disableSubmitOnEnter}
-                            multiline
-                            name="shortDescription"
-                            label="Short description"
-                            value={input.shortDescription}
-                            required
-                            fullWidth
-                        />
-                    </Grid>
+            <Grid container direction="column" spacing={1}>
+                <Grid item xs={12} className={classes.inputField}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={isClassified}
+                                onChange={handleClassifiedSwitch}
+                                value="isClassified"
+                            />
+                        }
+                        name="classified"
+                        label="Is classified"
+                        labelPlacement="start"
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        onChange={handleChange}
+                        value={input.productName}
+                        name="productName"
+                        label="Name"
+                        required
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        onChange={handleChange}
+                        multiline
+                        name="shortDescription"
+                        label="Short description"
+                        value={input.shortDescription}
+                        required
+                        fullWidth
+                    />
+                </Grid>
 
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <InputLabel
-                                htmlFor="demo-customized-select-native"
-                                required
-                            >
-                                Lifecycle status
-                            </InputLabel>
-                            <Select
-                                id="demo-customized-select-native"
-                                name="lifecycleStatus"
-                                value={input.lifecycleStatus}
-                                onChange={handleLifecycleStatus}
-                            >
-                                <MenuItem value={1}>(1) Idea</MenuItem>
-                                <MenuItem value={2}>(2) Accepted idea</MenuItem>
-                                <MenuItem value={3}>(3) Planning</MenuItem>
-                                <MenuItem value={4}>
-                                    (4) In developement
-                                </MenuItem>
-                                <MenuItem value={5}>(5) Released</MenuItem>
-                                <MenuItem value={6}>(6) In production</MenuItem>
-                                <MenuItem value={7}>(7) Closed</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <TextField
-                            multiline
-                            onChange={handleChange}
-                            name="longDescription"
-                            label="Long description"
-                            value={input.longDescription}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
+                <Grid item xs={10} className={classes.inputField}>
+                    <FormControl fullWidth>
+                        <InputLabel
+                            htmlFor="demo-customized-select-native"
+                            required
+                        >
+                            Lifecycle status
+                        </InputLabel>
+                        <Select
+                            id="demo-customized-select-native"
+                            name="lifecycleStatus"
+                            value={input.lifecycleStatus}
+                            onChange={handleLifecycleStatus}
+                        >
+                            <MenuItem value={1}>(1) Idea</MenuItem>
+                            <MenuItem value={2}>(2) Accepted idea</MenuItem>
+                            <MenuItem value={3}>(3) Planning</MenuItem>
+                            <MenuItem value={4}>(4) In developement</MenuItem>
+                            <MenuItem value={5}>(5) Released</MenuItem>
+                            <MenuItem value={6}>(6) In production</MenuItem>
+                            <MenuItem value={7}>(7) Closed</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        multiline
+                        onChange={handleChange}
+                        name="longDescription"
+                        label="Long description"
+                        value={input.longDescription}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <Autocomplete
+                        onInputChange={handleAutoCompleteChange("productOwner")}
+                        options={users}
+                        getOptionLabel={user => user.email}
+                        freeSolo
+                        autoSelect
+                        autoComplete
+                        inputValue={input.productOwner}
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                fullWidth
+                                label="Product owner"
+                                required={!isIdea}
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <Autocomplete
+                        onInputChange={handleAutoCompleteChange("salesPerson")}
+                        options={users}
+                        getOptionLabel={user => user.email}
+                        inputValue={input.salesPerson}
+                        freeSolo
+                        autoSelect
+                        autoComplete
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                fullWidth
+                                label="Sales person"
+                            />
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        onChange={handleChange}
+                        name="businessType"
+                        label="Business type"
+                        value={input.businessType}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        onChange={handleChange}
+                        name="pricing"
+                        label="Pricing (€)"
+                        value={input.pricing}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
                         <Autocomplete
                             onInputChange={handleAutoCompleteChange(
-                                "productOwner"
+                                "technology"
                             )}
-                            options={users}
-                            getOptionLabel={user => user.email}
+                            options={properties.technologies}
+                            getOptionLabel={({ technology }) => technology}
+                            onKeyDown={handleAutoCompleteKeyDown("technology")}
                             freeSolo
                             autoSelect
                             autoComplete
-                            inputValue={input.productOwner}
+                            inputValue={input.technology}
                             renderInput={params => (
                                 <TextField
                                     {...params}
                                     fullWidth
-                                    label="Product owner"
-                                    required={!isIdea}
+                                    label="Technologies"
                                 />
                             )}
                         />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
+                    </div>
+                </Grid>
+                <Grid item xs={10} style={{ padding: "0" }}>
+                    <div className={classes.chipContainer}>
+                        {technologies.map((technology, i) => (
+                            <Chip
+                                key={i}
+                                label={technology}
+                                onDelete={() => deleteTechnology(i)}
+                                className={classes.chip}
+                            />
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
                         <Autocomplete
                             onInputChange={handleAutoCompleteChange(
-                                "salesPerson"
+                                "component"
                             )}
-                            options={users}
-                            getOptionLabel={user => user.email}
-                            inputValue={input.salesPerson}
+                            options={properties.components}
+                            getOptionLabel={({ component }) => component}
+                            onKeyDown={handleAutoCompleteKeyDown("component")}
                             freeSolo
                             autoSelect
                             autoComplete
+                            inputValue={input.component}
                             renderInput={params => (
                                 <TextField
                                     {...params}
                                     fullWidth
-                                    label="Sales person"
+                                    label="Components"
                                 />
                             )}
                         />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <TextField
-                            onChange={handleChange}
-                            onKeyDown={disableSubmitOnEnter}
-                            name="businessType"
-                            label="Business type"
-                            value={input.businessType}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <TextField
-                            onChange={handleChange}
-                            onKeyDown={disableSubmitOnEnter}
-                            name="pricing"
-                            label="Pricing (€)"
-                            value={input.pricing}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <TextField
-                                onChange={handleChange}
-                                name="technology"
-                                label="Technologies"
-                                onKeyDown={readKey}
-                                value={input.technology}
-                                fullWidth
+                    </div>
+                </Grid>
+                <Grid item xs={10}>
+                    <div className={classes.chipContainer}>
+                        {components.map((component, i) => (
+                            <Chip
+                                key={i}
+                                label={component}
+                                onDelete={() => deleteComponent(i)}
+                                className={classes.chip}
                             />
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} style={{ padding: "0" }}>
-                        <div className={classes.chipContainer}>
-                            {technologies.map((technology, i) => (
-                                <Chip
-                                    key={i}
-                                    label={technology}
-                                    onDelete={() => deleteTechnology(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <TextField
-                                onChange={handleChange}
-                                name="component"
-                                label="Components"
-                                onKeyDown={readKey}
-                                value={input.component}
-                                fullWidth
-                            />
-                        </div>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <div className={classes.chipContainer}>
-                            {components.map((component, i) => (
-                                <Chip
-                                    key={i}
-                                    label={component}
-                                    onDelete={() => deleteComponent(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <TextField
-                                onChange={handleChange}
-                                name="environmentRequirement"
-                                label="Environment Requirement"
-                                onKeyDown={readKey}
-                                value={input.environmentRequirement}
-                                fullWidth
-                            />
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} style={{ padding: "0" }}>
-                        <div className={classes.chipContainer}>
-                            {environmentRequirements.map(
-                                (environmentRequirement, i) => (
-                                    <Chip
-                                        key={i}
-                                        label={environmentRequirement}
-                                        onDelete={() =>
-                                            deleteEnvironmentRequirement(i)
-                                        }
-                                        className={classes.chip}
-                                    />
-                                )
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <Autocomplete
+                            onInputChange={handleAutoCompleteChange(
+                                "environmentRequirement"
                             )}
+                            options={properties.environmentRequirements}
+                            getOptionLabel={({ requirement }) => requirement}
+                            onKeyDown={handleAutoCompleteKeyDown(
+                                "environmentRequirement"
+                            )}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            inputValue={input.environmentRequirement}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    label="Environment requirements"
+                                />
+                            )}
+<<<<<<< src/components/ProductEditor.js
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={10} style={{ padding: "0" }}>
+                    <div className={classes.chipContainer}>
+                        {environmentRequirements.map(
+                            (environmentRequirement, i) => (
+=======
                         </div>
                     </Grid>
                     <Grid item xs={10} className={classes.inputField}>
@@ -634,12 +676,18 @@ export default function ProductEditor(props) {
                     <Grid item xs={10}>
                         <div className={classes.chipContainer}>
                             {customers.map((customer, i) => (
+>>>>>>> src/components/ProductEditor.js
                                 <Chip
                                     key={i}
-                                    label={customer}
-                                    onDelete={() => deleteCustomer(i)}
+                                    label={environmentRequirement}
+                                    onDelete={() =>
+                                        deleteEnvironmentRequirement(i)
+                                    }
                                     className={classes.chip}
                                 />
+<<<<<<< src/components/ProductEditor.js
+                            )
+=======
                             ))}
                         </div>
                     </Grid>
@@ -699,26 +747,85 @@ export default function ProductEditor(props) {
                                     Upload
                                 </Button>
                             </label>
+>>>>>>> src/components/ProductEditor.js
                         )}
-                        {image && (
-                            <img
-                                className={classes.img}
-                                src={image}
-                                alt="product logo"
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <TextField
+                            onChange={handleChange}
+                            name="customer"
+                            label="Customer"
+                            onKeyDown={readKey}
+                            value={input.customer}
+                            fullWidth
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={10}>
+                    <div className={classes.chipContainer}>
+                        {customers.map((customer, i) => (
+                            <Chip
+                                key={i}
+                                label={customer}
+                                onDelete={() => deleteCustomer(i)}
+                                className={classes.chip}
                             />
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <h2 className={classes.logoText}>
+                        Logo
+                        {image && (
+                            <IconButton
+                                aria-label="delete"
+                                onClick={removeImage}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
                         )}
-                    </Grid>
+                    </h2>
+
+                    <input
+                        accept="image/*"
+                        className={classes.input}
+                        id="contained-button-file"
+                        multiple
+                        type="file"
+                        onChange={onUpload}
+                    />
+                    {!image && (
+                        <label htmlFor="contained-button-file">
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                component="span"
+                                startIcon={<AddAPhoto />}
+                            >
+                                Upload
+                            </Button>
+                        </label>
+                    )}
+                    {image && (
+                        <img
+                            className={classes.img}
+                            src={image}
+                            alt="product logo"
+                        />
+                    )}
                 </Grid>
-                <Grid item xs={12} style={{ margin: "20px" }}>
-                    <Button
-                        variant="contained"
-                        type="submit"
-                        style={{ marginTop: "30px" }}
-                    >
-                        Submit
-                    </Button>
-                </Grid>
-            </form>
+            </Grid>
+            <Grid item xs={12} style={{ margin: "20px" }}>
+                <Button
+                    variant="contained"
+                    onClick={submitProduct}
+                    style={{ marginTop: "30px" }}
+                >
+                    Submit
+                </Button>
+            </Grid>
         </Paper>
     );
 }

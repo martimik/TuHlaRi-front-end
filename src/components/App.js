@@ -15,7 +15,6 @@ import DeletedProducts from "./DeletedProducts";
 import ProductsView from "./ProductsView";
 import API_URL from "../js/api";
 import ProductView from "./ProductView";
-<<<<<<< HEAD
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import AppBar from "@material-ui/core/AppBar";
@@ -34,12 +33,8 @@ import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { Link } from "react-router-dom";
-=======
-import AuthorizedRoute from "./AuthorizedRoute";
->>>>>>> 4e7a47453c053f58b9d904621c8b8e0e020d1101
 
 axios.defaults.withCredentials = true;
-console.log(process.env.REACT_APP_API_URL);
 
 const drawerWidth = 240;
 
@@ -75,6 +70,20 @@ function App() {
     links.push({ name: "Deleted products", url: "/deleted-products" });
   }
 
+    const getLoginState = () => {
+        axios
+            .get(API_URL + "session")
+            .then(response => {
+                const { email, name, userGroup } = response.data;
+                if (email && userGroup && email) {
+                    setAuthorization({ email, name, userGroup });
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    };
+    
   useEffect(() => {
     getLoginState();
     setInterval(getLoginState, 1000 * 60); // Read login state every minute
@@ -94,7 +103,6 @@ function App() {
       });
   }
 
-<<<<<<< HEAD
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -194,66 +202,6 @@ function App() {
                   <Route path="/product/:id">
                     <ProductView />
                   </Route>
-                  <Route path="/settings">
-                    <Settings />
-                  </Route>
-                  <Route path="/users">
-                    <Users />
-                  </Route>
-                  <Route path="/deleted-products">
-                    <DeletedProducts />
-                  </Route>
-                  <Route path="/create-product">
-                    {authorization.userGroup ? (
-                      <CreateProduct />
-                    ) : (
-                      <div>Not found</div>
-                    )}
-                  </Route>
-                  <Route path="/create-user">
-                    {authorization.userGroup === USERGROUP.ADMIN ? (
-                      <CreateUser />
-                    ) : (
-                      <div>Not found</div>
-                    )}
-                  </Route>
-                </Switch>
-              </div>
-            </Router>
-          </SnackbarProvider>
-        </UserProvider>
-      </ThemeProvider>
-    </div>
-  );
-=======
-    return (
-        <div className="App">
-            <ThemeProvider theme={theme}>
-                <UserProvider value={authorization}>
-                    <SnackbarProvider preventDuplicate maxSnack={3}>
-                        <Router>
-                            <Nav
-                                links={links}
-                                authorization={authorization}
-                                setAuthorization={setAuthorization}
-                            />
-                            <div>
-                                <Switch>
-                                    <Route
-                                        exact
-                                        path="/"
-                                        component={ProductsView}
-                                    />
-                                    <Route path="/products-old">
-                                        <Products />
-                                    </Route>
-                                    <Route
-                                        path="/products"
-                                        component={ProductsView}
-                                    />
-                                    <Route path="/product/:id">
-                                        <ProductView />
-                                    </Route>
                                     <AuthorizedRoute
                                         authorized={Boolean(
                                             authorization.userGroup
@@ -292,15 +240,14 @@ function App() {
                                         path="/create-user"
                                         component={CreateUser}
                                     />
-                                </Switch>
-                            </div>
-                        </Router>
-                    </SnackbarProvider>
-                </UserProvider>
-            </ThemeProvider>
-        </div>
-    );
->>>>>>> 4e7a47453c053f58b9d904621c8b8e0e020d1101
+                </Switch>
+              </div>
+            </Router>
+          </SnackbarProvider>
+        </UserProvider>
+      </ThemeProvider>
+    </div>
+  );
 }
 
 export default App;

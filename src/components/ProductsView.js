@@ -116,7 +116,9 @@ export default function ProductsView() {
                         value={filters.lifecycleStatus}
                     >
                         {lifecycleStatuses.map((status, i) => (
-                            <MenuItem value={i}>{status}</MenuItem>
+                            <MenuItem key={status} value={i}>
+                                {status}
+                            </MenuItem>
                         ))}
                     </Select>
                 </FormControl>

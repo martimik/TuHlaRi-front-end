@@ -17,6 +17,7 @@ import API_URL from "../js/api";
 import { useParams } from "react-router-dom";
 import Dialog from "./Dialog";
 import BarChartIcon from "@material-ui/icons/BarChart";
+import { useSnackbar } from "notistack";
 import {
     BarChart,
     Bar,
@@ -50,6 +51,7 @@ export default function Product(props) {
         .catch(err => console.log(err));
 =======
     const classes = useStyles();
+    const { enqueueSnackbar } = useSnackbar();
     const [product, setProduct] = useState(null);
     const [graphData, setGraphData] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -63,6 +65,8 @@ export default function Product(props) {
         "Production",
         "Closed"
     ];
+
+    const textAreaRef = React.useRef(null);
 
     useEffect(() => {
         if (id) {
@@ -87,6 +91,21 @@ export default function Product(props) {
                 .catch(err => console.log(err));
         }
     }, [id]);
+
+    const copyText = text => () => {
+        try {
+            navigator.clipboard.writeText(text);
+            enqueueSnackbar(text + " copied to clipboard", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right"
+                }
+            });
+        } catch (e) {
+            console.error(e.message);
+        }
+    };
 
     if (product) {
         return (
@@ -161,7 +180,6 @@ export default function Product(props) {
                                                 key={i}
                                                 label={technology}
                                                 color="secondary"
-                                                variant="outlined"
                                             />
                                         )
                                     )}
@@ -180,7 +198,6 @@ export default function Product(props) {
                                             key={i}
                                             label={component}
                                             color="secondary"
-                                            variant="outlined"
                                         />
                                     ))}
                                 </div>
@@ -199,7 +216,6 @@ export default function Product(props) {
                                                 key={i}
                                                 label={requirement}
                                                 color="secondary"
-                                                variant="outlined"
                                             />
                                         )
                                     )}
@@ -217,7 +233,7 @@ export default function Product(props) {
                                         <Chip
                                             key={i}
                                             label={customer}
-                                            color="secondary"
+                                            color="primary"
                                             variant="outlined"
                                         />
                                     ))}
@@ -247,6 +263,9 @@ export default function Product(props) {
                                     </Typography>
                                     <div>
                                         <Chip
+                                            onClick={copyText(
+                                                product.productOwner
+                                            )}
                                             variant="outlined"
                                             color="primary"
                                             label={product.productOwner}
@@ -262,6 +281,9 @@ export default function Product(props) {
                                     </Typography>
                                     <div>
                                         <Chip
+                                            onClick={copyText(
+                                                product.salesPerson
+                                            )}
                                             variant="outlined"
                                             color="primary"
                                             label={product.salesPerson}
@@ -291,7 +313,7 @@ export default function Product(props) {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="Hours" fill="#8884d8" />
+                                <Bar dataKey="Hours" fill="#4791db" />
                             </BarChart>
                         </div>
                     )}
