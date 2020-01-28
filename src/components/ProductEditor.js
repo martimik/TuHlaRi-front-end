@@ -380,7 +380,7 @@ export default function ProductEditor(props) {
     function readKey(event) {
         if (event.key === "Enter") {
             event.preventDefault();
-            const { customer } = input;
+            const { customer, participant } = input;
             switch (event.target.name) {
                 case "customer":
                     addCustomer(customer);
@@ -650,7 +650,6 @@ export default function ProductEditor(props) {
                                     label="Environment requirements"
                                 />
                             )}
-<<<<<<< src/components/ProductEditor.js
                         />
                     </div>
                 </Grid>
@@ -658,25 +657,6 @@ export default function ProductEditor(props) {
                     <div className={classes.chipContainer}>
                         {environmentRequirements.map(
                             (environmentRequirement, i) => (
-=======
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <TextField
-                                onChange={handleChange}
-                                name="customer"
-                                label="Customers"
-                                onKeyDown={readKey}
-                                value={input.customer}
-                                fullWidth
-                            />
-                        </div>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <div className={classes.chipContainer}>
-                            {customers.map((customer, i) => (
->>>>>>> src/components/ProductEditor.js
                                 <Chip
                                     key={i}
                                     label={environmentRequirement}
@@ -685,69 +665,7 @@ export default function ProductEditor(props) {
                                     }
                                     className={classes.chip}
                                 />
-<<<<<<< src/components/ProductEditor.js
                             )
-=======
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <TextField
-                                onChange={handleChange}
-                                name="participant"
-                                label="Participants"
-                                onKeyDown={readKey}
-                                value={input.participant}
-                                fullWidth
-                            />
-                        </div>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <div className={classes.chipContainer}>
-                            {participants.map((participant, i) => (
-                                <Chip
-                                    key={i}
-                                    label={participant}
-                                    onDelete={() => deleteParticipant(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <h2 className={classes.logoText}>
-                            Logo
-                            {image && (
-                                <IconButton
-                                    aria-label="delete"
-                                    onClick={removeImage}
-                                >
-                                    <DeleteIcon />
-                                </IconButton>
-                            )}
-                        </h2>
-
-                        <input
-                            accept="image/*"
-                            className={classes.input}
-                            id="contained-button-file"
-                            multiple
-                            type="file"
-                            onChange={onUpload}
-                        />
-                        {!image && (
-                            <label htmlFor="contained-button-file">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    component="span"
-                                    startIcon={<AddAPhoto />}
-                                >
-                                    Upload
-                                </Button>
-                            </label>
->>>>>>> src/components/ProductEditor.js
                         )}
                     </div>
                 </Grid>
