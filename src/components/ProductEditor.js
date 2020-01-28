@@ -31,6 +31,7 @@ export default function ProductEditor(props) {
     const [technologies, setTechnologies] = useState([]);
     const [environmentRequirements, setEnvironmentRequirements] = useState([]);
     const [customers, setCustomers] = useState([]);
+    const [participants, setParticipants] = useState([]);
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState();
     const [imageIshidden, setImageIsHidden] = useState(true);
@@ -49,7 +50,8 @@ export default function ProductEditor(props) {
         technology: "",
         component: "",
         environmentRequirement: "",
-        customer: ""
+        customer: "",
+        participant: ""
     };
     const [input, setInput] = useState(emptyInput);
 
@@ -71,6 +73,7 @@ export default function ProductEditor(props) {
             setEnvironmentRequirements(props.product.environmentRequirements);
             setCustomers(props.product.customers);
             setIsClassified(props.product.isClassified);
+            setParticipants(props.product.participants);
             if (props.product.logos.length) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
                 setImageIsHidden(false);
@@ -199,6 +202,21 @@ export default function ProductEditor(props) {
         setInput({ ...input, customer: "" });
     }
 
+    function addParticipant(participant) {
+        if (!participant) return;
+        setParticipants([...participants, participant]);
+        setInput({ ...input, participant: "" });
+    }
+
+    function addEnvironmentRequirement(environmentRequirement) {
+        if (!environmentRequirement) return;
+        setEnvironmentRequirements([
+            ...environmentRequirements,
+            environmentRequirement
+        ]);
+        setInput({ ...input, environmentRequirement: "" });
+    }
+
     function deleteComponent(index) {
         setComponents(components.filter((component, i) => index !== i));
     }
@@ -209,6 +227,10 @@ export default function ProductEditor(props) {
 
     function deleteCustomer(index) {
         setCustomers(customers.filter((customer, i) => index !== i));
+    }
+
+    function deleteParticipant(index) {
+        setParticipants(participants.filter((participant, i) => index !== i));
     }
 
     function deleteEnvironmentRequirement(index) {
@@ -303,6 +325,7 @@ export default function ProductEditor(props) {
         product.technologies = technologies;
         product.components = components;
         product.customers = customers;
+        product.participants = participants;
         product.environmentRequirements = environmentRequirements;
         product.logo = imageURL || "";
         product.id = id ? id : null;
@@ -310,6 +333,7 @@ export default function ProductEditor(props) {
         delete product.component;
         delete product.environmentRequirement;
         delete product.customer;
+        delete product.participant;
 
         axios
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
@@ -350,16 +374,19 @@ export default function ProductEditor(props) {
         setComponents([]);
         setEnvironmentRequirements([]);
         setCustomers([]);
+        setParticipants([]);
     }
 
     function readKey(event) {
         if (event.key === "Enter") {
             event.preventDefault();
             const { customer } = input;
-
             switch (event.target.name) {
                 case "customer":
                     addCustomer(customer);
+                    break;
+                case "participant":
+                    addParticipant(participant);
                     break;
                 default:
                     console.log("Default case");
@@ -370,6 +397,9 @@ export default function ProductEditor(props) {
             switch (event.target.name) {
                 case "customer":
                     deleteCustomer(customers.length - 1);
+                    break;
+                case "participant":
+                    deleteParticipant(participants.length - 1);
                     break;
                 default:
                     console.log("Default case");
@@ -620,6 +650,7 @@ export default function ProductEditor(props) {
                                     label="Environment requirements"
                                 />
                             )}
+<<<<<<< src/components/ProductEditor.js
                         />
                     </div>
                 </Grid>
@@ -627,6 +658,25 @@ export default function ProductEditor(props) {
                     <div className={classes.chipContainer}>
                         {environmentRequirements.map(
                             (environmentRequirement, i) => (
+=======
+                        </div>
+                    </Grid>
+                    <Grid item xs={10} className={classes.inputField}>
+                        <div>
+                            <TextField
+                                onChange={handleChange}
+                                name="customer"
+                                label="Customers"
+                                onKeyDown={readKey}
+                                value={input.customer}
+                                fullWidth
+                            />
+                        </div>
+                    </Grid>
+                    <Grid item xs={10}>
+                        <div className={classes.chipContainer}>
+                            {customers.map((customer, i) => (
+>>>>>>> src/components/ProductEditor.js
                                 <Chip
                                     key={i}
                                     label={environmentRequirement}
@@ -635,7 +685,69 @@ export default function ProductEditor(props) {
                                     }
                                     className={classes.chip}
                                 />
+<<<<<<< src/components/ProductEditor.js
                             )
+=======
+                            ))}
+                        </div>
+                    </Grid>
+                    <Grid item xs={10} className={classes.inputField}>
+                        <div>
+                            <TextField
+                                onChange={handleChange}
+                                name="participant"
+                                label="Participants"
+                                onKeyDown={readKey}
+                                value={input.participant}
+                                fullWidth
+                            />
+                        </div>
+                    </Grid>
+                    <Grid item xs={10}>
+                        <div className={classes.chipContainer}>
+                            {participants.map((participant, i) => (
+                                <Chip
+                                    key={i}
+                                    label={participant}
+                                    onDelete={() => deleteParticipant(i)}
+                                    className={classes.chip}
+                                />
+                            ))}
+                        </div>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <h2 className={classes.logoText}>
+                            Logo
+                            {image && (
+                                <IconButton
+                                    aria-label="delete"
+                                    onClick={removeImage}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            )}
+                        </h2>
+
+                        <input
+                            accept="image/*"
+                            className={classes.input}
+                            id="contained-button-file"
+                            multiple
+                            type="file"
+                            onChange={onUpload}
+                        />
+                        {!image && (
+                            <label htmlFor="contained-button-file">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    component="span"
+                                    startIcon={<AddAPhoto />}
+                                >
+                                    Upload
+                                </Button>
+                            </label>
+>>>>>>> src/components/ProductEditor.js
                         )}
                     </div>
                 </Grid>

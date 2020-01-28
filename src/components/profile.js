@@ -124,7 +124,6 @@ const useStyles = makeStyles(theme => ({
     },
     boxShadow: "1px 2px 20px 1px#d4d4d4",
     padding: "30px",
-    borderRadius: "25px",
     backgroundColor: "white"
   },
   header: {

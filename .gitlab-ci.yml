@@ -1,6 +1,8 @@
+#This is the frontend CI/CD Pipeline for pushing to the project to CSC Openshift platform
 image: ayufan/openshift-cli
 
 stages:
+    - oc login
     - testing
     - build
 
@@ -8,21 +10,26 @@ variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
   OPENSHIFT_DOMAIN: rahti.csc.fi
   
-  # Configure this variable in Secure Variables:
+  # Configure this variable in Secure Variables
   OPENSHIFT_TOKEN: "$OPENSHIFT_TOKEN"
 
 .deploy: &deploy
   before_script:
     - cd
-    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
-    - oc status
-    - oc whoami
-    - echo $CI_PROJECT_NAME
     - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
   tags:
     - shell
 
 image: node
+
+login:
+  stage: oc login
+  script:
+    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
+    - oc status
+    - oc whoami
+    - echo $CI_PROJECT_NAME
+    
 
 eslint:
   stage: testing
@@ -30,9 +37,7 @@ eslint:
   script:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react@latest --save-dev
-    - ./node_modules/.bin/eslint --env browser --plugin eslint-plugin-react src/**
-    #- echo '1\r 1\r N\r a\r 3\r Y\r' | ./node_modules/.bin/eslint --init
-    #- ./node_modules/.bin/eslint src/**
+    - ./node_modules/.bin/eslint src/**
 
 code_quality:
   stage: testing
@@ -175,10 +180,10 @@ retire-js-dependency_scanning:
         $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
 
-buildProductToOpenshift:
+buildProductionToOpenshift:
  stage: build
+ when: manual
  script:
-    - ls
     - unset CI
     - npm ci # Build for prod
     - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod

@@ -7,6 +7,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { useSnackbar } from "notistack";
 import API_URL from "../js/api";
 import axios from "axios";
+import Paper from "@material-ui/core/Paper";
 
 const CreateUser = () => {
   const classes = useStyles();
@@ -74,7 +75,7 @@ const CreateUser = () => {
   };
 
   return (
-    <div className={classes.root}>
+    <Paper elevation={2} className={classes.root}>
       <h1 className={classes.header}>Create User</h1>
       <TextField
         name="name"
@@ -122,24 +123,27 @@ const CreateUser = () => {
         <MenuItem value={1}>Product owner (1)</MenuItem>
         <MenuItem value={0}>Admin (0)</MenuItem>
       </Select>
-      <Button color="primary" variant="contained" onClick={handleSubmit}>
+      <Button
+        color="primary"
+        variant="contained"
+        onClick={handleSubmit}
+        style={{ margin: "5vh" }}
+      >
         Submit
       </Button>
-    </div>
+    </Paper>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   root: {
-    maxWidth: "50%",
-    margin: "60px auto",
+    height: "100%",
+    maxWidth: 1000,
+    padding: theme.spacing(4),
+    margin: "auto",
     "& > *": {
       margin: theme.spacing(1)
-    },
-    boxShadow: "1px 2px 20px 1px#d4d4d4",
-    padding: "30px",
-    borderRadius: "25px",
-    backgroundColor: "white"
+    }
   },
   header: {
     fontFamily: "Roboto",

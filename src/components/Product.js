@@ -29,6 +29,27 @@ import {
 } from "recharts";
 
 export default function Product(props) {
+<<<<<<< HEAD
+  const classes = useStyles();
+  const [product, setProduct] = useState(null);
+  const { id } = useParams();
+  const lifecycleStatuses = [
+    "Idea",
+    "Accepted",
+    "Planning",
+    "Developement",
+    "Released",
+    "Production",
+    "Closed"
+  ];
+
+  useEffect(() => {
+    if (id) {
+      axios
+        .get(API_URL + "product/" + id)
+        .then(res => setProduct(res.data))
+        .catch(err => console.log(err));
+=======
     const classes = useStyles();
     const { enqueueSnackbar } = useSnackbar();
     const [product, setProduct] = useState(null);
@@ -299,27 +320,211 @@ export default function Product(props) {
                 </Dialog>
             </div>
         );
+>>>>>>> 4e7a47453c053f58b9d904621c8b8e0e020d1101
     }
+  }, [id]);
+
+  if (product) {
     return (
-        <div>
-            <p>Loading...</p>
-        </div>
+      <div className={props.className}>
+        <Paper elevation={2} className={classes.paper}>
+          {product.isClassified ? (
+            <SecurityIcon color="primary" fontSize="large" />
+          ) : null}
+          {props.toggleEditMode ? (
+            <Fab
+              color="secondary"
+              aria-label="edit"
+              size="small"
+              style={{ float: "right" }}
+              onClick={props.toggleEditMode}
+            >
+              <EditIcon />
+            </Fab>
+          ) : null}
+          <div className="product-header">
+            <h1>{product.productName}</h1>
+            <img
+              className="logo-large"
+              src={
+                product.logos[product.logos.length - 1] ||
+                "https://image.shutterstock.com/image-vector/ui-image-placeholder-wireframes-apps-260nw-1037719204.jpg"
+              }
+              alt={product.productName}
+            ></img>
+          </div>
+          <Stepper alternativeLabel activeStep={product.lifecycleStatus - 1}>
+            {lifecycleStatuses.map((label, index) => {
+              return (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              );
+            })}
+          </Stepper>
+          <div>
+            <p className="product-short-description">
+              {product.shortDescription}
+            </p>
+          </div>
+          <div className={classes.content}>
+            <p className="product-long-description">
+              {product.longDescription}
+            </p>
+            {product.technologies.length ? (
+              <div>
+                <Divider />
+                <Typography variant="caption">Technologies:</Typography>
+                <div className={classes.chips}>
+                  {product.technologies.map((technology, i) => (
+                    <Chip
+                      key={i}
+                      label={technology}
+                      color="secondary"
+                      variant="outlined"
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {product.components.length ? (
+              <div>
+                <Divider />
+                <Typography variant="caption">Components:</Typography>
+                <div className={classes.chips}>
+                  {product.components.map((component, i) => (
+                    <Chip
+                      key={i}
+                      label={component}
+                      color="secondary"
+                      variant="outlined"
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {product.environmentRequirements.length ? (
+              <div>
+                <Divider />
+                <Typography variant="caption">
+                  Environment Requirements:
+                </Typography>
+                <div className={classes.chips}>
+                  {product.environmentRequirements.map((requirement, i) => (
+                    <Chip
+                      key={i}
+                      label={requirement}
+                      color="secondary"
+                      variant="outlined"
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {product.customers.length ? (
+              <div>
+                <Divider />
+                <Typography variant="caption">Customers:</Typography>
+                <div className={classes.chips}>
+                  {product.customers.map((customer, i) => (
+                    <Chip
+                      key={i}
+                      label={customer}
+                      color="secondary"
+                      variant="outlined"
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {product.participants.length ? (
+              <div>
+                <Divider />
+                <Typography variant="caption">Participants:</Typography>
+                <div className={classes.chips}>
+                  {product.participants.map((participant, i) => (
+                    <Chip
+                      key={i}
+                      label={participant}
+                      icon={<PermIdentityIcon />}
+                      variant="outlined"
+                      color="primary"
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            <Divider />
+            <div className={classes.bottomChipGroup}>
+              {product.pricing ? (
+                <div>
+                  <Typography variant="caption">Pricing:</Typography>
+                  <div>
+                    <Chip
+                      color="primary"
+                      label={product.pricing}
+                      avatar={<Avatar>€</Avatar>}
+                    />
+                  </div>
+                </div>
+              ) : null}
+              {product.productOwner ? (
+                <div>
+                  <Typography variant="caption">Product Owner:</Typography>
+                  <div>
+                    <Chip
+                      variant="outlined"
+                      color="primary"
+                      label={product.productOwner}
+                      icon={<PermIdentityIcon />}
+                    />
+                  </div>
+                </div>
+              ) : null}
+              {product.salesPerson ? (
+                <div>
+                  <Typography variant="caption">Sales Person:</Typography>
+                  <div>
+                    <Chip
+                      variant="outlined"
+                      color="primary"
+                      label={product.salesPerson}
+                      icon={<PermIdentityIcon />}
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </Paper>
+      </div>
     );
+  }
+  return (
+    <div>
+      <p>Loading...</p>
+    </div>
+  );
 }
 
 const useStyles = makeStyles(theme => ({
-    paper: {
-        maxWidth: 1000,
-        padding: theme.spacing(4),
-        margin: "auto"
-    },
-    chips: {
-        "& > *": {
-            margin: theme.spacing(0.6)
-        }
-    },
-    bottomChipGroup: {
-        display: "flex",
-        justifyContent: "space-evenly"
+  paper: {
+    maxWidth: 1000,
+    padding: theme.spacing(4),
+    margin: "auto"
+  },
+  chips: {
+    "& > *": {
+      margin: theme.spacing(0.6)
     }
+  },
+  bottomChipGroup: {
+    display: "flex",
+    justifyContent: "space-evenly"
+  },
+  content: {
+    "& > *": {
+      margin: theme.spacing(1)
+    }
+  }
 }));
