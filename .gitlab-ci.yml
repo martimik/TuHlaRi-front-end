@@ -2,7 +2,7 @@
 image: ayufan/openshift-cli
 
 stages:
-    - oc login
+    - preparation
     - testing
     - build
 
@@ -16,28 +16,40 @@ variables:
 .deploy: &deploy
   before_script:
     - cd
-    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
   tags:
     - shell
 
-image: node
+#Remove comments once csc works
+#Login:
+#  stage: preparation
+#  script:
+#    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
+#    - oc status
+#    - oc whoami
+#    - echo $CI_PROJECT_NAME
 
-login:
-  stage: oc login
+GitPull:
+  stage: preparation
   script:
-    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
-    - oc status
-    - oc whoami
-    - echo $CI_PROJECT_NAME
-    
+    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
 
-eslint:
+Eslint:
   stage: testing
   allow_failure: true
   script:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react@latest --save-dev
     - ./node_modules/.bin/eslint src/**
+
+BuildProductionToOpenshift_Manual:
+ stage: build
+ when: manual
+ script:
+    - unset CI
+    - npm ci # Build for prod
+    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
+    - oc project tuhlari
+    - oc start-build front-end --from-dir="build" --follow --wait
 
 code_quality:
   stage: testing
@@ -77,7 +89,6 @@ code_quality:
       - $CODE_QUALITY_DISABLED
   tags:
     - shell
-    
 
 # Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
 # List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
@@ -179,13 +190,3 @@ retire-js-dependency_scanning:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
         $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
-
-buildProductionToOpenshift:
- stage: build
- when: manual
- script:
-    - unset CI
-    - npm ci # Build for prod
-    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
-    - oc project tuhlari
-    - oc start-build front-end --from-dir="build" --follow --wait
