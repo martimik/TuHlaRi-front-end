@@ -19,7 +19,7 @@ variables:
   tags:
     - shell
 
-image: node
+
 
 #Remove comments once csc works
 #Login:
