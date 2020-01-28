@@ -2,7 +2,7 @@
 image: ayufan/openshift-cli
 
 stages:
-    - oc login
+    - preparation
     - testing
     - build
 
@@ -16,28 +16,42 @@ variables:
 .deploy: &deploy
   before_script:
     - cd
-    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
   tags:
     - shell
 
 image: node
 
-login:
-  stage: oc login
+Login:
+  stage: preparation
   script:
     - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
     - oc status
     - oc whoami
     - echo $CI_PROJECT_NAME
-    
 
-eslint:
+GitPull:
+  stage: preparation
+  script:
+    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
+
+Eslint:
   stage: testing
   allow_failure: true
   script:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react@latest --save-dev
     - ./node_modules/.bin/eslint src/**
+
+BuildProductionToOpenshift_Manual:
+ stage: build
+ when: manual
+ script:
+    - unset CI
+    - npm ci # Build for prod
+    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
+    - oc project tuhlari
+    - oc start-build front-end --from-dir="build" --follow --wait
+
 
 code_quality:
   stage: testing
@@ -179,13 +193,3 @@ retire-js-dependency_scanning:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
         $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
-
-buildProductionToOpenshift:
- stage: build
- when: manual
- script:
-    - unset CI
-    - npm ci # Build for prod
-    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
-    - oc project tuhlari
-    - oc start-build front-end --from-dir="build" --follow --wait
