@@ -182,6 +182,7 @@ retire-js-dependency_scanning:
 
 buildProductionToOpenshift:
  stage: build
+ when: manual
  script:
     - unset CI
     - npm ci # Build for prod
