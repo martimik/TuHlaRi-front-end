@@ -159,7 +159,6 @@ export default function Product(props) {
                                                 key={i}
                                                 label={technology}
                                                 color="secondary"
-                                                variant="outlined"
                                             />
                                         )
                                     )}
@@ -178,7 +177,6 @@ export default function Product(props) {
                                             key={i}
                                             label={component}
                                             color="secondary"
-                                            variant="outlined"
                                         />
                                     ))}
                                 </div>
@@ -197,7 +195,6 @@ export default function Product(props) {
                                                 key={i}
                                                 label={requirement}
                                                 color="secondary"
-                                                variant="outlined"
                                             />
                                         )
                                     )}
@@ -215,7 +212,7 @@ export default function Product(props) {
                                         <Chip
                                             key={i}
                                             label={customer}
-                                            color="secondary"
+                                            color="primary"
                                             variant="outlined"
                                         />
                                     ))}
@@ -295,7 +292,7 @@ export default function Product(props) {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="Hours" fill="#8884d8" />
+                                <Bar dataKey="Hours" fill="#4791db" />
                             </BarChart>
                         </div>
                     )}

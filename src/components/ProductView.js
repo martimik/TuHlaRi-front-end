@@ -28,8 +28,8 @@ const ProductView = () => {
         axios
             .get(API_URL + "product/" + id)
             .then(res => {
-                setProduct(res.data);
                 setIsEditMode(false);
+                setProduct(res.data);
             })
             .catch(err => console.log(err));
     };

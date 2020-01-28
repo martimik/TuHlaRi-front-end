@@ -18,7 +18,6 @@ import ProductView from "./ProductView";
 import AuthorizedRoute from "./AuthorizedRoute";
 
 axios.defaults.withCredentials = true;
-console.log(process.env.REACT_APP_API_URL);
 
 function App() {
     const [authorization, setAuthorization] = useState({
@@ -53,19 +52,19 @@ function App() {
         setInterval(getLoginState, 1000 * 60); // Read login state every minute
     }, []);
 
-    function getLoginState() {
+    const getLoginState = () => {
         axios
             .get(API_URL + "session")
             .then(response => {
                 const { email, name, userGroup } = response.data;
-                if (email && userGroup) {
+                if (email && userGroup && email) {
                     setAuthorization({ email, name, userGroup });
                 }
             })
             .catch(error => {
                 console.error(error);
             });
-    }
+    };
 
     return (
         <div className="App">
