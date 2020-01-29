@@ -20,7 +20,7 @@ variables:
     - shell
 
 
-Login:
+login:
   stage: preparation
   script:
     - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
