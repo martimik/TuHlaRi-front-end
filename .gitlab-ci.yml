@@ -3,7 +3,7 @@ image: ayufan/openshift-cli
 
 stages:
     - preparation
-    - testing
+    - code testing
     - build
 
 variables:
@@ -20,12 +20,6 @@ variables:
     - cd
   tags:
     - shell
-    
-GitClone:
-  stage: preparation
-  script:
-  - cd /home/gitlab-runner/builds/s2mU8de_/0/digiateam/front-end/
-  #- git clone https://gitlab.labranet.jamk.fi/digiateam/backend.git
 
 # $OPENSHIFT_TOKEN specified in proj settings CI/CD Variables, make sure it's protected
 login:
@@ -37,7 +31,7 @@ login:
     - echo $CI_PROJECT_NAME
 
 Eslint:
-  stage: testing
+  stage: code testing
   allow_failure: true
   script:
     - npm install eslint --save-dev
@@ -55,7 +49,7 @@ BuildProductionToOpenshift_Manual:
     - oc start-build front-end --from-dir="build" --follow --wait
 
 code_quality:
-  stage: testing
+  stage: code testing
   image: docker:stable
   allow_failure: false
   services:
@@ -98,7 +92,7 @@ code_quality:
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
 dependency_scanning:
-  stage: testing
+  stage: code testing
   image: docker:stable
   variables:
     DOCKER_DRIVER: overlay2
