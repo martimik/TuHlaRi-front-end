@@ -9,6 +9,10 @@ stages:
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
   OPENSHIFT_DOMAIN: rahti.csc.fi
+  DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
+  DS_DEFAULT_ANALYZERS: "retire.js, gemnasium"
+  DS_MAJOR_VERSION: 2
+  DS_DISABLE_DIND: "false"
   
 # Before script is executed before every job
 .deploy: &deploy
@@ -92,12 +96,6 @@ code_quality:
 # Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
 # List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
-
-variables:
-  DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-  DS_DEFAULT_ANALYZERS: "retire.js, gemnasium"
-  DS_MAJOR_VERSION: 2
-  DS_DISABLE_DIND: "false"
 
 dependency_scanning:
   stage: testing
