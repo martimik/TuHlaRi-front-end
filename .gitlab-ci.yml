@@ -1,5 +1,6 @@
 #This is the frontend CI/CD Pipeline for pushing to the project to CSC Openshift platform
 image: ayufan/openshift-cli
+image: node
 
 stages:
     - preparation
