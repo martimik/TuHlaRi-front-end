@@ -10,15 +10,14 @@ variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
   OPENSHIFT_DOMAIN: rahti.csc.fi
   
-  # Configure this variable in Secure Variables
-  OPENSHIFT_TOKEN: "$OPENSHIFT_TOKEN"
+  # Configure this variable in Secure Variables:
+  # OPENSHIFT_TOKEN: "$OPENSHIFT_TOKEN"
 
 .deploy: &deploy
   before_script:
     - cd
   tags:
     - shell
-
 
 login:
   stage: preparation
