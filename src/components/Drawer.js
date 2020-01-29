@@ -2,8 +2,6 @@ import React from "react";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
 import { Link } from "react-router-dom";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -137,7 +135,6 @@ const useStyles = makeStyles(theme => ({
             width: theme.spacing(7) + 1
         }
     },
-
     link: {
         color: "black"
     },

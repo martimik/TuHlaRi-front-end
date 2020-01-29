@@ -16,10 +16,6 @@ import ProductsView from "./ProductsView";
 import API_URL from "../js/api";
 import ProductView from "./ProductView";
 import { makeStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import Toolbar from "@material-ui/core/Toolbar";
 import AuthorizedRoute from "./AuthorizedRoute";
 
 axios.defaults.withCredentials = true;
@@ -152,6 +148,7 @@ export default App;
 const useStyles = makeStyles(theme => ({
     content: {
         flexGrow: 1,
+        padding: theme.spacing(3),
         marginTop: 56
     }
 }));

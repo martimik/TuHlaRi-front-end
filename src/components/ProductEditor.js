@@ -21,6 +21,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import Paper from "@material-ui/core/Paper";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import ImageCarousel from "./ImageCarousel";
 
 export default function ProductEditor(props) {
     const classes = useStyles();
@@ -734,6 +735,9 @@ export default function ProductEditor(props) {
                         />
                     )}
                 </Grid>
+            </Grid>
+            <Grid item xs={12}>
+                <ImageCarousel images={props.product.logos} />
             </Grid>
             <Grid item xs={12} style={{ margin: "20px" }}>
                 <Button
