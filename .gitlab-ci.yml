@@ -5,7 +5,9 @@ stages:
     - preparation
     - code testing
     - build
+    - testing
 
+#Make sure file contains only 1 variables part
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
   OPENSHIFT_DOMAIN: rahti.csc.fi
@@ -47,6 +49,11 @@ BuildProductionToOpenshift_Manual:
     - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
     - oc project tuhlari
     - oc start-build front-end --from-dir="build" --follow --wait
+
+RobotTests:
+ stage: testing
+ script:
+    - echo "Add robot tests here?"
 
 code_quality:
   stage: code testing
