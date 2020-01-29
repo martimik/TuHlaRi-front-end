@@ -19,14 +19,14 @@ variables:
   tags:
     - shell
 
-#Remove comments once csc works
-#Login:
-#  stage: preparation
-#  script:
-#    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
-#    - oc status
-#    - oc whoami
-#    - echo $CI_PROJECT_NAME
+
+Login:
+  stage: preparation
+  script:
+    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify
+    - oc status
+    - oc whoami
+    - echo $CI_PROJECT_NAME
 
 GitPull:
   stage: preparation
