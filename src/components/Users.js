@@ -86,7 +86,7 @@ export default class Users extends React.Component {
         options={{ actionsColumnIndex: -1 }}
         editable={{
           onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
+            new Promise(resolve => {
               setTimeout(() => {
                 {
                   this.editUser(oldData.email, newData);
@@ -99,7 +99,7 @@ export default class Users extends React.Component {
               }, 1000);
             }),
           onRowDelete: oldData =>
-            new Promise((resolve, reject) => {
+            new Promise(resolve => {
               setTimeout(() => {
                 {
                   this.deleteUser(oldData);
