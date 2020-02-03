@@ -795,6 +795,9 @@ export default function ProductEditor(props) {
                     )}
                 </Grid>
             </Grid>
+            <Grid item xs={12}>
+                <ImageCarousel images={props.product.logos} />
+            </Grid>
             <Grid item xs={12} style={{ margin: "20px" }}>
                 <Button
                     color="secondary"
