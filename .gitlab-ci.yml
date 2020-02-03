@@ -48,7 +48,7 @@ BuildTestToOpenshift:
     - npm ci # Build for prod
     - REACT_APP_API_URL=http://back-test-tuhlari.rahtiapp.fi/ npm run build --prod
     - oc project tuhlari
-    - oc start-build front-tests --from-dir="build" --follow --wait
+    - oc start-build front-test --from-dir="build" --follow --wait
 
 BuildProductionToOpenshift_Manual:
  stage: build
