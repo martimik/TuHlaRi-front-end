@@ -57,8 +57,8 @@ export default function ProductEditor(props) {
     const [input, setInput] = useState(emptyInput);
     useEffect(() => {
         if (props.product && !input.productName) {
-            setInput({
-                ...input,
+            setInput(state => ({
+                ...state,
                 productName: props.product.productName,
                 shortDescription: props.product.shortDescription,
                 longDescription: props.product.longDescription,
@@ -67,7 +67,7 @@ export default function ProductEditor(props) {
                 productOwner: props.product.productOwner,
                 businessType: props.product.businessType,
                 lifecycleStatus: props.product.lifecycleStatus
-            });
+            }));
             setTechnologies(props.product.technologies);
             setComponents(props.product.components);
             setEnvironmentRequirements(props.product.environmentRequirements);
@@ -78,7 +78,7 @@ export default function ProductEditor(props) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
             }
         }
-    }, [props]);
+    }, [props, input]);
 
     useEffect(() => {
         axios

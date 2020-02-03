@@ -29,6 +29,16 @@ import {
     Legend
 } from "recharts";
 
+const lifecycleStatuses = [
+    "Idea",
+    "Accepted",
+    "Planning",
+    "Developement",
+    "Released",
+    "Production",
+    "Closed"
+];
+
 export default function Product(props) {
     const classes = useStyles();
     const { enqueueSnackbar } = useSnackbar();
@@ -36,15 +46,6 @@ export default function Product(props) {
     const [graphData, setGraphData] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { id } = useParams();
-    const lifecycleStatuses = [
-        "Idea",
-        "Accepted",
-        "Planning",
-        "Developement",
-        "Released",
-        "Production",
-        "Closed"
-    ];
 
     useEffect(() => {
         if (id) {
@@ -330,6 +331,6 @@ const useStyles = makeStyles(theme => ({
 
 Product.propTypes = {
     className: PropTypes.string,
-    toggleEditMode: PropTypes.bool,
+    toggleEditMode: PropTypes.func,
     setIsOpen: PropTypes.func
 };

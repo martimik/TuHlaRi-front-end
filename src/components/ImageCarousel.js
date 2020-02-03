@@ -68,7 +68,7 @@ const ImageCarousel = props => {
                                 selectedImg === i && "rgba(21, 101, 192, 0.35)"
                         }}
                     >
-                        <img src={image} className={classes.image} />
+                        <img src={image} className={classes.image} alt="old" />
                     </div>
                 ))}
             </div>

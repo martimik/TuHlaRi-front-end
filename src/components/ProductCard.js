@@ -13,6 +13,10 @@ export default function ProductCard(props) {
     const classes = useStyles();
     const { product } = props;
 
+    const logo = product.logos.length
+        ? product.logos[product.logos.length - 1]
+        : "";
+
     return (
         <Grid item xs>
             <Card className={classes.card}>
@@ -20,12 +24,8 @@ export default function ProductCard(props) {
                     <Link to={"/product/" + product._id}>
                         <CardMedia
                             className={classes.media}
-                            image={
-                                product.logos[0]
-                                    ? product.logos[product.logos.length - 1]
-                                    : "/img/placeholder.png"
-                            }
-                            title="Contemplative Reptile"
+                            image={logo ? logo : "/img/placeholder.png"}
+                            title="product logo"
                         />
                         <CardContent>
                             <Typography
@@ -33,7 +33,9 @@ export default function ProductCard(props) {
                                 variant="h5"
                                 component="h2"
                             >
-                                {product.productName}
+                                {product.productName.length > 20
+                                    ? product.productName.slice(0, 20) + "..."
+                                    : product.productName}
                             </Typography>
                             <Typography
                                 variant="body2"

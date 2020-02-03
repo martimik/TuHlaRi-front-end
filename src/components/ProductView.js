@@ -24,8 +24,6 @@ const ProductView = () => {
         }
     }, [id]);
 
-    console.log(product);
-
     const onEdit = () => {
         axios
             .get(API_URL + "product/" + id)

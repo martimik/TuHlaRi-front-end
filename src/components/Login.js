@@ -68,80 +68,45 @@ export default function Login(props) {
             });
     }
 
-    function logout(event) {
-        event.preventDefault();
-        axios
-            .post(API_URL + "logout")
-            .then(response => {
-                const { email, name, userGroup } = response.data;
-                setAuthorization({ email, name, userGroup });
-                enqueueSnackbar("Successfully logged out", {
-                    variant: "info",
-                    anchorOrigin: {
-                        vertical: "bottom",
-                        horizontal: "right"
-                    }
-                });
-                close();
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
+    const fieldsAreEmpty = () => !credentials.user || !credentials.password;
 
-    if (props.authorization.email) {
-        return (
-            <div className={isOpen ? "login login-open" : "login login-closed"}>
-                <form className={classes.form} onSubmit={logout}>
-                    <Button
-                        type="submit"
-                        className={classes.root}
-                        variant="contained"
-                        color="primary"
-                    >
-                        Logout
-                    </Button>
-                </form>
-            </div>
-        );
-    } else {
-        return (
-            <div className={isOpen ? "login login-open" : "login login-closed"}>
-                <form className={classes.form} onSubmit={login}>
-                    <TextField
-                        onChange={handleChange}
-                        id="standard-password-input"
-                        label="Email"
-                        name="user"
-                        className={classes.textField}
-                        autoComplete="current-password"
-                        margin="normal"
-                        value={credentials.user}
-                    />
+    return (
+        <div className={isOpen ? "login login-open" : "login login-closed"}>
+            <form className={classes.form} onSubmit={login}>
+                <TextField
+                    onChange={handleChange}
+                    id="standard-password-input"
+                    label="Email"
+                    name="user"
+                    className={classes.textField}
+                    autoComplete="current-password"
+                    margin="normal"
+                    value={credentials.user}
+                />
 
-                    <TextField
-                        onChange={handleChange}
-                        id="standard-password-input"
-                        label="Password"
-                        name="password"
-                        className={classes.textField}
-                        type="password"
-                        autoComplete="current-password"
-                        margin="normal"
-                        value={credentials.password}
-                    />
-                    <Button
-                        type="submit"
-                        className={classes.root}
-                        variant="contained"
-                        color="primary"
-                    >
-                        Login
-                    </Button>
-                </form>
-            </div>
-        );
-    }
+                <TextField
+                    onChange={handleChange}
+                    id="standard-password-input"
+                    label="Password"
+                    name="password"
+                    className={classes.textField}
+                    type="password"
+                    autoComplete="current-password"
+                    margin="normal"
+                    value={credentials.password}
+                />
+                <Button
+                    type="submit"
+                    className={classes.root}
+                    variant="contained"
+                    color="primary"
+                    disabled={fieldsAreEmpty()}
+                >
+                    Login
+                </Button>
+            </form>
+        </div>
+    );
 }
 
 const useStyles = makeStyles(theme => ({
