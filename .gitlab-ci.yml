@@ -3,23 +3,27 @@ image: ayufan/openshift-cli
 
 stages:
     - preparation
-    - testing
+    - code testing
     - build
+    - testing
 
+#Make sure file contains only 1 variables part
 variables:
   OPENSHIFT_SERVER: https://rahti.csc.fi:8443/
   OPENSHIFT_DOMAIN: rahti.csc.fi
+  DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
+  DS_DEFAULT_ANALYZERS: "retire.js, gemnasium"
+  DS_MAJOR_VERSION: 2
+  DS_DISABLE_DIND: "false"
   
-  # Configure this variable in Secure Variables
-  OPENSHIFT_TOKEN: "$OPENSHIFT_TOKEN"
-
+# Before script is executed before every job
 .deploy: &deploy
   before_script:
     - cd
   tags:
     - shell
 
-
+# $OPENSHIFT_TOKEN specified in proj settings CI/CD Variables, make sure it's protected
 login:
   stage: preparation
   script:
@@ -28,18 +32,23 @@ login:
     - oc whoami
     - echo $CI_PROJECT_NAME
 
-GitPull:
-  stage: preparation
-  script:
-    - git clone https://gitlab.labranet.jamk.fi/digiateam/front-end.git
-
 Eslint:
-  stage: testing
+  stage: code testing
   allow_failure: true
   script:
     - npm install eslint --save-dev
     - npm install eslint-plugin-react@latest --save-dev
     - ./node_modules/.bin/eslint src/**
+    
+BuildTestToOpenshift:
+ stage: build
+ script:
+    - ls
+    - unset CI
+    - npm ci # Build for prod
+    - REACT_APP_API_URL=http://back-test-tuhlari.rahtiapp.fi/ npm run build --prod
+    - oc project tuhlari
+    - oc start-build front-test --from-dir="build" --follow --wait
 
 BuildProductionToOpenshift_Manual:
  stage: build
@@ -51,8 +60,13 @@ BuildProductionToOpenshift_Manual:
     - oc project tuhlari
     - oc start-build front-end --from-dir="build" --follow --wait
 
+RobotTests:
+ stage: testing
+ script:
+    - echo "Add robot tests here?"
+
 code_quality:
-  stage: testing
+  stage: code testing
   image: docker:stable
   allow_failure: false
   services:
@@ -94,14 +108,8 @@ code_quality:
 # List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
-variables:
-  DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-  DS_DEFAULT_ANALYZERS: "retire.js, gemnasium"
-  DS_MAJOR_VERSION: 2
-  DS_DISABLE_DIND: "false"
-
 dependency_scanning:
-  stage: testing
+  stage: code testing
   image: docker:stable
   variables:
     DOCKER_DRIVER: overlay2

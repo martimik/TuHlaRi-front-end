@@ -24,6 +24,8 @@ const ProductView = () => {
         }
     }, [id]);
 
+    console.log(product);
+
     const onEdit = () => {
         axios
             .get(API_URL + "product/" + id)
@@ -37,7 +39,7 @@ const ProductView = () => {
     const deleteProduct = () => {
         axios
             .delete(API_URL + "product/" + id)
-            .then(res => setProduct(null))
+            .then(setProduct(null))
             .catch(err => console.log(err.response));
     };
 

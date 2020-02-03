@@ -21,7 +21,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import Paper from "@material-ui/core/Paper";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import ImageCarousel from "./ImageCarousel";
+import PropTypes from "prop-types";
 
 export default function ProductEditor(props) {
     const classes = useStyles();
@@ -74,7 +74,7 @@ export default function ProductEditor(props) {
             setEnvironmentRequirements(props.product.environmentRequirements);
             setCustomers(props.product.customers);
             setIsClassified(props.product.isClassified);
-            setParticipants(props.product.participants);
+            setParticipants(props.product.participants || []);
             if (props.product.logos.length) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
                 setImageIsHidden(false);
@@ -147,6 +147,10 @@ export default function ProductEditor(props) {
             case "environmentRequirement":
                 setEnvironmentRequirements(state => [...state, text]);
                 break;
+            case "participant":
+                console.log(text);
+                setParticipants(state => [...state, text]);
+                break;
             default:
                 break;
         }
@@ -170,6 +174,13 @@ export default function ProductEditor(props) {
                 break;
             case "environmentRequirement":
                 setEnvironmentRequirements(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            case "participant":
+                setParticipants(state => {
                     const arr = [...state];
                     arr.pop();
                     return arr;
@@ -207,15 +218,6 @@ export default function ProductEditor(props) {
         if (!participant) return;
         setParticipants([...participants, participant]);
         setInput({ ...input, participant: "" });
-    }
-
-    function addEnvironmentRequirement(environmentRequirement) {
-        if (!environmentRequirement) return;
-        setEnvironmentRequirements([
-            ...environmentRequirements,
-            environmentRequirement
-        ]);
-        setInput({ ...input, environmentRequirement: "" });
     }
 
     function deleteComponent(index) {
@@ -338,7 +340,7 @@ export default function ProductEditor(props) {
 
         axios
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
-            .then(response => {
+            .then(function() {
                 enqueueSnackbar(id ? "Product edited" : "Product added", {
                     variant: "success",
                     anchorOrigin: {
@@ -577,12 +579,17 @@ export default function ProductEditor(props) {
                                     {...params}
                                     fullWidth
                                     label="Technologies"
+                                    helperText={
+                                        input.technology
+                                            ? "Click enter to add"
+                                            : ""
+                                    }
                                 />
                             )}
                         />
                     </div>
                 </Grid>
-                <Grid item xs={10} style={{ padding: "0" }}>
+                <Grid item xs={12} style={{ padding: "0" }}>
                     <div className={classes.chipContainer}>
                         {technologies.map((technology, i) => (
                             <Chip
@@ -612,12 +619,17 @@ export default function ProductEditor(props) {
                                     {...params}
                                     fullWidth
                                     label="Components"
+                                    helperText={
+                                        input.component
+                                            ? "Click enter to add"
+                                            : ""
+                                    }
                                 />
                             )}
                         />
                     </div>
                 </Grid>
-                <Grid item xs={10}>
+                <Grid item xs={12}>
                     <div className={classes.chipContainer}>
                         {components.map((component, i) => (
                             <Chip
@@ -649,12 +661,17 @@ export default function ProductEditor(props) {
                                     {...params}
                                     fullWidth
                                     label="Environment requirements"
+                                    helperText={
+                                        input.environmentRequirement
+                                            ? "Click enter to add"
+                                            : ""
+                                    }
                                 />
                             )}
                         />
                     </div>
                 </Grid>
-                <Grid item xs={10} style={{ padding: "0" }}>
+                <Grid item xs={12} style={{ padding: "0" }}>
                     <div className={classes.chipContainer}>
                         {environmentRequirements.map(
                             (environmentRequirement, i) => (
@@ -675,20 +692,63 @@ export default function ProductEditor(props) {
                         <TextField
                             onChange={handleChange}
                             name="customer"
-                            label="Customer"
+                            label="Customers"
                             onKeyDown={readKey}
                             value={input.customer}
+                            helperText={
+                                input.customer ? "Click enter to add" : ""
+                            }
                             fullWidth
                         />
                     </div>
                 </Grid>
-                <Grid item xs={10}>
+                <Grid item xs={12}>
                     <div className={classes.chipContainer}>
                         {customers.map((customer, i) => (
                             <Chip
                                 key={i}
                                 label={customer}
                                 onDelete={() => deleteCustomer(i)}
+                                className={classes.chip}
+                            />
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <Autocomplete
+                            onInputChange={handleAutoCompleteChange(
+                                "participant"
+                            )}
+                            options={users}
+                            getOptionLabel={user => user.email}
+                            onKeyDown={handleAutoCompleteKeyDown("participant")}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            inputValue={input.participant}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    label="Participants"
+                                    helperText={
+                                        input.participant
+                                            ? "Click enter to add"
+                                            : ""
+                                    }
+                                />
+                            )}
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div className={classes.chipContainer}>
+                        {participants.map((participant, i) => (
+                            <Chip
+                                key={i}
+                                label={participant}
+                                onDelete={() => deleteParticipant(i)}
                                 className={classes.chip}
                             />
                         ))}
@@ -706,7 +766,6 @@ export default function ProductEditor(props) {
                             </IconButton>
                         )}
                     </h2>
-
                     <input
                         accept="image/*"
                         className={classes.input}
@@ -741,6 +800,7 @@ export default function ProductEditor(props) {
             </Grid>
             <Grid item xs={12} style={{ margin: "20px" }}>
                 <Button
+                    color="secondary"
                     variant="contained"
                     onClick={submitProduct}
                     style={{ marginTop: "30px" }}
@@ -806,3 +866,11 @@ const useStyles = makeStyles(theme => ({
         marginTop: "4px"
     }
 }));
+
+ProductEditor.propTypes = {
+    product: PropTypes.object,
+    onEdit: PropTypes.func,
+    onDelete: PropTypes.func,
+    toggleEditMode: PropTypes.func,
+    title: PropTypes.string
+};

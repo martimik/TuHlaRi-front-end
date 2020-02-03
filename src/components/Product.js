@@ -15,6 +15,7 @@ import Paper from "@material-ui/core/Paper";
 import axios from "axios";
 import API_URL from "../js/api";
 import { useParams } from "react-router-dom";
+import PropTypes from "prop-types";
 import Dialog from "./Dialog";
 import BarChartIcon from "@material-ui/icons/BarChart";
 import { useSnackbar } from "notistack";
@@ -62,6 +63,7 @@ export default function Product(props) {
                             status: lifecycleStatuses[status.statusCode - 1]
                         }));
                         setGraphData(statuses);
+                        console.log(statuses);
                     }
                     setProduct(res.data);
                 })
@@ -113,6 +115,11 @@ export default function Product(props) {
                             alt={product.productName}
                         />
                     </div>
+                    <div>
+                        <p className="product-short-description">
+                            {product.shortDescription}
+                        </p>
+                    </div>
                     <Stepper
                         alternativeLabel
                         activeStep={product.lifecycleStatus - 1}
@@ -129,17 +136,12 @@ export default function Product(props) {
                         color="primary"
                         variant="extended"
                         size="medium"
-                        disabled={!Boolean(graphData)}
+                        disabled={!graphData}
                         onClick={() => setIsDialogOpen(true)}
                     >
                         <BarChartIcon />
-                        Check time usage
+                        Statistics
                     </Fab>
-                    <div>
-                        <p className="product-short-description">
-                            {product.shortDescription}
-                        </p>
-                    </div>
                     <div>
                         <p className="product-long-description">
                             {product.longDescription}
@@ -326,3 +328,9 @@ const useStyles = makeStyles(theme => ({
         }
     }
 }));
+
+Product.propTypes = {
+    className: PropTypes.string,
+    toggleEditMode: PropTypes.bool,
+    setIsOpen: PropTypes.func
+};
