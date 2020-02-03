@@ -9,80 +9,77 @@ import ConfirmDialog from "./ConfirmDialog";
 import DialogContentText from "@material-ui/core/DialogContentText";
 
 const ProductView = () => {
-    const classes = useStyles();
-    const [product, setProduct] = useState(null);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const { id } = useParams();
+  const classes = useStyles();
+  const [product, setProduct] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { id } = useParams();
 
-    useEffect(() => {
-        if (id) {
-            axios
-                .get(API_URL + "product/" + id)
-                .then(res => setProduct(res.data))
-                .catch(err => console.log(err));
-        }
-    }, [id]);
+  useEffect(() => {
+    if (id) {
+      axios
+        .get(API_URL + "product/" + id)
+        .then(res => setProduct(res.data))
+        .catch(err => console.log(err));
+    }
+  }, [id]);
 
-    const onEdit = () => {
-        axios
-            .get(API_URL + "product/" + id)
-            .then(res => {
-                setIsEditMode(false);
-                setProduct(res.data);
-            })
-            .catch(err => console.log(err));
-    };
+  const onEdit = () => {
+    axios
+      .get(API_URL + "product/" + id)
+      .then(res => {
+        setIsEditMode(false);
+        setProduct(res.data);
+      })
+      .catch(err => console.log(err));
+  };
 
-    const deleteProduct = () => {
-        axios
-            .delete(API_URL + "product/" + id)
-            .then(res => setProduct(null))
-            .catch(err => console.log(err.response));
-    };
+  const deleteProduct = () => {
+    axios
+      .delete(API_URL + "product/" + id)
+      .then(setProduct(null))
+      .catch(err => console.log(err.response));
+  };
 
-    const toggleEditMode = () => {
-        setIsEditMode(state => !state);
-    };
+  const toggleEditMode = () => {
+    setIsEditMode(state => !state);
+  };
 
-    if (!product) return <div>Loading...</div>;
+  if (!product) return <div>Loading...</div>;
 
-    return (
-        <div className={classes.root}>
-            {isEditMode ? (
-                <ProductEditor
-                    product={product}
-                    toggleEditMode={toggleEditMode}
-                    onEdit={onEdit}
-                    onDelete={() => setIsDialogOpen(true)}
-                />
-            ) : (
-                <Product
-                    product={product}
-                    toggleEditMode={
-                        product.isAllowedToEdit ? toggleEditMode : null
-                    }
-                />
-            )}
-            <ConfirmDialog
-                isOpen={isDialogOpen}
-                setOpen={setIsDialogOpen}
-                onConfirm={deleteProduct}
-                title="Confirm delete"
-            >
-                <DialogContentText id="alert-dialog-description">
-                    Are you sure you want to delete product{" "}
-                    {product.productName}?
-                </DialogContentText>
-            </ConfirmDialog>
-        </div>
-    );
+  return (
+    <div className={classes.root}>
+      {isEditMode ? (
+        <ProductEditor
+          product={product}
+          toggleEditMode={toggleEditMode}
+          onEdit={onEdit}
+          onDelete={() => setIsDialogOpen(true)}
+        />
+      ) : (
+        <Product
+          product={product}
+          toggleEditMode={product.isAllowedToEdit ? toggleEditMode : null}
+        />
+      )}
+      <ConfirmDialog
+        isOpen={isDialogOpen}
+        setOpen={setIsDialogOpen}
+        onConfirm={deleteProduct}
+        title="Confirm delete"
+      >
+        <DialogContentText id="alert-dialog-description">
+          Are you sure you want to delete product {product.productName}?
+        </DialogContentText>
+      </ConfirmDialog>
+    </div>
+  );
 };
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        margin: theme.spacing(4)
-    }
+  root: {
+    margin: theme.spacing(4)
+  }
 }));
 
 export default ProductView;
