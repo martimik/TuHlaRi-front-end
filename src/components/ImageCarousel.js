@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import makeStyles from "@material-ui/styles/makeStyles";
+import PropTypes from "prop-types";
 
 const ImageCarousel = props => {
     const classes = useStyles();
@@ -7,24 +8,32 @@ const ImageCarousel = props => {
     const [mouseX, setMouseX] = useState(0);
     const [selectedImg, setSelectedImg] = useState(-1);
 
-    const images = props.images;
+    const images = props.images.filter(image => image);
 
     const elementWidth = Math.max((images.length - 2) * 160, 0);
 
+    const onClick = i => () => {
+        setSelectedImg(i);
+        props.onClick && props.onClick(images[i]);
+    };
+
     const onMouseMove = e => {
-        let multiplier = 1;
-
-        if (mouseX < 0 && e.movementX > 0) {
-            multiplier = Math.abs((100 + mouseX) / 100);
-        }
-        if (mouseX > elementWidth && e.movementX < 0) {
-            multiplier = Math.abs((100 - (mouseX - elementWidth)) / 100);
-            multiplier = Math.max(multiplier, 0);
-        }
-
-        let sum = mouseX - e.movementX * multiplier;
-
         if (e.buttons) {
+            let multiplier = 1;
+
+            if (mouseX < 0 && e.movementX > 0) {
+                multiplier = Math.abs((100 + mouseX) / 100);
+            }
+            if (mouseX > elementWidth && e.movementX < 0) {
+                multiplier = Math.abs((100 - (mouseX - elementWidth)) / 100);
+                multiplier = Math.max(multiplier, 0);
+            }
+
+            let sum = mouseX - e.movementX * multiplier;
+
+            if (sum < -100) sum = -100;
+            if (sum > elementWidth + 100) sum = elementWidth + 100;
+
             setMouseX(sum);
         }
     };
@@ -37,7 +46,7 @@ const ImageCarousel = props => {
 
     return (
         <div
-            className={classes.root}
+            className={`${classes.root} ${props.className}`}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
         >
@@ -47,12 +56,12 @@ const ImageCarousel = props => {
                     transition: !isMouseDown && "all 100ms"
                 }}
                 className={classes.slides}
-                onMouseDown={e => setIsMouseDown(true)}
+                onMouseDown={() => setIsMouseDown(true)}
             >
                 {images.map((image, i) => (
                     <div
                         key={i}
-                        onClick={() => setSelectedImg(i)}
+                        onClick={onClick(i)}
                         className={classes.imageContainer}
                         style={{
                             backgroundColor:
@@ -68,7 +77,7 @@ const ImageCarousel = props => {
 };
 
 const useStyles = makeStyles(() => ({
-    root: { overflowX: "hidden", maxWidth: 400 },
+    root: { overflowX: "hidden" },
     slides: {
         display: "flex",
         overflowX: "-moz-scrollbars-none",
@@ -85,5 +94,16 @@ const useStyles = makeStyles(() => ({
         objectFit: "cover"
     }
 }));
+
+ImageCarousel.propTypes = {
+    onClick: PropTypes.func,
+    images: PropTypes.array,
+    className: PropTypes.string
+};
+
+ImageCarousel.defaultProps = {
+    className: "",
+    images: []
+};
 
 export default ImageCarousel;

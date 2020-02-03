@@ -22,6 +22,7 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import Paper from "@material-ui/core/Paper";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import PropTypes from "prop-types";
+import ImageCarousel from "./ImageCarousel";
 
 export default function ProductEditor(props) {
     const classes = useStyles();
@@ -35,7 +36,6 @@ export default function ProductEditor(props) {
     const [participants, setParticipants] = useState([]);
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState();
-    const [imageIshidden, setImageIsHidden] = useState(true);
     const [users, setUsers] = useState([]);
     const [properties, setProperties] = useState({});
     const { enqueueSnackbar } = useSnackbar();
@@ -55,7 +55,6 @@ export default function ProductEditor(props) {
         participant: ""
     };
     const [input, setInput] = useState(emptyInput);
-
     useEffect(() => {
         if (props.product && !input.productName) {
             setInput({
@@ -77,7 +76,6 @@ export default function ProductEditor(props) {
             setParticipants(props.product.participants || []);
             if (props.product.logos.length) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
-                setImageIsHidden(false);
             }
         }
     }, [props]);
@@ -245,8 +243,6 @@ export default function ProductEditor(props) {
     }
 
     function onUpload(event) {
-        setImageIsHidden(!imageIshidden);
-
         if (event.target.files && event.target.files[0]) {
             const reader = new FileReader();
             setImageFile(event.target.files[0]);
@@ -257,7 +253,6 @@ export default function ProductEditor(props) {
     }
 
     function removeImage() {
-        setImageIsHidden(!imageIshidden);
         setImage(null);
     }
 
@@ -330,13 +325,15 @@ export default function ProductEditor(props) {
         product.customers = customers;
         product.participants = participants;
         product.environmentRequirements = environmentRequirements;
-        product.logo = imageURL || "";
+        product.logo = imageURL || image || "";
         product.id = id ? id : null;
         delete product.technology;
         delete product.component;
         delete product.environmentRequirement;
         delete product.customer;
         delete product.participant;
+
+        console.log(product.logo);
 
         axios
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
@@ -371,7 +368,6 @@ export default function ProductEditor(props) {
         setIsClassified(false);
         setInput(emptyInput);
         setImage(null);
-        setImageIsHidden(true);
         setImageFile(null);
         setTechnologies([]);
         setComponents([]);
@@ -795,9 +791,15 @@ export default function ProductEditor(props) {
                     )}
                 </Grid>
             </Grid>
-            <Grid item xs={12}>
-                <ImageCarousel images={props.product.logos} />
-            </Grid>
+            {props.product && (
+                <Grid item xs={12}>
+                    <ImageCarousel
+                        className={classes.imageCarousel}
+                        images={props.product.logos}
+                        onClick={i => setImage(i)}
+                    />
+                </Grid>
+            )}
             <Grid item xs={12} style={{ margin: "20px" }}>
                 <Button
                     color="secondary"
@@ -864,6 +866,10 @@ const useStyles = makeStyles(theme => ({
         right: "0px",
         padding: "0",
         marginTop: "4px"
+    },
+    imageCarousel: {
+        display: "flex",
+        justifyContent: "space-around"
     }
 }));
 

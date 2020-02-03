@@ -63,7 +63,6 @@ export default function Product(props) {
                             status: lifecycleStatuses[status.statusCode - 1]
                         }));
                         setGraphData(statuses);
-                        console.log(statuses);
                     }
                     setProduct(res.data);
                 })
@@ -110,7 +109,7 @@ export default function Product(props) {
                             className="logo-large"
                             src={
                                 product.logos[product.logos.length - 1] ||
-                                "https://image.shutterstock.com/image-vector/ui-image-placeholder-wireframes-apps-260nw-1037719204.jpg"
+                                "/img/placeholder.png"
                             }
                             alt={product.productName}
                         />
