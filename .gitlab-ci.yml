@@ -69,7 +69,7 @@ RobotTests:
 code_quality:
   stage: code testing
   image: docker:stable
-  allow_failure: false
+  allow_failure: true
   services:
     - docker:stable-dind
   variables:
