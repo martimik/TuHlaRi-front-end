@@ -62,8 +62,9 @@ BuildProductionToOpenshift_Manual:
 
 RobotTests:
  stage: testing
+ when: manual
  script:
-    - echo "Add robot tests here?"
+    - robot /tests/test1.robot
 
 code_quality:
   stage: code testing
