@@ -56,7 +56,7 @@ BuildProductionToOpenshift_Manual:
  script:
     - unset CI
     - npm ci # Build for prod
-    - REACT_APP_API_URL=http://backend-tuhlari.rahtiapp.fi/ npm run build --prod
+    - REACT_APP_API_URL=https://backend-tuhlari.rahtiapp.fi/ npm run build --prod
     - oc project tuhlari
     - oc start-build front-end --from-dir="build" --follow --wait
 
