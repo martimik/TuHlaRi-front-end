@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { Redirect } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import Chip from "@material-ui/core/Chip";
 import AddAPhoto from "@material-ui/icons/AddAPhoto";
@@ -24,9 +25,26 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import PropTypes from "prop-types";
 import ImageCarousel from "./ImageCarousel";
 
+const inputLengths = {
+    productName: { max: 50, min: 5 },
+    shortDescription: { max: 200, min: 5 },
+    longDescription: { max: 500 },
+    pricing: { max: 10 },
+    salesPerson: { max: 30 },
+    productOwner: { max: 30, min: 5 },
+    businessType: { max: 4 },
+    lifecycleStatus: { max: 10 },
+    technology: { max: 20, isArray: true },
+    component: { max: 20, isArray: true },
+    environmentRequirement: { max: 20, isArray: true },
+    customer: { max: 30, isArray: true },
+    participant: { max: 30, isArray: true }
+};
+
 export default function ProductEditor(props) {
     const classes = useStyles();
-
+    const isInitialized = useRef(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isIdea, setIsIdea] = useState(false);
     const [isClassified, setIsClassified] = useState(false);
     const [components, setComponents] = useState([]);
@@ -38,6 +56,7 @@ export default function ProductEditor(props) {
     const [imageFile, setImageFile] = useState();
     const [users, setUsers] = useState([]);
     const [properties, setProperties] = useState({});
+    const [isDone, setIsDone] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
     const emptyInput = {
         productName: "",
@@ -54,9 +73,27 @@ export default function ProductEditor(props) {
         customer: "",
         participant: ""
     };
+
+    const [errors, setErrors] = useState({
+        productName: false,
+        shortDescription: false,
+        longDescription: false,
+        pricing: false,
+        salesPerson: false,
+        productOwner: false,
+        businessType: false,
+        lifecycleStatus: false,
+        technology: false,
+        component: false,
+        environmentRequirement: false,
+        customer: false,
+        participant: false
+    });
+
     const [input, setInput] = useState(emptyInput);
     useEffect(() => {
-        if (props.product && !input.productName) {
+        if (props.product && !isInitialized.current) {
+            isInitialized.current = true;
             setInput(state => ({
                 ...state,
                 productName: props.product.productName,
@@ -78,7 +115,7 @@ export default function ProductEditor(props) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
             }
         }
-    }, [props, input]);
+    }, [props, input, isInitialized]);
 
     useEffect(() => {
         axios
@@ -106,10 +143,10 @@ export default function ProductEditor(props) {
     }, []);
 
     function handleChange(event) {
-        setInput({
-            ...input,
-            [event.target.name]: event.target.value
-        });
+        const { name, value } = event.target;
+        if (value.length <= inputLengths[name].max) {
+            setInput({ ...input, [name]: value });
+        }
     }
 
     const handleAutoCompleteChange = name => e => {
@@ -119,7 +156,7 @@ export default function ProductEditor(props) {
         if (text.length - 1 && text.substr(text.length - 1) === ",") {
             setInput({ ...input, [name]: "" });
             addProperty(name, text.slice(0, text.length - 1));
-        } else {
+        } else if (text.length <= inputLengths[name].max) {
             setInput({ ...input, [name]: text });
         }
     };
@@ -146,7 +183,6 @@ export default function ProductEditor(props) {
                 setEnvironmentRequirements(state => [...state, text]);
                 break;
             case "participant":
-                console.log(text);
                 setParticipants(state => [...state, text]);
                 break;
             default:
@@ -245,7 +281,18 @@ export default function ProductEditor(props) {
     function onUpload(event) {
         if (event.target.files && event.target.files[0]) {
             const reader = new FileReader();
-            setImageFile(event.target.files[0]);
+            if (event.target.files[0].type.includes("image")) {
+                setImageFile(event.target.files[0]);
+            } else {
+                enqueueSnackbar("File type is not supported.", {
+                    variant: "warning",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "right"
+                    }
+                });
+                return;
+            }
             reader.onload = e => setImage(e.target.result);
 
             reader.readAsDataURL(event.target.files[0]);
@@ -274,6 +321,7 @@ export default function ProductEditor(props) {
 
     function submitProduct(event) {
         event.preventDefault();
+        setIsSubmitting(true);
 
         if (!validateSubmit()) {
             enqueueSnackbar("Required fields not filled!", {
@@ -317,7 +365,7 @@ export default function ProductEditor(props) {
 
     function uploadProduct(imageURL) {
         const id = props.product ? props.product._id : null;
-        const product = input;
+        const product = { ...input };
         product.isIdea = isIdea;
         product.isClassified = isClassified;
         product.technologies = technologies;
@@ -333,11 +381,9 @@ export default function ProductEditor(props) {
         delete product.customer;
         delete product.participant;
 
-        console.log(product.logo);
-
         axios
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
-            .then(function() {
+            .then(() => {
                 enqueueSnackbar(id ? "Product edited" : "Product added", {
                     variant: "success",
                     anchorOrigin: {
@@ -345,6 +391,7 @@ export default function ProductEditor(props) {
                         horizontal: "right"
                     }
                 });
+                setIsDone(true);
                 if (!props.toggleEditMode) {
                     clearInput();
                 } else {
@@ -360,6 +407,7 @@ export default function ProductEditor(props) {
                         horizontal: "right"
                     }
                 });
+                setIsSubmitting(false);
             });
     }
 
@@ -405,6 +453,24 @@ export default function ProductEditor(props) {
             }
         }
     }
+
+    const isMaxLength = key => inputLengths[key].max <= input[key].length;
+    const isTooShort = key => inputLengths[key].min >= input[key].length;
+    const shouldBeEmpty = key => inputLengths[key].isArray && input[key].length;
+    const hasError = key =>
+        Boolean(isTooShort(key)) || Boolean(shouldBeEmpty(key));
+
+    const getHelperText = key => {
+        if (isMaxLength(key)) return "Maximum length";
+        if (isTooShort(key)) return "Too short";
+        return "";
+    };
+
+    const onBlur = name => () => {
+        setErrors(state => ({ ...state, [name]: hasError(name) }));
+    };
+
+    if (isDone) return <Redirect to="/products" />;
 
     return (
         <Paper elevation={2} className={classes.root}>
@@ -452,6 +518,9 @@ export default function ProductEditor(props) {
                         value={input.productName}
                         name="productName"
                         label="Name"
+                        helperText={getHelperText("productName")}
+                        error={errors.productName}
+                        onBlur={onBlur("productName")}
                         required
                         fullWidth
                     />
@@ -463,6 +532,9 @@ export default function ProductEditor(props) {
                         name="shortDescription"
                         label="Short description"
                         value={input.shortDescription}
+                        helperText={getHelperText("shortDescription")}
+                        error={errors.shortDescription}
+                        onBlur={onBlur("shortDescription")}
                         required
                         fullWidth
                     />
@@ -499,6 +571,9 @@ export default function ProductEditor(props) {
                         name="longDescription"
                         label="Long description"
                         value={input.longDescription}
+                        helperText={getHelperText("longDescription")}
+                        error={errors.longDescription}
+                        onBlur={onBlur("longDescription")}
                         fullWidth
                     />
                 </Grid>
@@ -517,6 +592,9 @@ export default function ProductEditor(props) {
                                 fullWidth
                                 label="Product owner"
                                 required={!isIdea}
+                                helperText={getHelperText("productOwner")}
+                                error={errors.productOwner}
+                                onBlur={onBlur("productOwner")}
                             />
                         )}
                     />
@@ -535,6 +613,9 @@ export default function ProductEditor(props) {
                                 {...params}
                                 fullWidth
                                 label="Sales person"
+                                helperText={getHelperText("salesPerson")}
+                                error={errors.salesPerson}
+                                onBlur={onBlur("salesPerson")}
                             />
                         )}
                     />
@@ -545,6 +626,9 @@ export default function ProductEditor(props) {
                         name="businessType"
                         label="Business type"
                         value={input.businessType}
+                        helperText={getHelperText("businessType")}
+                        error={errors.businessType}
+                        onBlur={onBlur("businessType")}
                         fullWidth
                     />
                 </Grid>
@@ -554,6 +638,9 @@ export default function ProductEditor(props) {
                         name="pricing"
                         label="Pricing (€)"
                         value={input.pricing}
+                        helperText={getHelperText("pricing")}
+                        error={errors.pricing}
+                        onBlur={onBlur("pricing")}
                         fullWidth
                     />
                 </Grid>
@@ -575,9 +662,11 @@ export default function ProductEditor(props) {
                                     {...params}
                                     fullWidth
                                     label="Technologies"
+                                    error={errors.technology}
+                                    onBlur={onBlur("technology")}
                                     helperText={
                                         input.technology
-                                            ? "Click enter to add"
+                                            ? "Press enter to add"
                                             : ""
                                     }
                                 />
@@ -615,9 +704,11 @@ export default function ProductEditor(props) {
                                     {...params}
                                     fullWidth
                                     label="Components"
+                                    error={errors.component}
+                                    onBlur={onBlur("component")}
                                     helperText={
                                         input.component
-                                            ? "Click enter to add"
+                                            ? "Press enter to add"
                                             : ""
                                     }
                                 />
@@ -657,9 +748,11 @@ export default function ProductEditor(props) {
                                     {...params}
                                     fullWidth
                                     label="Environment requirements"
+                                    error={errors.environmentRequirement}
+                                    onBlur={onBlur("environmentRequirement")}
                                     helperText={
                                         input.environmentRequirement
-                                            ? "Click enter to add"
+                                            ? "Press enter to add"
                                             : ""
                                     }
                                 />
@@ -691,8 +784,10 @@ export default function ProductEditor(props) {
                             label="Customers"
                             onKeyDown={readKey}
                             value={input.customer}
+                            error={errors.customer}
+                            onBlur={onBlur("customer")}
                             helperText={
-                                input.customer ? "Click enter to add" : ""
+                                input.customer ? "Press enter to add" : ""
                             }
                             fullWidth
                         />
@@ -728,9 +823,11 @@ export default function ProductEditor(props) {
                                     {...params}
                                     fullWidth
                                     label="Participants"
+                                    error={errors.participant}
+                                    onBlur={onBlur("participant")}
                                     helperText={
                                         input.participant
-                                            ? "Click enter to add"
+                                            ? "Press enter to add"
                                             : ""
                                     }
                                 />
@@ -804,6 +901,7 @@ export default function ProductEditor(props) {
                 <Button
                     color="secondary"
                     variant="contained"
+                    disabled={isSubmitting || !input.productName}
                     onClick={submitProduct}
                     style={{ marginTop: "30px" }}
                 >
