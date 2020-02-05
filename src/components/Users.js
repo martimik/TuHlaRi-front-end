@@ -42,20 +42,30 @@ export default class Users extends React.Component {
                 console.log(res);
                 if (res.status === 200) {
                     console.log("ok");
-                    this.state.popup(res.data.message, {
+                    const data = [...this.state.data];
+                    const index = data.findIndex(
+                        data => data.email === reqEmail
+                    );
+                    data[index] = newData;
+                    this.setState({ data });
+                    this.props.enqueueSnackbar(reqEmail + " edited", {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "bottom",
-                            horizontal: "center"
+                            horizontal: "right"
                         }
                     });
-                    this.refreshTable();
-                } else {
-                    console.log("no ok");
                 }
             })
             .catch(err => {
                 console.log(err.response);
+                this.props.enqueueSnackbar("Failed to edit " + reqEmail, {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "right"
+                    }
+                });
             });
     }
 
@@ -66,13 +76,29 @@ export default class Users extends React.Component {
             .then(res => {
                 console.log(res);
                 if (res.status === 200) {
-                    console.log("ok");
-                } else {
-                    console.log("no ok");
+                    let data = [...this.state.data];
+                    const index = data.indexOf(userData);
+                    data.splice(index, 1);
+                    this.setState({ data });
+
+                    this.props.enqueueSnackbar(email + " deleted", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "right"
+                        }
+                    });
                 }
             })
             .catch(err => {
                 console.log(err.response);
+                this.props.enqueueSnackbar("Failed to delete " + email, {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "right"
+                    }
+                });
             });
     }
 
@@ -89,10 +115,7 @@ export default class Users extends React.Component {
                             setTimeout(() => {
                                 {
                                     this.editUser(oldData.email, newData);
-                                    const data = [...this.state.data];
-                                    const index = data.indexOf(oldData);
-                                    data[index] = newData;
-                                    this.setState({ data }, () => resolve());
+                                    resolve();
                                 }
                                 resolve();
                             }, 1000);
@@ -102,10 +125,7 @@ export default class Users extends React.Component {
                             setTimeout(() => {
                                 {
                                     this.deleteUser(oldData);
-                                    let data = [...this.state.data];
-                                    const index = data.indexOf(oldData);
-                                    data.splice(index, 1);
-                                    this.setState({ data }, () => resolve());
+                                    resolve();
                                 }
                                 resolve();
                             }, 1000);

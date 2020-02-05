@@ -2,7 +2,7 @@ import React from "react";
 import { Switch, Route } from "react-router-dom";
 import CreateProduct from "./CreateProduct";
 import CreateUser from "./CreateUser";
-import Users from "./Users";
+import UsersView from "./UsersView";
 import Settings from "./Settings";
 import DeletedProducts from "./DeletedProducts";
 import ProductsView from "./ProductsView";
@@ -32,7 +32,7 @@ const Routes = ({ authorization }) => (
         <AuthorizedRoute
             authorized={authorization.userGroup === USERGROUP.ADMIN}
             path="/users"
-            component={Users}
+            component={UsersView}
         />
         <AuthorizedRoute
             authorized={authorization.userGroup === USERGROUP.ADMIN}
