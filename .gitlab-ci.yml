@@ -4,8 +4,8 @@ image: ayufan/openshift-cli
 stages:
     - preparation
     - code testing
-    #- build
     - testing
+    - build
 
 #Make sure file contains only 1 variables part
 variables:
@@ -42,6 +42,7 @@ Eslint:
     
 BuildTestToOpenshift:
  stage: build
+ when: manual #remove this line for automatic testing environment
  script:
     - ls
     - unset CI
