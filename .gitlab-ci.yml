@@ -4,7 +4,7 @@ image: ayufan/openshift-cli
 stages:
     - preparation
     - code testing
-    - build
+    #- build
     - testing
 
 #Make sure file contains only 1 variables part
@@ -65,8 +65,7 @@ RobotTests:
  when: manual
  script:
     - ls
-    - cd tests
-    - robot test1.robot
+    - robot tests/test1.robot
 
 code_quality:
   stage: code testing
