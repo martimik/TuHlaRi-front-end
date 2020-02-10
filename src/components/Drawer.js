@@ -89,6 +89,7 @@ const MainDrawer = props => {
                     const Icon = link.icon;
                     return (
                         <Link
+                            id={link.url}
                             to={link.url}
                             key={link.url}
                             className={classes.link}
@@ -103,7 +104,7 @@ const MainDrawer = props => {
                 <Divider />
             </List>
             <List className={classes.settings}>
-                <Link to={"/settings"} className={classes.link}>
+                <Link to={"/settings"} className={classes.link} id="/settings">
                     <ListItem button>
                         <ListItemIcon>
                             <SettingsIcon />
