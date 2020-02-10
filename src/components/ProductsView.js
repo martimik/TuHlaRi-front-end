@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, {
+    useState,
+    useEffect,
+    useContext,
+    useRef,
+    useCallback
+} from "react";
 import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import ProductCard from "./ProductCard";
@@ -19,10 +25,20 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 
 axios.defaults.withCredentials = true;
 
+const lifecycleStatuses = [
+    "All",
+    "Idea",
+    "Accepted",
+    "Planning",
+    "Development",
+    "Released",
+    "Production",
+    "Closed"
+];
+
 export default function ProductsView() {
     const classes = useStyles();
     const [products, setProducts] = useState([]);
-    const [cancelTimeout, setCancelTimeout] = useState(null);
     const [search, setSearch] = useState("");
     const [filters, setFilters] = useState({
         myProducts: false,
@@ -32,20 +48,11 @@ export default function ProductsView() {
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const cancelTimeout = useRef(null);
     const user = useContext(UserContext);
 
-    const lifecycleStatuses = [
-        "All",
-        "Idea",
-        "Accepted",
-        "Planning",
-        "Development",
-        "Released",
-        "Production",
-        "Closed"
-    ];
-
-    const getProducts = () => {
+    const getProducts = useCallback(() => {
+        console.log(1);
         setIsLoading(true);
         axios
             .get(API_URL + "products", {
@@ -59,24 +66,23 @@ export default function ProductsView() {
             })
             .catch(err => console.log(err.message))
             .finally(() => setIsLoading(false));
-    };
-
-    const debounce = callback => {
-        if (cancelTimeout) {
-            clearTimeout(cancelTimeout);
-            setCancelTimeout(null);
-        }
-        const t = setTimeout(callback, 250);
-        setCancelTimeout(t);
-    };
+    }, [filters, search]);
 
     useEffect(() => {
-        getProducts();
-    }, [filters, user.userGroup]);
+        const debounce = callback => {
+            if (cancelTimeout.current) {
+                clearTimeout(cancelTimeout.current);
+                cancelTimeout.current = null;
+            }
+            cancelTimeout.current = setTimeout(callback, 250);
+        };
 
-    useEffect(() => {
         debounce(getProducts);
-    }, [search]);
+    }, [user.userGroup, getProducts]);
+
+    const handleSearch = e => {
+        setSearch(e.target.value);
+    };
 
     const handleFilterChange = e => {
         setFilters({ ...filters, [e.target.name]: e.target.checked });
@@ -89,7 +95,7 @@ export default function ProductsView() {
     return (
         <div className={classes.root}>
             <div className={classes.searchField}>
-                <SearchField onSearch={e => setSearch(e.target.value)} />
+                <SearchField onSearch={handleSearch} />
                 <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">
                         Status
