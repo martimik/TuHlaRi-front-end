@@ -66,7 +66,7 @@ RobotTests:
  when: manual
  script:
     - ls
-    - robot tests/test1.robot
+    - robot robotTests/test1.robot
 
 code_quality:
   stage: code testing
