@@ -74,3 +74,12 @@ const useStyles = makeStyles(theme => ({
 ProductCard.propTypes = {
     product: PropTypes.object
 };
+
+ProductCard.defaultProps = {
+    product: {
+        _id: "default",
+        productName: "default",
+        shortDescription: "default",
+        logos: [""]
+    }
+};

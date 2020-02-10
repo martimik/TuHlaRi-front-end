@@ -331,6 +331,9 @@ const useStyles = makeStyles(theme => ({
 
 Product.propTypes = {
     className: PropTypes.string,
-    toggleEditMode: PropTypes.func,
-    setIsOpen: PropTypes.func
+    toggleEditMode: PropTypes.func
+};
+
+Product.defaultProps = {
+    className: ""
 };

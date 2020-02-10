@@ -2,6 +2,7 @@ import React from "react";
 import MaterialTable from "material-table";
 import axios from "axios";
 import API_URL from "../js/api";
+import PropTypes from "prop-types";
 
 export default class Users extends React.Component {
     constructor(props) {
@@ -118,7 +119,7 @@ export default class Users extends React.Component {
                                     resolve();
                                 }
                                 resolve();
-                            }, 1000);
+                            }, 500);
                         }),
                     onRowDelete: oldData =>
                         new Promise(resolve => {
@@ -128,10 +129,18 @@ export default class Users extends React.Component {
                                     resolve();
                                 }
                                 resolve();
-                            }, 1000);
+                            }, 500);
                         })
                 }}
             />
         );
     }
 }
+
+Users.propTypes = {
+    enqueueSnackbar: PropTypes.func
+};
+
+Users.defaultProps = {
+    enqueueSnackbar: msg => console.log(msg)
+};

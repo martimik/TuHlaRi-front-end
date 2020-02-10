@@ -21,3 +21,8 @@ AuthorizedRoute.propTypes = {
     component: PropTypes.any,
     exact: PropTypes.bool
 };
+
+AuthorizedRoute.defaultProps = {
+    authorized: false,
+    exact: false
+};

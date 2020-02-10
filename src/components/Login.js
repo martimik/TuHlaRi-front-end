@@ -5,6 +5,7 @@ import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import { useSnackbar } from "notistack";
 import API_URL from "../js/api";
+import PropTypes from "prop-types";
 
 export default function Login(props) {
     const classes = useStyles();
@@ -122,3 +123,9 @@ const useStyles = makeStyles(theme => ({
         borderRadius: "1.5rem"
     }
 }));
+
+Login.propTypes = {
+    isOpen: PropTypes.bool,
+    setAuthorization: PropTypes.func,
+    close: PropTypes.func
+};

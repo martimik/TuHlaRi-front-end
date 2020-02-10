@@ -72,3 +72,8 @@ CustomizedDialogs.propTypes = {
     title: PropTypes.string,
     children: PropTypes.element
 };
+
+CustomizedDialogs.defaultProps = {
+    isOpen: false,
+    title: ""
+};
