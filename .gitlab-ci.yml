@@ -4,8 +4,8 @@ image: ayufan/openshift-cli
 stages:
     - preparation
     - code testing
-    - build
     - testing
+    - build
 
 #Make sure file contains only 1 variables part
 variables:
@@ -42,6 +42,7 @@ Eslint:
     
 BuildTestToOpenshift:
  stage: build
+ when: manual #remove this line for automatic testing environment
  script:
     - ls
     - unset CI
@@ -64,7 +65,8 @@ RobotTests:
  stage: testing
  when: manual
  script:
-    - robot /tests/test1.robot
+    - ls
+    - robot robotTests/test1.robot
 
 code_quality:
   stage: code testing
@@ -102,8 +104,6 @@ code_quality:
   except:
     variables:
       - $CODE_QUALITY_DISABLED
-  tags:
-    - shell
 
 # Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
 # List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
