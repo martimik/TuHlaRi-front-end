@@ -4,6 +4,6 @@ import { useSnackbar } from "notistack";
 
 const UsersView = () => {
     const { enqueueSnackbar } = useSnackbar();
-    return <Users enqueueSnackbarr={enqueueSnackbar} />;
+    return <Users enqueSnackbar={enqueueSnackbar} />;
 };
 export default UsersView;

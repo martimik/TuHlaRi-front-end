@@ -122,6 +122,7 @@ export default function ProductsView() {
                         <FormLabel component="legend">Filters</FormLabel>
                         <FormGroup>
                             <FormControlLabel
+                                id="created-by-me-checkbox"
                                 control={
                                     <Checkbox
                                         checked={filters.myProducts}
@@ -134,6 +135,7 @@ export default function ProductsView() {
                             />
 
                             <FormControlLabel
+                                id="participant-checkbox"
                                 control={
                                     <Checkbox
                                         checked={filters.isParticipant}
@@ -153,6 +155,7 @@ export default function ProductsView() {
                         <FormLabel component="legend">Warning</FormLabel>
                         <FormGroup>
                             <FormControlLabel
+                                id="classified-checkbox"
                                 control={
                                     <Checkbox
                                         checked={filters.isClassified}
@@ -169,7 +172,9 @@ export default function ProductsView() {
             )}
             <Grid container spacing={3}>
                 {products.map(product => (
-                    <ProductCard key={product._id} product={product} />
+                    <Grid item xs key={product._id}>
+                        <ProductCard product={product} />
+                    </Grid>
                 ))}
             </Grid>
             <Backdrop

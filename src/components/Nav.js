@@ -81,6 +81,7 @@ export default function Nav(props) {
                             <Button
                                 onClick={logout}
                                 color="primary"
+                                id="logout-button"
                                 className={classes.button}
                             >
                                 Logout
@@ -89,6 +90,7 @@ export default function Nav(props) {
                             <Button
                                 onClick={openCloseLoginWindow}
                                 color="primary"
+                                id="toggle-login-button"
                                 className={classes.button}
                             >
                                 Login{" "}

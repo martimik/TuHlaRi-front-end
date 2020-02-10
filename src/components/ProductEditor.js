@@ -477,6 +477,7 @@ export default function ProductEditor(props) {
             <div className={classes.actionButtons}>
                 {props.onDelete && (
                     <Fab
+                        id="delete-product-button"
                         color="secondary"
                         aria-label="edit"
                         size="small"
@@ -487,6 +488,7 @@ export default function ProductEditor(props) {
                 )}
                 {props.toggleEditMode && (
                     <Fab
+                        id="edit-toggle-button"
                         color="secondary"
                         aria-label="edit"
                         size="small"
@@ -514,6 +516,7 @@ export default function ProductEditor(props) {
                 </Grid>
                 <Grid item xs={10} className={classes.inputField}>
                     <TextField
+                        id="product-name-textfield"
                         onChange={handleChange}
                         value={input.productName}
                         name="productName"
@@ -527,6 +530,7 @@ export default function ProductEditor(props) {
                 </Grid>
                 <Grid item xs={10} className={classes.inputField}>
                     <TextField
+                        id="short-description-textfield"
                         onChange={handleChange}
                         multiline
                         name="shortDescription"
@@ -566,6 +570,7 @@ export default function ProductEditor(props) {
                 </Grid>
                 <Grid item xs={10} className={classes.inputField}>
                     <TextField
+                        id="long-description-textfield"
                         multiline
                         onChange={handleChange}
                         name="longDescription"
@@ -579,6 +584,7 @@ export default function ProductEditor(props) {
                 </Grid>
                 <Grid item xs={10} className={classes.inputField}>
                     <Autocomplete
+                        id="product-owner-textfield"
                         onInputChange={handleAutoCompleteChange("productOwner")}
                         options={users}
                         getOptionLabel={user => user.email}
@@ -601,6 +607,7 @@ export default function ProductEditor(props) {
                 </Grid>
                 <Grid item xs={10} className={classes.inputField}>
                     <Autocomplete
+                        id="sales-person-textfield"
                         onInputChange={handleAutoCompleteChange("salesPerson")}
                         options={users}
                         getOptionLabel={user => user.email}
@@ -622,6 +629,7 @@ export default function ProductEditor(props) {
                 </Grid>
                 <Grid item xs={10} className={classes.inputField}>
                     <TextField
+                        id="business-type-textfield"
                         onChange={handleChange}
                         name="businessType"
                         label="Business type"
@@ -634,6 +642,7 @@ export default function ProductEditor(props) {
                 </Grid>
                 <Grid item xs={10} className={classes.inputField}>
                     <TextField
+                        id="pricing-textfield"
                         onChange={handleChange}
                         name="pricing"
                         label="Pricing (€)"
@@ -647,6 +656,7 @@ export default function ProductEditor(props) {
                 <Grid item xs={10} className={classes.inputField}>
                     <div>
                         <Autocomplete
+                            id="technology-textfield"
                             onInputChange={handleAutoCompleteChange(
                                 "technology"
                             )}
@@ -689,6 +699,7 @@ export default function ProductEditor(props) {
                 <Grid item xs={10} className={classes.inputField}>
                     <div>
                         <Autocomplete
+                            id="component-textfield"
                             onInputChange={handleAutoCompleteChange(
                                 "component"
                             )}
@@ -731,6 +742,7 @@ export default function ProductEditor(props) {
                 <Grid item xs={10} className={classes.inputField}>
                     <div>
                         <Autocomplete
+                            id="env-req-textfield"
                             onInputChange={handleAutoCompleteChange(
                                 "environmentRequirement"
                             )}
@@ -780,6 +792,7 @@ export default function ProductEditor(props) {
                     <div>
                         <TextField
                             onChange={handleChange}
+                            id="customer-textfield"
                             name="customer"
                             label="Customers"
                             onKeyDown={readKey}
@@ -808,6 +821,7 @@ export default function ProductEditor(props) {
                 <Grid item xs={10} className={classes.inputField}>
                     <div>
                         <Autocomplete
+                            id="participant-textfield"
                             onInputChange={handleAutoCompleteChange(
                                 "participant"
                             )}
@@ -852,6 +866,7 @@ export default function ProductEditor(props) {
                         Logo
                         {image && (
                             <IconButton
+                                id="delete-image-button"
                                 aria-label="delete"
                                 onClick={removeImage}
                             >
@@ -870,6 +885,7 @@ export default function ProductEditor(props) {
                     {!image && (
                         <label htmlFor="contained-button-file">
                             <Button
+                                id="add-image-button"
                                 variant="contained"
                                 color="primary"
                                 component="span"
@@ -881,6 +897,7 @@ export default function ProductEditor(props) {
                     )}
                     {image && (
                         <img
+                            id="image-element"
                             className={classes.img}
                             src={image}
                             alt="product logo"
@@ -899,6 +916,7 @@ export default function ProductEditor(props) {
             )}
             <Grid item xs={12} style={{ margin: "20px" }}>
                 <Button
+                    id="submit-button"
                     color="secondary"
                     variant="contained"
                     disabled={isSubmitting || !input.productName}

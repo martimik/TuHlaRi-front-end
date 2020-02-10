@@ -76,7 +76,7 @@ export default function Login(props) {
             <form className={classes.form} onSubmit={login}>
                 <TextField
                     onChange={handleChange}
-                    id="standard-password-input"
+                    id="auth-email-textfield"
                     label="Email"
                     name="user"
                     className={classes.textField}
@@ -87,7 +87,7 @@ export default function Login(props) {
 
                 <TextField
                     onChange={handleChange}
-                    id="standard-password-input"
+                    id="auth-password-textfield"
                     label="Password"
                     name="password"
                     className={classes.textField}
@@ -97,8 +97,8 @@ export default function Login(props) {
                     value={credentials.password}
                 />
                 <Button
+                    id="login-button"
                     type="submit"
-                    className={classes.root}
                     variant="contained"
                     color="primary"
                     disabled={fieldsAreEmpty()}

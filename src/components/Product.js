@@ -95,6 +95,7 @@ export default function Product(props) {
                     )}
                     {props.toggleEditMode && (
                         <Fab
+                            id="edit-toggle-button"
                             color="secondary"
                             aria-label="edit"
                             size="small"
@@ -136,6 +137,7 @@ export default function Product(props) {
                         color="primary"
                         variant="extended"
                         size="medium"
+                        id="open-statistics-button"
                         disabled={!graphData}
                         onClick={() => setIsDialogOpen(true)}
                     >

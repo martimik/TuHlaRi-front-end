@@ -14,6 +14,7 @@ export default function SearchField(props) {
                 <SearchIcon />
             </div>
             <InputBase
+                id="search-field"
                 placeholder="Search…"
                 onChange={props.onSearch}
                 classes={{
