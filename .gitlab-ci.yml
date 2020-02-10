@@ -65,7 +65,8 @@ RobotTests:
  when: manual
  script:
     - ls
-    - robot /tests/test1.robot
+    - cd tests
+    - robot test1.robot
 
 code_quality:
   stage: code testing
@@ -103,8 +104,6 @@ code_quality:
   except:
     variables:
       - $CODE_QUALITY_DISABLED
-  tags:
-    - shell
 
 # Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
 # List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
