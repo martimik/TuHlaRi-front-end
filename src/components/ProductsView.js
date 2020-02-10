@@ -52,7 +52,6 @@ export default function ProductsView() {
     const user = useContext(UserContext);
 
     const getProducts = useCallback(() => {
-        console.log(1);
         setIsLoading(true);
         axios
             .get(API_URL + "products", {
