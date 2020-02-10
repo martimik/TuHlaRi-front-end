@@ -34,73 +34,65 @@ export default class Users extends React.Component {
         });
     }
 
-    editUser(reqEmail, newData) {
+    async editUser(reqEmail, newData) {
         newData.reqEmail = reqEmail;
+        try {
+            await axios.post(API_URL + "editUser", newData);
 
-        axios
-            .post(API_URL + "editUser", newData)
-            .then(res => {
-                console.log(res);
-                if (res.status === 200) {
-                    console.log("ok");
-                    const data = [...this.state.data];
-                    const index = data.findIndex(
-                        data => data.email === reqEmail
-                    );
-                    data[index] = newData;
-                    this.setState({ data });
-                    this.props.enqueueSnackbar(reqEmail + " edited", {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "bottom",
-                            horizontal: "right"
-                        }
-                    });
+            const data = [...this.state.data];
+            const index = data.findIndex(data => data.email === reqEmail);
+            data[index] = newData;
+            this.setState({ data });
+            this.props.enqueSnackbar(reqEmail + " edited", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right"
                 }
-            })
-            .catch(err => {
-                console.log(err.response);
-                this.props.enqueueSnackbar("Failed to edit " + reqEmail, {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "bottom",
-                        horizontal: "right"
-                    }
-                });
             });
+            return true;
+        } catch (err) {
+            console.log(err.response);
+            this.props.enqueSnackbar("Failed to edit " + reqEmail, {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right"
+                }
+            });
+            return false;
+        }
     }
 
-    deleteUser(userData) {
+    async deleteUser(userData) {
         const email = userData.email;
-        axios
-            .post(API_URL + "deleteUser", { email: email })
-            .then(res => {
-                console.log(res);
-                if (res.status === 200) {
-                    let data = [...this.state.data];
-                    const index = data.indexOf(userData);
-                    data.splice(index, 1);
-                    this.setState({ data });
+        try {
+            await axios.post(API_URL + "deleteUser", { email: email });
 
-                    this.props.enqueueSnackbar(email + " deleted", {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "bottom",
-                            horizontal: "right"
-                        }
-                    });
+            const data = [...this.state.data];
+            const index = data.indexOf(userData);
+            data.splice(index, 1);
+            this.setState({ data });
+
+            this.props.enqueSnackbar(email + " deleted", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right"
                 }
-            })
-            .catch(err => {
-                console.log(err.response);
-                this.props.enqueueSnackbar("Failed to delete " + email, {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "bottom",
-                        horizontal: "right"
-                    }
-                });
             });
+            return true;
+        } catch (err) {
+            console.log(err.response);
+            this.props.enqueSnackbar("Failed to delete " + email, {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right"
+                }
+            });
+            return false;
+        }
     }
 
     render() {
@@ -112,24 +104,20 @@ export default class Users extends React.Component {
                 options={{ actionsColumnIndex: -1 }}
                 editable={{
                     onRowUpdate: (newData, oldData) =>
-                        new Promise(resolve => {
-                            setTimeout(() => {
-                                {
-                                    this.editUser(oldData.email, newData);
-                                    resolve();
-                                }
+                        new Promise(async (resolve, reject) => {
+                            if (await this.editUser(oldData.email, newData)) {
                                 resolve();
-                            }, 500);
+                            } else {
+                                reject();
+                            }
                         }),
-                    onRowDelete: oldData =>
-                        new Promise(resolve => {
-                            setTimeout(() => {
-                                {
-                                    this.deleteUser(oldData);
-                                    resolve();
-                                }
+                    onRowDelete: data =>
+                        new Promise(async (resolve, reject) => {
+                            if (await this.deleteUser(data)) {
                                 resolve();
-                            }, 500);
+                            } else {
+                                reject();
+                            }
                         })
                 }}
             />
@@ -138,9 +126,9 @@ export default class Users extends React.Component {
 }
 
 Users.propTypes = {
-    enqueueSnackbar: PropTypes.func
+    enqueSnackbar: PropTypes.func
 };
 
 Users.defaultProps = {
-    enqueueSnackbar: msg => console.log(msg)
+    enqueSnackbar: msg => console.log(msg)
 };
