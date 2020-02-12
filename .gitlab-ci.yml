@@ -37,6 +37,7 @@ NpmTest:
     stage: code testing
     allow_failure: true
     script:
+        - npm install
         - npm test
 
 Eslint:
