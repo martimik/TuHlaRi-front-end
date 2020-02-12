@@ -347,9 +347,7 @@ export default function ProductEditor(props) {
         axios
             .post(API_URL + "uploadImage", formData)
             .then(response => {
-                if (response.status === 200) {
-                    uploadProduct(API_URL + response.data);
-                }
+                uploadProduct(API_URL + response.data);
             })
             .catch(error => {
                 console.error(error);

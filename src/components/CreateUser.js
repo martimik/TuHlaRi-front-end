@@ -60,7 +60,7 @@ const CreateUser = () => {
             })
             .catch(err => {
                 console.log(err.response);
-                enqueueSnackbar("User creation failed", {
+                enqueueSnackbar(err.response.data.message, {
                     variant: "error",
                     anchorOrigin: {
                         vertical: "bottom",
