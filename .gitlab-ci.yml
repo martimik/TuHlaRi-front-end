@@ -4,8 +4,9 @@ image: ayufan/openshift-cli
 stages:
     - preparation
     - code testing
+    - buildTest
     - testing
-    - build
+    - buildProd
 
 #Make sure file contains only 1 variables part
 variables:
@@ -31,6 +32,12 @@ login:
     - oc status
     - oc whoami
     - echo $CI_PROJECT_NAME
+    
+NpmTest:
+    stage: code testing
+    allow_failure: true
+    script:
+        - npm test
 
 Eslint:
   stage: code testing
@@ -41,8 +48,7 @@ Eslint:
     - ./node_modules/.bin/eslint src/**
     
 BuildTestToOpenshift:
- stage: build
- when: manual #remove this line for automatic testing environment
+ stage: buildTest
  script:
     - ls
     - unset CI
@@ -52,7 +58,7 @@ BuildTestToOpenshift:
     - oc start-build front-test --from-dir="build" --follow --wait
 
 BuildProductionToOpenshift_Manual:
- stage: build
+ stage: buildProd
  when: manual
  script:
     - unset CI
@@ -63,7 +69,6 @@ BuildProductionToOpenshift_Manual:
 
 RobotTests:
  stage: testing
- when: manual
  script:
     - ls
     - robot robotTests/test1.robot
