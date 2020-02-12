@@ -30,8 +30,7 @@ const USERGROUP = {
 
 const MainDrawer = props => {
     const classes = useStyles();
-    const authorization = props.authorization;
-    const { isOpen, setIsOpen } = props;
+    const { isOpen, setIsOpen, authorization } = props;
 
     function handleDrawerClose() {
         setIsOpen(false);
