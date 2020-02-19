@@ -159,7 +159,8 @@ const useStyles = makeStyles(theme => ({
     root: {
         height: "100%",
         maxWidth: 1000,
-        padding: theme.spacing(4)
+        padding: theme.spacing(4),
+        margin: "auto"
     },
     fields: {
         maxWidth: 600,
