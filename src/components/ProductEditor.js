@@ -321,8 +321,6 @@ export default function ProductEditor(props) {
 
     function submitProduct(event) {
         event.preventDefault();
-        setIsSubmitting(true);
-
         if (!validateSubmit()) {
             enqueueSnackbar("Required fields not filled!", {
                 variant: "warning",
@@ -332,6 +330,7 @@ export default function ProductEditor(props) {
                 }
             });
         } else {
+            setIsSubmitting(true);
             if (imageFile) {
                 uploadImage(); // Upload image will handle product upload
             } else {
@@ -350,6 +349,7 @@ export default function ProductEditor(props) {
                 uploadProduct(API_URL + response.data);
             })
             .catch(error => {
+                setIsSubmitting(false);
                 console.error(error);
                 enqueueSnackbar("Image upload failed.", {
                     variant: "error",
