@@ -1,10 +1,11 @@
 import React from "react";
 import SearchIcon from "@material-ui/icons/Search";
 import InputBase from "@material-ui/core/InputBase";
+import PropTypes from "prop-types";
 
 import { fade, makeStyles } from "@material-ui/core/styles";
 
-export default function Sidebar(props) {
+export default function SearchField(props) {
     const classes = useStyles();
 
     return (
@@ -13,6 +14,7 @@ export default function Sidebar(props) {
                 <SearchIcon />
             </div>
             <InputBase
+                id="search-field"
                 placeholder="Search…"
                 onChange={props.onSearch}
                 classes={{
@@ -30,6 +32,7 @@ const useStyles = makeStyles(theme => ({
         flexGrow: 1
     },
     search: {
+        minWidth: 250,
         position: "relative",
         borderRadius: theme.shape.borderRadius,
         backgroundColor: fade(theme.palette.common.white, 0.15),
@@ -64,3 +67,11 @@ const useStyles = makeStyles(theme => ({
         }
     }
 }));
+
+SearchField.propTypes = {
+    onSearch: PropTypes.func
+};
+
+SearchField.defaultProps = {
+    enqueueSnackbar: msg => console.log(msg)
+};

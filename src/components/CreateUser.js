@@ -7,148 +7,176 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { useSnackbar } from "notistack";
 import API_URL from "../js/api";
 import axios from "axios";
+import Paper from "@material-ui/core/Paper";
 
 const CreateUser = () => {
-  const classes = useStyles();
-  const { enqueueSnackbar } = useSnackbar();
-  const emptyInput = {
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    userGroup: 2
-  };
-  const [input, setInput] = useState(emptyInput);
+    const classes = useStyles();
+    const { enqueueSnackbar } = useSnackbar();
+    const emptyInput = {
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        userGroup: 2
+    };
+    const [input, setInput] = useState(emptyInput);
 
-  const [errors, setErrors] = useState({
-    name: false,
-    email: false,
-    password: false,
-    confirmPassword: false
-  });
+    const [errors, setErrors] = useState({
+        name: false,
+        email: false,
+        password: false,
+        confirmPassword: false
+    });
 
-  useEffect(() => {
-    if (errors.confirmPassword && input.password === input.confirmPassword) {
-      setErrors({ ...errors, confirmPassword: false });
-    }
-  }, [input, errors]);
-
-  const handleSubmit = () => {
-    const { name, email, password, confirmPassword, userGroup } = input;
-
-    if (password !== confirmPassword) {
-      setErrors({ ...errors, confirmPassword: true });
-      return;
-    }
-    console.log(input);
-
-    axios
-      .post(API_URL + "newUser", { name, email, password, userGroup })
-      .then(res => {
-        console.log(res);
-        if (res.status === 200) {
-          setInput(emptyInput);
-          enqueueSnackbar(res.data.message, {
-            variant: "success",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center"
-            }
-          });
+    useEffect(() => {
+        if (
+            errors.confirmPassword &&
+            input.password === input.confirmPassword
+        ) {
+            setErrors({ ...errors, confirmPassword: false });
         }
-      })
-      .catch(err => {
-        console.log(err.response);
-        enqueueSnackbar("User creation failed", {
-          variant: "error",
-          anchorOrigin: {
-            vertical: "bottom",
-            horizontal: "center"
-          }
-        });
-      });
-  };
+    }, [input, errors]);
 
-  const handleChange = e => {
-    setInput({ ...input, [e.target.name]: e.target.value });
-  };
+    const handleSubmit = () => {
+        const { password, confirmPassword } = input;
 
-  return (
-    <div className={classes.root}>
-      <h1 className={classes.header}>Create User</h1>
-      <TextField
-        name="name"
-        label="Name"
-        value={input.name}
-        onChange={handleChange}
-        fullWidth
-      />
-      <TextField
-        name="email"
-        label="Email"
-        type="email"
-        value={input.email}
-        onChange={handleChange}
-        fullWidth
-      />
-      <TextField
-        name="password"
-        label="Password"
-        type="password"
-        value={input.password}
-        onChange={handleChange}
-        fullWidth
-      />
-      <TextField
-        name="confirmPassword"
-        label="Confirm password"
-        type="password"
-        value={input.confirmPassword}
-        onChange={handleChange}
-        fullWidth
-        error={errors.confirmPassword}
-        helperText={errors.confirmPassword ? "Passwords do not match" : ""}
-      />
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={input.userGroup}
-        onChange={handleChange}
-        name="userGroup"
-        fullWidth
-        style={{ marginTop: "20px" }}
-      >
-        <MenuItem value={2}>Salesperson (2)</MenuItem>
-        <MenuItem value={1}>Product owner (1)</MenuItem>
-        <MenuItem value={0}>Admin (0)</MenuItem>
-      </Select>
-      <Button color="primary" variant="contained" onClick={handleSubmit}>
-        Submit
-      </Button>
-    </div>
-  );
+        if (password !== confirmPassword) {
+            setErrors({ ...errors, confirmPassword: true });
+            return;
+        }
+
+        axios
+            .post(API_URL + "newUser", input)
+            .then(res => {
+                console.log(res);
+                setInput(emptyInput);
+                enqueueSnackbar(res.data.message, {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "right"
+                    }
+                });
+            })
+            .catch(err => {
+                console.log(err.response);
+                enqueueSnackbar(err.response.data.message, {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "right"
+                    }
+                });
+            });
+    };
+
+    const handleChange = e => {
+        setInput({ ...input, [e.target.name]: e.target.value });
+    };
+
+    return (
+        <Paper elevation={2} className={classes.root}>
+            <h1 className={classes.header}>Create User</h1>
+            <div className={classes.fields}>
+                <TextField
+                    id="name-textfield"
+                    name="name"
+                    label="Name"
+                    value={input.name}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                />
+                <TextField
+                    id="email-textfield"
+                    name="email"
+                    label="Email"
+                    type="email"
+                    value={input.email}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                />
+                <TextField
+                    id="password-textfield"
+                    name="password"
+                    label="Password"
+                    type="password"
+                    value={input.password}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                />
+                <TextField
+                    id="password-confirm-textfield"
+                    name="confirmPassword"
+                    label="Confirm password"
+                    type="password"
+                    value={input.confirmPassword}
+                    onChange={handleChange}
+                    fullWidth
+                    error={errors.confirmPassword}
+                    variant="outlined"
+                    helperText={
+                        errors.confirmPassword ? "Passwords do not match" : ""
+                    }
+                />
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="user-group-select"
+                    value={input.userGroup}
+                    onChange={handleChange}
+                    name="userGroup"
+                    fullWidth
+                    variant="outlined"
+                    style={{ marginTop: "20px" }}
+                >
+                    <MenuItem value={2}>Salesperson (2)</MenuItem>
+                    <MenuItem value={1}>Product owner (1)</MenuItem>
+                    <MenuItem value={0}>Admin (0)</MenuItem>
+                </Select>
+                <Button
+                    id="create-user-button"
+                    color="primary"
+                    variant="contained"
+                    onClick={handleSubmit}
+                    disabled={
+                        !input.name ||
+                        !input.email ||
+                        !input.password ||
+                        !input.confirmPassword
+                    }
+                    style={{ width: "100%" }}
+                >
+                    Create new user
+                </Button>
+            </div>
+        </Paper>
+    );
 };
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    maxWidth: "50%",
-    margin: "60px auto",
-    "& > *": {
-      margin: theme.spacing(1)
+    root: {
+        height: "100%",
+        maxWidth: 1000,
+        padding: theme.spacing(4),
+        margin: "auto"
     },
-    boxShadow: "1px 2px 20px 1px#d4d4d4",
-    padding: "30px",
-    borderRadius: "25px",
-    backgroundColor: "white"
-  },
-  header: {
-    fontFamily: "Roboto",
-    fontWeight: 300,
-    fontStyle: "italic",
-    margin: "20px auto",
-    position: "relative",
-    textAlign: "center"
-  }
+    fields: {
+        maxWidth: 600,
+        margin: "auto",
+        "& > *": {
+            margin: theme.spacing(1)
+        }
+    },
+    header: {
+        fontFamily: "Roboto",
+        fontWeight: 300,
+        fontStyle: "italic",
+        margin: "20px auto",
+        position: "relative",
+        textAlign: "center"
+    }
 }));
 
 export default CreateUser;

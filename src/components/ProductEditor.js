@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { Redirect } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import Chip from "@material-ui/core/Chip";
 import AddAPhoto from "@material-ui/icons/AddAPhoto";
@@ -18,24 +19,46 @@ import { useSnackbar } from "notistack";
 import API_URL from "../js/api";
 import Fab from "@material-ui/core/Fab";
 import EditIcon from "@material-ui/icons/Edit";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import Paper from "@material-ui/core/Paper";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import PropTypes from "prop-types";
+import ImageCarousel from "./ImageCarousel";
+
+const inputLengths = {
+    productName: { max: 50, min: 5 },
+    shortDescription: { max: 200, min: 5 },
+    longDescription: { max: 500 },
+    pricing: { max: 10 },
+    salesPerson: { max: 30 },
+    productOwner: { max: 30, min: 5 },
+    businessType: { max: 4 },
+    lifecycleStatus: { max: 10 },
+    technology: { max: 20, isArray: true },
+    component: { max: 20, isArray: true },
+    environmentRequirement: { max: 20, isArray: true },
+    customer: { max: 30, isArray: true },
+    participant: { max: 30, isArray: true }
+};
 
 export default function ProductEditor(props) {
     const classes = useStyles();
-
+    const isInitialized = useRef(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isIdea, setIsIdea] = useState(false);
     const [isClassified, setIsClassified] = useState(false);
     const [components, setComponents] = useState([]);
     const [technologies, setTechnologies] = useState([]);
     const [environmentRequirements, setEnvironmentRequirements] = useState([]);
     const [customers, setCustomers] = useState([]);
+    const [participants, setParticipants] = useState([]);
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState();
-    const [imageIshidden, setImageIsHidden] = useState(true);
-
+    const [users, setUsers] = useState([]);
+    const [properties, setProperties] = useState({});
+    const [isDone, setIsDone] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
-
-    const [input, setInput] = useState({
+    const emptyInput = {
         productName: "",
         shortDescription: "",
         longDescription: "",
@@ -47,12 +70,32 @@ export default function ProductEditor(props) {
         technology: "",
         component: "",
         environmentRequirement: "",
-        customer: ""
+        customer: "",
+        participant: ""
+    };
+
+    const [errors, setErrors] = useState({
+        productName: false,
+        shortDescription: false,
+        longDescription: false,
+        pricing: false,
+        salesPerson: false,
+        productOwner: false,
+        businessType: false,
+        lifecycleStatus: false,
+        technology: false,
+        component: false,
+        environmentRequirement: false,
+        customer: false,
+        participant: false
     });
 
+    const [input, setInput] = useState(emptyInput);
     useEffect(() => {
-        if (props.product) {
-            setInput({
+        if (props.product && !isInitialized.current) {
+            isInitialized.current = true;
+            setInput(state => ({
+                ...state,
                 productName: props.product.productName,
                 shortDescription: props.product.shortDescription,
                 longDescription: props.product.longDescription,
@@ -61,36 +104,126 @@ export default function ProductEditor(props) {
                 productOwner: props.product.productOwner,
                 businessType: props.product.businessType,
                 lifecycleStatus: props.product.lifecycleStatus
-            });
-            if (props.product.technologies) {
-                setTechnologies(props.product.technologies);
-            }
-
-            if (props.product.components) {
-                setComponents(props.product.components);
-            }
-            if (props.product.environmentRequirements) {
-                setEnvironmentRequirements(
-                    props.product.environmentRequirements
-                );
-            }
-            if (props.product.customers) {
-                setCustomers(props.product.customers);
-            }
+            }));
+            setTechnologies(props.product.technologies);
+            setComponents(props.product.components);
+            setEnvironmentRequirements(props.product.environmentRequirements);
+            setCustomers(props.product.customers);
             setIsClassified(props.product.isClassified);
+            setParticipants(props.product.participants || []);
             if (props.product.logos.length) {
                 setImage(props.product.logos[props.product.logos.length - 1]);
-                setImageIsHidden(false);
             }
         }
-    }, [props]);
+    }, [props, input, isInitialized]);
+
+    useEffect(() => {
+        axios
+            .get(API_URL + "users")
+            .then(res => {
+                setUsers(res.data);
+            })
+            .catch(err => console.error(err));
+    }, []);
+
+    useEffect(() => {
+        ["technologies", "components", "environmentRequirements"].forEach(
+            property => {
+                axios
+                    .get(API_URL + property)
+                    .then(res => {
+                        setProperties(state => ({
+                            ...state,
+                            [property]: res.data
+                        }));
+                    })
+                    .catch(err => console.error(err));
+            }
+        );
+    }, []);
 
     function handleChange(event) {
-        setInput({
-            ...input,
-            [event.target.name]: event.target.value
-        });
+        const { name, value } = event.target;
+        if (value.length <= inputLengths[name].max) {
+            setInput({ ...input, [name]: value });
+        }
     }
+
+    const handleAutoCompleteChange = name => e => {
+        if (!e) return;
+        const text = e.target.value || e.target.innerText || "";
+
+        if (text.length - 1 && text.substr(text.length - 1) === ",") {
+            setInput({ ...input, [name]: "" });
+            addProperty(name, text.slice(0, text.length - 1));
+        } else if (text.length <= inputLengths[name].max) {
+            setInput({ ...input, [name]: text });
+        }
+    };
+
+    const handleAutoCompleteKeyDown = name => e => {
+        if (e.key === "Enter" && input[name]) {
+            addProperty(name, input[name]);
+            setInput({ ...input, [name]: "" });
+        }
+        if (e.key === "Backspace" && !input[name]) {
+            removeProperty(name);
+        }
+    };
+
+    const addProperty = (name, text) => {
+        switch (name) {
+            case "technology":
+                setTechnologies(state => [...state, text]);
+                break;
+            case "component":
+                setComponents(state => [...state, text]);
+                break;
+            case "environmentRequirement":
+                setEnvironmentRequirements(state => [...state, text]);
+                break;
+            case "participant":
+                setParticipants(state => [...state, text]);
+                break;
+            default:
+                break;
+        }
+    };
+
+    const removeProperty = name => {
+        switch (name) {
+            case "technology":
+                setTechnologies(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            case "component":
+                setComponents(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            case "environmentRequirement":
+                setEnvironmentRequirements(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            case "participant":
+                setParticipants(state => {
+                    const arr = [...state];
+                    arr.pop();
+                    return arr;
+                });
+                break;
+            default:
+                break;
+        }
+    };
 
     function handleLifecycleStatus(event) {
         setInput({
@@ -109,31 +242,16 @@ export default function ProductEditor(props) {
         setIsClassified(!isClassified);
     }
 
-    function addComponent(component) {
-        if (!component) return;
-        setComponents([...components, component]);
-        setInput({ ...input, component: "" });
-    }
-
-    function addTechnology(technology) {
-        if (!technology) return;
-        setTechnologies([...technologies, technology]);
-        setInput({ ...input, technology: "" });
-    }
-
     function addCustomer(customer) {
         if (!customer) return;
         setCustomers([...customers, customer]);
         setInput({ ...input, customer: "" });
     }
 
-    function addEnvironmentRequirement(environmentRequirement) {
-        if (!environmentRequirement) return;
-        setEnvironmentRequirements([
-            ...environmentRequirements,
-            environmentRequirement
-        ]);
-        setInput({ ...input, environmentRequirement: "" });
+    function addParticipant(participant) {
+        if (!participant) return;
+        setParticipants([...participants, participant]);
+        setInput({ ...input, participant: "" });
     }
 
     function deleteComponent(index) {
@@ -148,6 +266,10 @@ export default function ProductEditor(props) {
         setCustomers(customers.filter((customer, i) => index !== i));
     }
 
+    function deleteParticipant(index) {
+        setParticipants(participants.filter((participant, i) => index !== i));
+    }
+
     function deleteEnvironmentRequirement(index) {
         setEnvironmentRequirements(
             environmentRequirements.filter(
@@ -157,12 +279,20 @@ export default function ProductEditor(props) {
     }
 
     function onUpload(event) {
-        setImageIsHidden(!imageIshidden);
-        // console.log(event);
-
         if (event.target.files && event.target.files[0]) {
             const reader = new FileReader();
-            setImageFile(event.target.files[0]);
+            if (event.target.files[0].type.includes("image")) {
+                setImageFile(event.target.files[0]);
+            } else {
+                enqueueSnackbar("File type is not supported.", {
+                    variant: "warning",
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "right"
+                    }
+                });
+                return;
+            }
             reader.onload = e => setImage(e.target.result);
 
             reader.readAsDataURL(event.target.files[0]);
@@ -170,7 +300,6 @@ export default function ProductEditor(props) {
     }
 
     function removeImage() {
-        setImageIsHidden(!imageIshidden);
         setImage(null);
     }
 
@@ -192,16 +321,16 @@ export default function ProductEditor(props) {
 
     function submitProduct(event) {
         event.preventDefault();
-
         if (!validateSubmit()) {
             enqueueSnackbar("Required fields not filled!", {
                 variant: "warning",
                 anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "center"
+                    vertical: "bottom",
+                    horizontal: "right"
                 }
             });
         } else {
+            setIsSubmitting(true);
             if (imageFile) {
                 uploadImage(); // Upload image will handle product upload
             } else {
@@ -217,18 +346,16 @@ export default function ProductEditor(props) {
         axios
             .post(API_URL + "uploadImage", formData)
             .then(response => {
-                console.log(response);
-                if (response.status === 200) {
-                    uploadProduct(API_URL + response.data);
-                }
+                uploadProduct(API_URL + response.data);
             })
             .catch(error => {
+                setIsSubmitting(false);
                 console.error(error);
                 enqueueSnackbar("Image upload failed.", {
                     variant: "error",
                     anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "center"
+                        vertical: "bottom",
+                        horizontal: "right"
                     }
                 });
             });
@@ -236,31 +363,33 @@ export default function ProductEditor(props) {
 
     function uploadProduct(imageURL) {
         const id = props.product ? props.product._id : null;
-        const product = input;
+        const product = { ...input };
         product.isIdea = isIdea;
         product.isClassified = isClassified;
         product.technologies = technologies;
         product.components = components;
         product.customers = customers;
+        product.participants = participants;
         product.environmentRequirements = environmentRequirements;
-        product.logo = imageURL || "";
+        product.logo = imageURL || image || "";
         product.id = id ? id : null;
         delete product.technology;
         delete product.component;
         delete product.environmentRequirement;
         delete product.customer;
+        delete product.participant;
 
         axios
             .post(API_URL + (id ? "editProduct" : "addProduct"), product)
-            .then(response => {
-                console.log(response);
+            .then(() => {
                 enqueueSnackbar(id ? "Product edited" : "Product added", {
                     variant: "success",
                     anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "center"
+                        vertical: "bottom",
+                        horizontal: "right"
                     }
                 });
+                setIsDone(true);
                 if (!props.toggleEditMode) {
                     clearInput();
                 } else {
@@ -272,67 +401,37 @@ export default function ProductEditor(props) {
                 enqueueSnackbar(error.response.data.message, {
                     variant: "error",
                     anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "center"
+                        vertical: "bottom",
+                        horizontal: "right"
                     }
                 });
+                setIsSubmitting(false);
             });
     }
 
     function clearInput() {
         setIsIdea(false);
         setIsClassified(false);
-        setInput({
-            productName: "",
-            shortDescription: "",
-            longDescription: "",
-            pricing: "",
-            salesPerson: "",
-            productOwner: "",
-            businessType: "",
-            lifecycleStatus: "",
-            technology: "",
-            component: "",
-            environmentRequirement: "",
-            customer: ""
-        });
+        setInput(emptyInput);
         setImage(null);
-        setImageIsHidden(true);
         setImageFile(null);
         setTechnologies([]);
         setComponents([]);
         setEnvironmentRequirements([]);
         setCustomers([]);
-    }
-
-    function disableSubmitOnEnter(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-        }
+        setParticipants([]);
     }
 
     function readKey(event) {
         if (event.key === "Enter") {
             event.preventDefault();
-            const {
-                component,
-                technology,
-                environmentRequirement,
-                customer
-            } = input;
-
+            const { customer, participant } = input;
             switch (event.target.name) {
-                case "component":
-                    addComponent(component);
-                    break;
-                case "technology":
-                    addTechnology(technology);
-                    break;
-                case "environmentRequirement":
-                    addEnvironmentRequirement(environmentRequirement);
-                    break;
                 case "customer":
                     addCustomer(customer);
+                    break;
+                case "participant":
+                    addParticipant(participant);
                     break;
                 default:
                     console.log("Default case");
@@ -341,19 +440,11 @@ export default function ProductEditor(props) {
 
         if (event.key === "Backspace" && !event.target.value) {
             switch (event.target.name) {
-                case "component":
-                    deleteComponent(components.length - 1);
-                    break;
-                case "technology":
-                    deleteTechnology(technologies.length - 1);
-                    break;
-                case "environmentRequirement":
-                    deleteEnvironmentRequirement(
-                        environmentRequirements.length - 1
-                    );
-                    break;
                 case "customer":
                     deleteCustomer(customers.length - 1);
+                    break;
+                case "participant":
+                    deleteParticipant(participants.length - 1);
                     break;
                 default:
                     console.log("Default case");
@@ -361,286 +452,438 @@ export default function ProductEditor(props) {
         }
     }
 
+    const isMaxLength = key => inputLengths[key].max <= input[key].length;
+    const isTooShort = key => inputLengths[key].min >= input[key].length;
+    const shouldBeEmpty = key => inputLengths[key].isArray && input[key].length;
+    const hasError = key =>
+        Boolean(isTooShort(key)) || Boolean(shouldBeEmpty(key));
+
+    const getHelperText = key => {
+        if (isMaxLength(key)) return "Maximum length";
+        if (isTooShort(key)) return "Too short";
+        return "";
+    };
+
+    const onBlur = name => () => {
+        setErrors(state => ({ ...state, [name]: hasError(name) }));
+    };
+
+    if (isDone) return <Redirect to="/products" />;
+
     return (
         <Paper elevation={2} className={classes.root}>
-            {props.toggleEditMode ? (
-                <Fab
-                    color="secondary"
-                    aria-label="edit"
-                    size="small"
-                    style={{ float: "right" }}
-                    onClick={props.toggleEditMode}
-                >
-                    <EditIcon />
-                </Fab>
-            ) : null}
+            <div className={classes.actionButtons}>
+                {props.onDelete && (
+                    <Fab
+                        id="delete-product-button"
+                        color="secondary"
+                        aria-label="edit"
+                        size="small"
+                        onClick={props.onDelete}
+                    >
+                        <DeleteForeverIcon />
+                    </Fab>
+                )}
+                {props.toggleEditMode && (
+                    <Fab
+                        id="edit-toggle-button"
+                        color="secondary"
+                        aria-label="edit"
+                        size="small"
+                        onClick={props.toggleEditMode}
+                    >
+                        <EditIcon />
+                    </Fab>
+                )}
+            </div>
             <h1 className="create-product-header">{props.title}</h1>
-            <form
-                className={classes.form}
-                noValidate
-                autoComplete="off"
-                onSubmit={submitProduct}
-            >
-                <Grid container direction="column" spacing={1}>
-                    <Grid item xs={12} className={classes.inputField}>
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={isClassified}
-                                    onChange={handleClassifiedSwitch}
-                                    value="isClassified"
-                                />
-                            }
-                            name="classified"
-                            label="Is classified"
-                            labelPlacement="start"
-                        />
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                value={input.productName}
-                                name="productName"
-                                label="Name"
-                                required
+            <Grid container direction="column" spacing={1}>
+                <Grid item xs={12} className={classes.inputField}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={isClassified}
+                                onChange={handleClassifiedSwitch}
+                                value="isClassified"
                             />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                multiline
-                                name="shortDescription"
-                                label="Short description"
-                                value={input.shortDescription}
-                                required
-                            />
-                        </FormControl>
-                    </Grid>
+                        }
+                        name="classified"
+                        label="Is classified"
+                        labelPlacement="start"
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        id="product-name-textfield"
+                        onChange={handleChange}
+                        value={input.productName}
+                        name="productName"
+                        label="Name"
+                        helperText={getHelperText("productName")}
+                        error={errors.productName}
+                        onBlur={onBlur("productName")}
+                        required
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        id="short-description-textfield"
+                        onChange={handleChange}
+                        multiline
+                        name="shortDescription"
+                        label="Short description"
+                        value={input.shortDescription}
+                        helperText={getHelperText("shortDescription")}
+                        error={errors.shortDescription}
+                        onBlur={onBlur("shortDescription")}
+                        required
+                        fullWidth
+                    />
+                </Grid>
 
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <InputLabel
-                                htmlFor="demo-customized-select-native"
-                                required
-                            >
-                                Lifecycle status
-                            </InputLabel>
-                            <Select
-                                id="demo-customized-select-native"
-                                name="lifecycleStatus"
-                                value={input.lifecycleStatus}
-                                onChange={handleLifecycleStatus}
-                            >
-                                <MenuItem value={1}>(1) Idea</MenuItem>
-                                <MenuItem value={2}>(2) Accepted idea</MenuItem>
-                                <MenuItem value={3}>(3) Planning</MenuItem>
-                                <MenuItem value={4}>
-                                    (4) In developement
-                                </MenuItem>
-                                <MenuItem value={5}>(5) Released</MenuItem>
-                                <MenuItem value={6}>(6) In production</MenuItem>
-                                <MenuItem value={7}>(7) Closed</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
+                <Grid item xs={10} className={classes.inputField}>
+                    <FormControl fullWidth>
+                        <InputLabel
+                            htmlFor="demo-customized-select-native"
+                            required
+                        >
+                            Lifecycle status
+                        </InputLabel>
+                        <Select
+                            id="demo-customized-select-native"
+                            name="lifecycleStatus"
+                            value={input.lifecycleStatus}
+                            onChange={handleLifecycleStatus}
+                        >
+                            <MenuItem value={1}>(1) Idea</MenuItem>
+                            <MenuItem value={2}>(2) Accepted idea</MenuItem>
+                            <MenuItem value={3}>(3) Planning</MenuItem>
+                            <MenuItem value={4}>(4) In developement</MenuItem>
+                            <MenuItem value={5}>(5) Released</MenuItem>
+                            <MenuItem value={6}>(6) In production</MenuItem>
+                            <MenuItem value={7}>(7) Closed</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        id="long-description-textfield"
+                        multiline
+                        onChange={handleChange}
+                        name="longDescription"
+                        label="Long description"
+                        value={input.longDescription}
+                        helperText={getHelperText("longDescription")}
+                        error={errors.longDescription}
+                        onBlur={onBlur("longDescription")}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <Autocomplete
+                        id="product-owner-textfield"
+                        onInputChange={handleAutoCompleteChange("productOwner")}
+                        options={users}
+                        getOptionLabel={user => user.email}
+                        freeSolo
+                        autoSelect
+                        autoComplete
+                        inputValue={input.productOwner}
+                        renderInput={params => (
                             <TextField
-                                multiline
-                                onChange={handleChange}
-                                name="longDescription"
-                                label="Long description"
-                                value={input.longDescription}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                name="productOwner"
+                                {...params}
+                                fullWidth
                                 label="Product owner"
-                                value={input.productOwner}
                                 required={!isIdea}
+                                helperText={getHelperText("productOwner")}
+                                error={errors.productOwner}
+                                onBlur={onBlur("productOwner")}
                             />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <Autocomplete
+                        id="sales-person-textfield"
+                        onInputChange={handleAutoCompleteChange("salesPerson")}
+                        options={users}
+                        getOptionLabel={user => user.email}
+                        inputValue={input.salesPerson}
+                        freeSolo
+                        autoSelect
+                        autoComplete
+                        renderInput={params => (
                             <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                value={input.salesPerson}
-                                name="salesPerson"
+                                {...params}
+                                fullWidth
                                 label="Sales person"
+                                helperText={getHelperText("salesPerson")}
+                                error={errors.salesPerson}
+                                onBlur={onBlur("salesPerson")}
                             />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                name="businessType"
-                                label="Business type"
-                                value={input.businessType}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <FormControl fullWidth>
-                            <TextField
-                                onChange={handleChange}
-                                onKeyDown={disableSubmitOnEnter}
-                                name="pricing"
-                                label="Pricing"
-                                value={input.pricing}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="technology"
-                                    label="Technologies"
-                                    onKeyDown={readKey}
-                                    value={input.technology}
-                                />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} style={{ padding: "0" }}>
-                        <div className={classes.chipContainer}>
-                            {technologies.map((technology, i) => (
-                                <Chip
-                                    key={i}
-                                    label={technology}
-                                    onDelete={() => deleteTechnology(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="component"
-                                    label="Components"
-                                    onKeyDown={readKey}
-                                    value={input.component}
-                                />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <div className={classes.chipContainer}>
-                            {components.map((component, i) => (
-                                <Chip
-                                    key={i}
-                                    label={component}
-                                    onDelete={() => deleteComponent(i)}
-                                    className={classes.chip}
-                                />
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <FormControl fullWidth>
-                                <TextField
-                                    onChange={handleChange}
-                                    name="environmentRequirement"
-                                    label="Environment Requirement"
-                                    onKeyDown={readKey}
-                                    value={input.environmentRequirement}
-                                />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} style={{ padding: "0" }}>
-                        <div className={classes.chipContainer}>
-                            {environmentRequirements.map(
-                                (environmentRequirement, i) => (
-                                    <Chip
-                                        key={i}
-                                        label={environmentRequirement}
-                                        onDelete={() =>
-                                            deleteEnvironmentRequirement(i)
-                                        }
-                                        className={classes.chip}
-                                    />
-                                )
+                        )}
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        id="business-type-textfield"
+                        onChange={handleChange}
+                        name="businessType"
+                        label="Business type"
+                        value={input.businessType}
+                        helperText={getHelperText("businessType")}
+                        error={errors.businessType}
+                        onBlur={onBlur("businessType")}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <TextField
+                        id="pricing-textfield"
+                        onChange={handleChange}
+                        name="pricing"
+                        label="Pricing (€)"
+                        value={input.pricing}
+                        helperText={getHelperText("pricing")}
+                        error={errors.pricing}
+                        onBlur={onBlur("pricing")}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <Autocomplete
+                            id="technology-textfield"
+                            onInputChange={handleAutoCompleteChange(
+                                "technology"
                             )}
-                        </div>
-                    </Grid>
-                    <Grid item xs={10} className={classes.inputField}>
-                        <div>
-                            <FormControl fullWidth>
+                            options={properties.technologies}
+                            getOptionLabel={({ technology }) => technology}
+                            onKeyDown={handleAutoCompleteKeyDown("technology")}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            inputValue={input.technology}
+                            renderInput={params => (
                                 <TextField
-                                    onChange={handleChange}
-                                    name="customer"
-                                    label="Customer"
-                                    onKeyDown={readKey}
-                                    value={input.customer}
+                                    {...params}
+                                    fullWidth
+                                    label="Technologies"
+                                    error={errors.technology}
+                                    onBlur={onBlur("technology")}
+                                    helperText={
+                                        input.technology
+                                            ? "Press enter to add"
+                                            : ""
+                                    }
                                 />
-                            </FormControl>
-                        </div>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <div className={classes.chipContainer}>
-                            {customers.map((customer, i) => (
+                            )}
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={12} style={{ padding: "0" }}>
+                    <div className={classes.chipContainer}>
+                        {technologies.map((technology, i) => (
+                            <Chip
+                                key={i}
+                                label={technology}
+                                onDelete={() => deleteTechnology(i)}
+                                className={classes.chip}
+                            />
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <Autocomplete
+                            id="component-textfield"
+                            onInputChange={handleAutoCompleteChange(
+                                "component"
+                            )}
+                            options={properties.components}
+                            getOptionLabel={({ component }) => component}
+                            onKeyDown={handleAutoCompleteKeyDown("component")}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            inputValue={input.component}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    label="Components"
+                                    error={errors.component}
+                                    onBlur={onBlur("component")}
+                                    helperText={
+                                        input.component
+                                            ? "Press enter to add"
+                                            : ""
+                                    }
+                                />
+                            )}
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div className={classes.chipContainer}>
+                        {components.map((component, i) => (
+                            <Chip
+                                key={i}
+                                label={component}
+                                onDelete={() => deleteComponent(i)}
+                                className={classes.chip}
+                            />
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <Autocomplete
+                            id="env-req-textfield"
+                            onInputChange={handleAutoCompleteChange(
+                                "environmentRequirement"
+                            )}
+                            options={properties.environmentRequirements}
+                            getOptionLabel={({ requirement }) => requirement}
+                            onKeyDown={handleAutoCompleteKeyDown(
+                                "environmentRequirement"
+                            )}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            inputValue={input.environmentRequirement}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    label="Environment requirements"
+                                    error={errors.environmentRequirement}
+                                    onBlur={onBlur("environmentRequirement")}
+                                    helperText={
+                                        input.environmentRequirement
+                                            ? "Press enter to add"
+                                            : ""
+                                    }
+                                />
+                            )}
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={12} style={{ padding: "0" }}>
+                    <div className={classes.chipContainer}>
+                        {environmentRequirements.map(
+                            (environmentRequirement, i) => (
                                 <Chip
                                     key={i}
-                                    label={customer}
-                                    onDelete={() => deleteCustomer(i)}
+                                    label={environmentRequirement}
+                                    onDelete={() =>
+                                        deleteEnvironmentRequirement(i)
+                                    }
                                     className={classes.chip}
                                 />
-                            ))}
-                        </div>
-                    </Grid>
-                    <Grid item xs={12} className={classes.imageField}>
-                        <h2 className={classes.logoText}>
-                            Logo
+                            )
+                        )}
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <TextField
+                            onChange={handleChange}
+                            id="customer-textfield"
+                            name="customer"
+                            label="Customers"
+                            onKeyDown={readKey}
+                            value={input.customer}
+                            error={errors.customer}
+                            onBlur={onBlur("customer")}
+                            helperText={
+                                input.customer ? "Press enter to add" : ""
+                            }
+                            fullWidth
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div className={classes.chipContainer}>
+                        {customers.map((customer, i) => (
+                            <Chip
+                                key={i}
+                                label={customer}
+                                onDelete={() => deleteCustomer(i)}
+                                className={classes.chip}
+                            />
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={10} className={classes.inputField}>
+                    <div>
+                        <Autocomplete
+                            id="participant-textfield"
+                            onInputChange={handleAutoCompleteChange(
+                                "participant"
+                            )}
+                            options={users}
+                            getOptionLabel={user => user.email}
+                            onKeyDown={handleAutoCompleteKeyDown("participant")}
+                            freeSolo
+                            autoSelect
+                            autoComplete
+                            inputValue={input.participant}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    fullWidth
+                                    label="Participants"
+                                    error={errors.participant}
+                                    onBlur={onBlur("participant")}
+                                    helperText={
+                                        input.participant
+                                            ? "Press enter to add"
+                                            : ""
+                                    }
+                                />
+                            )}
+                        />
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <div className={classes.chipContainer}>
+                        {participants.map((participant, i) => (
+                            <Chip
+                                key={i}
+                                label={participant}
+                                onDelete={() => deleteParticipant(i)}
+                                className={classes.chip}
+                            />
+                        ))}
+                    </div>
+                </Grid>
+                <Grid item xs={12}>
+                    <h2 className={classes.logoText}>
+                        Logo
+                        {image && (
                             <IconButton
+                                id="delete-image-button"
                                 aria-label="delete"
                                 onClick={removeImage}
-                                className={
-                                    imageIshidden
-                                        ? classes.imgHidden
-                                        : classes.removeButton
-                                }
                             >
                                 <DeleteIcon />
                             </IconButton>
-                        </h2>
-
-                        <input
-                            accept="image/*"
-                            className={classes.input}
-                            id="contained-button-file"
-                            multiple
-                            type="file"
-                            onChange={onUpload}
-                        />
-                        <label
-                            htmlFor="contained-button-file"
-                            className={
-                                imageIshidden
-                                    ? classes.imgVisible
-                                    : classes.imgHidden
-                            }
-                        >
+                        )}
+                    </h2>
+                    <input
+                        accept="image/*"
+                        className={classes.input}
+                        id="contained-button-file"
+                        multiple
+                        type="file"
+                        onChange={onUpload}
+                    />
+                    {!image && (
+                        <label htmlFor="contained-button-file">
                             <Button
+                                id="add-image-button"
                                 variant="contained"
                                 color="primary"
                                 component="span"
@@ -649,27 +892,38 @@ export default function ProductEditor(props) {
                                 Upload
                             </Button>
                         </label>
+                    )}
+                    {image && (
                         <img
-                            className={
-                                imageIshidden
-                                    ? classes.imgHidden
-                                    : classes.imgVisible
-                            }
+                            id="image-element"
+                            className={classes.img}
                             src={image}
-                            alt=""
+                            alt="product logo"
                         />
-                    </Grid>
+                    )}
                 </Grid>
-                <Grid item xs={12} style={{ margin: "20px" }}>
-                    <Button
-                        variant="contained"
-                        type="submit"
-                        style={{ marginTop: "30px" }}
-                    >
-                        Submit
-                    </Button>
+            </Grid>
+            {props.product && (
+                <Grid item xs={12}>
+                    <ImageCarousel
+                        className={classes.imageCarousel}
+                        images={props.product.logos}
+                        onClick={i => setImage(i)}
+                    />
                 </Grid>
-            </form>
+            )}
+            <Grid item xs={12} style={{ margin: "20px" }}>
+                <Button
+                    id="submit-button"
+                    color="secondary"
+                    variant="contained"
+                    disabled={isSubmitting || !input.productName}
+                    onClick={submitProduct}
+                    style={{ marginTop: "30px" }}
+                >
+                    Submit
+                </Button>
+            </Grid>
         </Paper>
     );
 }
@@ -680,7 +934,12 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(4),
         margin: "auto"
     },
-    form: {},
+    actionButtons: {
+        float: "right",
+        "& > *": {
+            marginLeft: theme.spacing(1)
+        }
+    },
     chip: {
         margin: theme.spacing(0.5)
     },
@@ -701,7 +960,7 @@ const useStyles = makeStyles(theme => ({
         fontStyle: "italic",
         margin: "10px"
     },
-    imgVisible: {
+    img: {
         maxHeight: "180px",
         maxWidth: "100%",
         margin: "auto"
@@ -716,11 +975,22 @@ const useStyles = makeStyles(theme => ({
         marginLeft: "10%",
         marginRight: "10%"
     },
-    imageField: {},
     removeButton: {
         position: "absolute",
         right: "0px",
         padding: "0",
         marginTop: "4px"
+    },
+    imageCarousel: {
+        display: "flex",
+        justifyContent: "space-around"
     }
 }));
+
+ProductEditor.propTypes = {
+    product: PropTypes.object,
+    onEdit: PropTypes.func,
+    onDelete: PropTypes.func,
+    toggleEditMode: PropTypes.func,
+    title: PropTypes.string
+};

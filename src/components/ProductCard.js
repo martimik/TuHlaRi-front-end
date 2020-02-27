@@ -2,61 +2,47 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 export default function ProductCard(props) {
     const classes = useStyles();
     const { product } = props;
 
+    const logo = product.logos.length
+        ? product.logos[product.logos.length - 1]
+        : "";
+
     return (
-        <Grid item xs>
-            <Card className={classes.card}>
-                <CardActionArea>
-                    <Link to={"/product/" + product._id}>
-                        <CardMedia
-                            className={classes.media}
-                            image={
-                                product.logos[0]
-                                    ? product.logos[product.logos.length - 1]
-                                    : "https://www.cowgirlcontractcleaning.com/wp-content/uploads/sites/360/2018/05/placeholder-img-4.jpg"
-                            }
-                            title="Contemplative Reptile"
-                        />
-                        <CardContent>
-                            <Typography
-                                gutterBottom
-                                variant="h5"
-                                component="h2"
-                            >
-                                {product.productName}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                component="p"
-                                className={classes.shortDescription}
-                            >
-                                {product.shortDescription}
-                            </Typography>
-                        </CardContent>
-                    </Link>
-                </CardActionArea>
-                <CardActions>
-                    <Button size="small" color="primary">
-                        Share
-                    </Button>
-                    <Button size="small" color="primary">
-                        Learn More
-                    </Button>
-                </CardActions>
-            </Card>
-        </Grid>
+        <Card className={classes.card}>
+            <CardActionArea>
+                <Link to={"/product/" + product._id}>
+                    <CardMedia
+                        className={classes.media}
+                        image={logo ? logo : "/img/placeholder.png"}
+                        title="product logo"
+                    />
+                    <CardContent>
+                        <Typography gutterBottom variant="h5" component="h2">
+                            {product.productName.length > 20
+                                ? product.productName.slice(0, 20) + "..."
+                                : product.productName}
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            component="p"
+                            className={classes.shortDescription}
+                        >
+                            {product.shortDescription}
+                        </Typography>
+                    </CardContent>
+                </Link>
+            </CardActionArea>
+        </Card>
     );
 }
 
@@ -77,3 +63,16 @@ const useStyles = makeStyles(theme => ({
         minHeight: 62
     }
 }));
+
+ProductCard.propTypes = {
+    product: PropTypes.object
+};
+
+ProductCard.defaultProps = {
+    product: {
+        _id: "default",
+        productName: "default",
+        shortDescription: "default",
+        logos: [""]
+    }
+};
